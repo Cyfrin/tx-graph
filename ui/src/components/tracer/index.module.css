@@ -1,0 +1,85 @@
+.component {
+  background-color: var(--bg-color);
+  /* overflow: auto; */
+  white-space: nowrap;
+}
+.fn {
+  color: var(--tracer-fn-color);
+  white-space: nowrap;
+}
+.hide {
+  display: none;
+}
+.line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+  /* Need to specify height for .padd to display a vertical line */
+  height: 20px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+.line:hover {
+  background-color: #2f2f2f;
+}
+.index {
+  /* Prevent element from shrinking when x overflows */
+  min-width: 28px;
+  width: 28px;
+  padding-right: 8px;
+  text-align: right;
+  color: var(--tracer-index-color);
+  transition: background-color 0.2s ease;
+}
+.index:hover {
+  color: var(--tracer-index-hover-color);
+}
+.pin {
+  color: var(--tracer-pin-color);
+}
+.padd {
+  /* Half of (fold width + padding) */
+  padding-left: 9px;
+  border-right: 1px solid grey;
+  height: 100%;
+}
+.call {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  color: var(--tracer-func-color);
+}
+.fold {
+  width: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: var(--tracer-fold-color);
+}
+.fold:hover {
+  color: var(--tracer-fold-hover-color);
+}
+.obj {
+  color: var(--tracer-obj-color);
+}
+.dot {
+  color: var(--tracer-dot-color);
+}
+.funcName {
+  color: var(--tracer-func-name-color);
+}
+.outputs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.arrow {
+  color: var(--tracer-arrow-color);
+  margin-left: 10px;
+  margin-right: 10px;
+}

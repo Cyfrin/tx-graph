@@ -1,0 +1,11 @@
+.ctx {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.label {
+}
+.value {
+  margin-left: 4px;
+  color: #ff94fb;
+}

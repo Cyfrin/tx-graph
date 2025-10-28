@@ -1,0 +1,17 @@
+.component {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.copy {
+  color: var(--copy-text-color);
+}
+.icon {
+  padding: 0 5px 0 5px;
+  cursor: pointer;
+  color: var(--icon-color);
+  transition: all 200ms ease-in-out;
+}
+.icon:hover {
+  color: var(--icon-hover-color);
+}

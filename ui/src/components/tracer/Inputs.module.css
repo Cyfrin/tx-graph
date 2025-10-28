@@ -1,0 +1,24 @@
+.component {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+}
+.input {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.name {
+}
+.value {
+  color: var(--tracer-input-value-color);
+}
+.eq {
+  margin-left: 4px;
+  margin-right: 4px;
+  color: var(--tracer-eq-color);
+}
+.comma {
+  margin-right: 10px;
+}

@@ -1,0 +1,89 @@
+.component {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+.tracer {
+  overflow: auto;
+  height: 100%;
+  padding: 10px 14px 10px 14px;
+}
+.tx {
+  display: flex;
+  flex-direction: row;
+  margin: 10px 0 10px 0;
+}
+.txHashLabel {
+  padding-right: 10px;
+}
+.txHash {
+  display: flex;
+  flex-direction: row;
+  color: var(--text-2-color);
+}
+/* Graph */
+.accNode {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.fnNode {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.nodeText {
+  width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--node-text-color);
+  font-size: 20px;
+  padding: 10px 12px 10px 12px;
+}
+.hoverNode {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-radius: 4px;
+  /*background-color: rgba(0, 0, 0, 0,5);*/
+  background-color: var(--bg-dim-color);
+  color: var(--text-hover-color);
+  font-size: 12px;
+}
+.hoverArrows {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-radius: 4px;
+  /*background-color: rgba(0, 0, 0, 0,5);*/
+  background-color: var(--bg-dim-color);
+  color: var(--text-hover-color);
+  font-size: 12px;
+}
+.call {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+}
+.index {
+  margin-right: 8px;
+}
+.obj {
+  color: var(--tracer-obj-color);
+}
+.arrow {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+.func {
+}

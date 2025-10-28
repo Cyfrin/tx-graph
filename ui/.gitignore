@@ -1,0 +1,7 @@
+node_modules
+package-lock.json
+tmp
+dist
+tsconfig.app.tsbuildinfo
+tsconfig.node.tsbuildinfo
+.env

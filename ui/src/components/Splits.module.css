@@ -1,0 +1,15 @@
+.component {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.split {
+  width: 8px;
+  cursor: row-resize;
+  background-color: var(--bg-1-color);
+  transition: background-color 0.2s;
+  touch-action: none;
+}
+.split:hover {
+  background-color: var(--bg-2-color);
+}

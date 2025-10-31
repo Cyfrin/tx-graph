@@ -198,7 +198,7 @@ export const SvgArrow: React.FC<{
           fill={stroke}
           stroke={stroke}
           textAnchor="middle"
-          dominantBaseline="baseline"
+          dominantBaseline="middle"
           textRendering="optimizeLegibility"
         >
           {text}

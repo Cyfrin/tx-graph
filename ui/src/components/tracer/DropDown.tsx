@@ -3,7 +3,7 @@ import useOutsideClick from "../../hooks/useOutsideClick"
 import styles from "./DropDown.module.css"
 
 const DropDown: React.FC<{
-  label: string
+  label: string | number
   highlight: boolean
   onMouseEnter: () => void
   onMouseLeave: () => void

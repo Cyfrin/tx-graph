@@ -32,7 +32,7 @@ type FnProps<V> = {
   renderModDropDown?: (ctx: V) => React.ReactNode
   renderFnDropDown?: (ctx: V) => React.ReactNode
   highlights: { [key: string]: boolean }
-  setHighlight: (key: string, on: boolean) => void
+  setHighlight: (key: string | number, on: boolean) => void
 }
 
 function Fn<V>({
@@ -161,7 +161,7 @@ function Tracer<V>({
   // Highlight state of modules and functions
   const [highlights, setHighlights] = useState<{ [key: string]: boolean }>({})
 
-  const setHighlight = (key: string, on: boolean) => {
+  const setHighlight = (key: string | number, on: boolean) => {
     setHighlights((state) => ({
       ...state,
       [key]: on,

@@ -15,18 +15,16 @@ cargo install sqlx-cli --no-default-features --features native-tls,postgres
 
 DATABASE_URL=postgres://<username>:<password>@<host>:<port>/<database>
 
+cd api
+
 sqlx database create
 sqlx migrate run
+cargo sqlx prepare
+
+docker build .
 
 # Create new migration file
 sqlx migrate add create_table_contracts
 
 ```
 
-### Memo
-
-https://app.blocksec.com/explorer/tx/eth/0x69b09bf5d3bf96cc8bb4871d5423512738dc112684aecb33ea40cc15c71ea3f6
-
-https://www.quicknode.com/docs/ethereum/debug_traceTransaction
-
-https://github.com/openchainxyz/openchain-monorepo/tree/main

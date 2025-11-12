@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     build-essential
 
 # Install sqlx-cli
-RUN cargo install sqlx-cli
+# RUN cargo install sqlx-cli
 
 COPY . .
 
@@ -24,7 +24,14 @@ ENV SQLX_OFFLINE=true
 RUN cargo build --release
 
 FROM debian:bookworm-slim
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libssl3 \
+    ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-COPY --from=builder /app/target/release/api /usr/local/bin/api
-EXPOSE 8080
-CMD ["api"]
+COPY --from=builder /app/target/release/api /app/api
+EXPOSE 5000
+CMD ["/app/api"]

@@ -33,5 +33,6 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 COPY --from=builder /app/target/release/api /app/api
-EXPOSE 5000
+# Adjusted to match Goolge cloud run
+EXPOSE 8080
 CMD ["/app/api"]

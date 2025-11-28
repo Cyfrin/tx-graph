@@ -1,0 +1,40 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT selector, name, inputs, outputs FROM fn_selectors WHERE selector = $1",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "selector",
+        "type_info": "Bpchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "inputs",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "outputs",
+        "type_info": "Jsonb"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bpchar"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "c254bde4c298910e65e66eb663fdf8876e914741b850188fa110739dced9eee3"
+}

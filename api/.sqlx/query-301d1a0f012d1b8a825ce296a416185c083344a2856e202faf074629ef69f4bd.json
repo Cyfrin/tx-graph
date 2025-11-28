@@ -1,0 +1,49 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO contracts (chain, address, name, abi)\n                VALUES ($1, $2, $3, $4)\n                ON CONFLICT (chain, address) DO UPDATE\n                SET name = EXCLUDED.name, abi = EXCLUDED.abi\n                RETURNING chain, address, name, abi, label\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chain",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "address",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 2,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 3,
+        "name": "abi",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 4,
+        "name": "label",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "301d1a0f012d1b8a825ce296a416185c083344a2856e202faf074629ef69f4bd"
+}

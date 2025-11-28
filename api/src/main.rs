@@ -57,8 +57,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-async fn health_check() -> Result<(), StatusCode> {
-    Ok(())
+#[derive(Serialize)]
+struct Health {
+    status: &'static str,
+}
+
+async fn health_check() -> Result<Json<Health>, StatusCode> {
+    Ok(Json(Health { status: "ok" }))
 }
 
 /*

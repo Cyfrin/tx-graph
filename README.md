@@ -17,14 +17,16 @@ DATABASE_URL=postgres://<username>:<password>@<host>:<port>/<database>
 
 cd api
 
+# Create new migration file
+sqlx migrate add create_table_contracts
+
 sqlx database create
 sqlx migrate run
 cargo sqlx prepare
 
-docker build .
+docker build . -t tx-graph-api
+docker run --name tx-api --rm -p 5000:5000 --network host --env-file .env tx-graph-api
 
-# Create new migration file
-sqlx migrate add create_table_contracts
 
 ```
 

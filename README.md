@@ -25,8 +25,6 @@ sqlx migrate run
 cargo sqlx prepare
 
 docker build . -t tx-graph-api
-docker run --name tx-api --rm -p 5000:5000 --network host --env-file .env tx-graph-api
-
-
+docker run --name tx-api --rm -p 8080:8080 --network host --env-file .env tx-graph-api
 ```
 

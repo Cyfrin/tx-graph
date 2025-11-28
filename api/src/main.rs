@@ -24,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
     let host = std::env::var("HOST")?;
-    let port = std::env::var("PORT")?;
+    let port = std::env::var("PORT").unwrap_or("8080".to_string());
     let db_url = std::env::var("DATABASE_URL")?;
 
     let pool = PgPoolOptions::new().connect(&db_url).await?;

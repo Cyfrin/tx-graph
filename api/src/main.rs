@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = std::env::var("PORT").unwrap_or("8080".to_string());
     let db_url = std::env::var("DATABASE_URL")?;
 
-    let pool = PgPoolOptions::new().connect(&db_url).await?;
+    // let pool = PgPoolOptions::new().connect(&db_url).await?;
     info!("Connected to database");
 
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();
@@ -39,21 +39,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // TODO: request logs
     let app = Router::new()
-        .route("/contracts", post(post_contracts))
-        .route("/contracts/{chain}/{address}", get(get_contract))
-        .route("/fn-selectors/{selector}", get(get_fn_selectors))
-        .layer(cors)
-        .layer(Extension(pool));
+        .route("/", get(health_check))
+        // .route("/contracts", post(post_contracts))
+        // .route("/contracts/{chain}/{address}", get(get_contract))
+        // .route("/fn-selectors/{selector}", get(get_fn_selectors))
+        .layer(cors);
+    // .layer(Extension(pool));
 
     let listener = tokio::net::TcpListener::bind(format!("{host}:{port}"))
         .await
         .unwrap();
+
     info!("Server is running on {host}:{port}");
+
     axum::serve(listener, app).await?;
 
     Ok(())
 }
 
+async fn health_check() -> Result<(), StatusCode> {
+    Ok(())
+}
+
+/*
 #[derive(Debug, Serialize, Deserialize)]
 struct Contract {
     chain: String,
@@ -184,3 +192,4 @@ async fn get_contract(
 
     Ok(Json(contract))
 }
+*/

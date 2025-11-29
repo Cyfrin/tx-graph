@@ -1,6 +1,7 @@
 import { post, get } from "./lib"
 import { TxCall, EtherscanContractInfo, ContractInfo } from "./types"
 
+// TODO: fix reloading page results in 404
 export async function getTxTrace(txHash: string): Promise<{ result: TxCall }> {
   // TODO: remove
   console.log("DEBUG", import.meta.env)

@@ -60,11 +60,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: request logs
     let app = Router::new()
         .route("/", get(health_check))
-        // .route("/contracts", post(post_contracts))
-        // .route("/contracts/{chain}/{address}", get(get_contract))
-        // .route("/fn-selectors/{selector}", get(get_fn_selectors))
-        .layer(cors);
-    // .layer(Extension(pool));
+        .route("/contracts", post(post_contracts))
+        .route("/contracts/{chain}/{address}", get(get_contract))
+        .route("/fn-selectors/{selector}", get(get_fn_selectors))
+        .layer(cors)
+        .layer(Extension(pool));
 
     let listener = tokio::net::TcpListener::bind(format!("{host}:{port}"))
         .await
@@ -86,7 +86,6 @@ async fn health_check() -> Result<Json<Health>, StatusCode> {
     Ok(Json(Health { status: "ok" }))
 }
 
-/*
 #[derive(Debug, Serialize, Deserialize)]
 struct Contract {
     chain: String,
@@ -217,4 +216,3 @@ async fn get_contract(
 
     Ok(Json(contract))
 }
-*/

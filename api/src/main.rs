@@ -210,7 +210,6 @@ async fn get_contract(
 ) -> Result<Json<Contract>, StatusCode> {
     // TODO: validate chain and addr
     // TODO: return Option<Contract>?
-    println!("HERE GET CONTRACT {:?} {:?}", chain, addr);
     let contract = sqlx::query_as!(
         Contract,
         "SELECT chain, address, name, abi, label FROM contracts WHERE chain = $1 AND address = $2",
@@ -219,8 +218,6 @@ async fn get_contract(
     .fetch_one(&pool)
     .await
     .map_err(|_| StatusCode::NOT_FOUND)?;
-
-    println!("HERE GET");
 
     Ok(Json(contract))
 }

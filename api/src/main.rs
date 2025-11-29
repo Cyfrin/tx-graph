@@ -28,20 +28,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let host = std::env::var("HOST")?;
     let port = std::env::var("PORT").unwrap_or("8080".to_string());
-    let db_url = std::env::var("DATABASE_URL")?;
+    // let db_url = std::env::var("DATABASE_URL")?;
 
-    println!("DATABASE_URL: {}", db_url);
+    // TODO: remove
+    // println!("DATABASE_URL: {}", db_url);
     println!("Attempting database connection...");
 
-    /*
-    let pool_opts = PgConnectOptions::new()
+    // TODO: clean up
+    let db_options = PgConnectOptions::new()
         .username("postgres")
-        .password(r#"pass"#)
+        .password(r#"5d2%^7+&KK`;E<T"#)
         .database("postgres")
-        .host("host");
-    */
+        .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db");
 
-    let pool = PgPoolOptions::new().connect(&db_url).await?;
+    let pool = PgPoolOptions::new().connect_with(db_options).await?;
     info!("Connected to database");
 
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();

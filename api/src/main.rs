@@ -39,9 +39,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .host("127.0.0.1")
         .port(5432)
         .username("postgres")
-        .password(r#"5d2%^7+&KK`;E<T"#)
+        .password("5d2%^7+&KK`;E<T")
         .database("postgres")
-        .host("txgraph-475814:us-central1:tx-graph-db");
+        .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db");
     // .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db");
 
     let pool = PgPoolOptions::new().connect_with(db_options).await?;

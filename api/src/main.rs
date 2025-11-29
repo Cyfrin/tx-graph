@@ -27,24 +27,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
     let host = std::env::var("HOST")?;
+    // TODO: clean up - 8080 is default port for Cloud Run
     let port = std::env::var("PORT").unwrap_or("8080".to_string());
-    // let db_url = std::env::var("DATABASE_URL")?;
 
-    // TODO: remove
-    // println!("DATABASE_URL: {}", db_url);
-    println!("Attempting database connection...");
-    println!("PWD: {:?}", r#"5d2%^7+&KK\`;E<T"#);
+    /*
+    let db_host = std::env::var("DB_HOST")?;
+    let db_port = std::env::var("DB_PORT")?;
+    let db_user = std::env::var("DB_USER")?;
+    let db_pass = std::env::var("DB_PASS")?;
+    let db = std::env::var("DB")?;
+    */
 
     // https://docs.cloud.google.com/sql/docs/mysql/connect-run?authuser=5&hl=en#python
     // https://github.com/launchbadge/sqlx/issues/144
-    // TODO: clean up
+
     let db_options = PgConnectOptions::new()
-        .host("127.0.0.1")
+        // .host("127.0.0.1")
+        .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db")
         .port(5432)
         .username("postgres")
         .password(r#"5d2%^7+&KK\`;E<T"#)
-        .database("postgres")
-        .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db");
+        .database("postgres");
     // .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db");
 
     let pool = PgPoolOptions::new().connect_with(db_options).await?;

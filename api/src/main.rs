@@ -33,13 +33,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // TODO: remove
     // println!("DATABASE_URL: {}", db_url);
     println!("Attempting database connection...");
+    println!("PWD: {:?}", r#"5d2%^7+&KK\`;E<T"#);
 
+    // https://docs.cloud.google.com/sql/docs/mysql/connect-run?authuser=5&hl=en#python
+    // https://github.com/launchbadge/sqlx/issues/144
     // TODO: clean up
     let db_options = PgConnectOptions::new()
         .host("127.0.0.1")
         .port(5432)
         .username("postgres")
-        .password("5d2%^7+&KK`;E<T")
+        .password(r#"5d2%^7+&KK\`;E<T"#)
         .database("postgres")
         .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db");
     // .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db");

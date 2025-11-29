@@ -11,7 +11,10 @@ use futures::stream::{FuturesUnordered, StreamExt};
 use http::HeaderValue;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
+use sqlx::{
+    Pool, Postgres,
+    postgres::{PgConnectOptions, PgPoolOptions},
+};
 use std::collections::HashSet;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::{Level, info};
@@ -27,7 +30,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = std::env::var("PORT").unwrap_or("8080".to_string());
     let db_url = std::env::var("DATABASE_URL")?;
 
-    // let pool = PgPoolOptions::new().connect(&db_url).await?;
+    /*
+    let pool_opts = PgConnectOptions::new()
+        .username("postgres")
+        .password(r#"pass"#)
+        .database("postgres")
+        .host("host");
+    */
+
+    let pool = PgPoolOptions::new().connect(&db_url).await?;
     info!("Connected to database");
 
     tracing_subscriber::fmt().with_max_level(Level::INFO).init();

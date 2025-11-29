@@ -30,6 +30,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let port = std::env::var("PORT").unwrap_or("8080".to_string());
     let db_url = std::env::var("DATABASE_URL")?;
 
+    println!("DATABASE_URL: {}", db_url);
+    println!("Attempting database connection...");
+
     /*
     let pool_opts = PgConnectOptions::new()
         .username("postgres")

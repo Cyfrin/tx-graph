@@ -44,13 +44,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .username(&db_user)
         .password(&db_pass)
         .database(&db);
-    /*
-        .host("/cloudsql/txgraph-475814:us-central1:tx-graph-db")
-        .port(5432)
-        .username("postgres")
-        .password(r#"5d2%^7+&KK\`;E<T"#)
-        .database("postgres");
-    */
 
     let pool = PgPoolOptions::new().connect_with(db_options).await?;
     info!("Connected to database");

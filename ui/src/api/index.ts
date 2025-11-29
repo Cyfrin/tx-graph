@@ -2,6 +2,8 @@ import { post, get } from "./lib"
 import { TxCall, EtherscanContractInfo, ContractInfo } from "./types"
 
 export async function getTxTrace(txHash: string): Promise<{ result: TxCall }> {
+  // TODO: remove
+  console.log("DEBUG", import.meta.env)
   return post<any, { result: TxCall }>(import.meta.env.VITE_RPC_URL, {
     jsonrpc: "2.0",
     method: "debug_traceTransaction",
@@ -39,6 +41,8 @@ export async function getContracts(params: {
   chain_id: number
   addrs: string[]
 }): Promise<ContractInfo[]> {
+  // TODO: remove
+  console.log("DEBUG", import.meta.env)
   return post<any, ContractInfo[]>(
     `${import.meta.env.VITE_API_URL}/contracts`,
     params,

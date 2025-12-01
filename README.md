@@ -21,9 +21,13 @@ Run `api` server
 ```
 cargo install sqlx-cli --no-default-features --features native-tls,postgres
 
-DATABASE_URL=postgres://<username>:<password>@<host>:<port>/<database>
+# Set env variable needed for sqlx commands
+export DATABASE_URL=postgres://<user>:<password>@<host>:<port>/<database>
 
 cd api
+
+# Copy and edit .env
+cp .env.sample .env
 
 sqlx database create
 sqlx migrate run
@@ -41,5 +45,8 @@ sqlx migrate add create_table_contracts
 
 Run `ui`
 ```shell
+# Copy and edit .env
+cp .env.sample .env
+
 npm run dev
 ```

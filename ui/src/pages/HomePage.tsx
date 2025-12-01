@@ -55,6 +55,13 @@ export function HomePage() {
           autoFocus
         />
       </form>
+      <a
+        className={styles.footer}
+        href="https://github.com/Cyfrin/tx-graph"
+        target="_blank"
+      >
+        GitHub
+      </a>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import styles from "./HomePage.module.css"
+import { RPC_CONFIG, RpcConfig } from "../config"
 
 export function HomePage() {
   const navigate = useNavigate()
@@ -39,7 +40,11 @@ export function HomePage() {
           value={inputs.chain}
           onChange={(e) => setChain(e.target.value)}
         >
-          <option value="eth-mainnet">ETH</option>
+          {Object.entries(RPC_CONFIG).map(([key, cfg]: [string, RpcConfig]) => (
+            <option key={key} value={key}>
+              {cfg.text}
+            </option>
+          ))}
         </select>
         <input
           className={styles.input}

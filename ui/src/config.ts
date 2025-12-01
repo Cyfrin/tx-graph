@@ -1,0 +1,83 @@
+export type RpcConfig = {
+  url: string
+  chainId: number
+  text: string
+}
+
+export const RPC_CONFIG = {
+  "eth-mainnet": {
+    url: import.meta.env.VITE_ETH_MAINNET_RPC_URL,
+    chainId: 1,
+    text: "ETH Mainnet",
+  },
+  "eth-sepolia": {
+    url: import.meta.env.VITE_ETH_SEPOLIA_RPC_URL,
+    chainId: 11155111,
+    text: "ETH Sepolia",
+  },
+  "arb-mainnet": {
+    url: import.meta.env.VITE_ARB_MAINNET_RPC_URL,
+    chainId: 42161,
+    text: "ARB One",
+  },
+  "arb-sepolia": {
+    url: import.meta.env.VITE_ARB_SEPOLIA_RPC_URL,
+    chainId: 421614,
+    text: "ARB Sepolia",
+  },
+  "base-mainnet": {
+    url: import.meta.env.VITE_BASE_MAINNET_RPC_URL,
+    chainId: 8453,
+    text: "Base Mainnet",
+  },
+  "base-sepolia": {
+    url: import.meta.env.VITE_BASE_SEPOLIA_RPC_URL,
+    chainId: 84532,
+    text: "Base Sepolia",
+  },
+  "hyperliquid-mainnet": {
+    url: import.meta.env.VITE_HYPERLIQUID_MAINNET_RPC_URL,
+    chainId: 999,
+    text: "Hyperliquid Mainnet",
+  },
+  "monad-mainnet": {
+    url: import.meta.env.VITE_MONAD_MAINNET_RPC_URL,
+    chainId: 10143,
+    text: "Monad Mainnet",
+  },
+  "monad-testnet": {
+    url: import.meta.env.VITE_MONAD_TESTNET_RPC_URL,
+    chainId: 10143_1,
+    text: "Monad Testnet",
+  },
+  "unichain-mainnet": {
+    url: import.meta.env.VITE_UNICHAIN_MAINNET_RPC_URL,
+    chainId: 130,
+    text: "Unichain Mainnet",
+  },
+  "unichain-sepolia": {
+    url: import.meta.env.VITE_UNICHAIN_SEPOLIA_RPC_URL,
+    chainId: 1301,
+    text: "Unichain Sepolia",
+  },
+  "polygon-mainnet": {
+    url: import.meta.env.VITE_POLYGON_MAINNET_RPC_URL,
+    chainId: 137,
+    text: "Polygon Mainnet",
+  },
+  "polygon-amoy": {
+    url: import.meta.env.VITE_POLYGON_AMOY_RPC_URL,
+    chainId: 80002,
+    text: "Polygon Amoy",
+  },
+  "zksync-mainnet": {
+    url: import.meta.env.VITE_ZKSYNC_MAINNET_RPC_URL,
+    chainId: 324,
+    text: "zkSync Mainnet",
+  },
+  "zksync-sepolia": {
+    url: import.meta.env.VITE_ZKSYNC_SEPOLIA_RPC_URL,
+    chainId: 300,
+    text: "zkSync Sepolia",
+  },
+}

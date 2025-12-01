@@ -133,7 +133,6 @@ function TxPage() {
   useEffect(() => {
     if (txHash && chain) {
       const f = async () => {
-        // const txHash = "0xa542508dfd209f23cb306861ea25b5c131e82dcdf75c86d874644b4c436d9f6f"
         await _getTrace.exec({ txHash, chain })
       }
       f()

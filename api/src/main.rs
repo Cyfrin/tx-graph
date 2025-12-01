@@ -197,6 +197,7 @@ async fn get_fn_selectors(
     Ok(Json(selectors))
 }
 
+// TODO: fix reloading page results in 404
 async fn get_contract(
     Extension(pool): Extension<Pool<Postgres>>,
     Path((chain, addr)): Path<(String, String)>,

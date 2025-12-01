@@ -1,3 +1,9 @@
+export function assert(b: boolean, msg: string) {
+  if (!b) {
+    throw new Error(msg)
+  }
+}
+
 export function zip<A, B, C>(a: A[], b: B[], f: (a: A, b: B) => C): C[] {
   const n = Math.min(a.length, b.length)
   const c: C[] = []
@@ -11,12 +17,6 @@ export function zip<A, B, C>(a: A[], b: B[], f: (a: A, b: B) => C): C[] {
 
 export function bound(v: number, min: number, max: number): number {
   return Math.min(Math.max(v, min), max)
-}
-
-export function assert(b: boolean, msg: string) {
-  if (!b) {
-    throw new Error(msg)
-  }
 }
 
 export function clip(s: string, max: number, half: number = 10): string {

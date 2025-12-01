@@ -17,14 +17,12 @@ docker run --name rust-postgres-db \
 -v pgdata:/var/lib/postgresql/data \
 ```
 
-Run `api` server
+Run [`api`](./api) server
 ```
 cargo install sqlx-cli --no-default-features --features native-tls,postgres
 
 # Set env variable needed for sqlx commands
 export DATABASE_URL=postgres://<user>:<password>@<host>:<port>/<database>
-
-cd api
 
 # Copy and edit .env
 cp .env.sample .env
@@ -43,7 +41,7 @@ docker run --name tx-api --rm -p 8080:8080 --network host --env-file .env tx-gra
 sqlx migrate add create_table_contracts
 ```
 
-Run `ui`
+Run [`ui`](./ui)
 ```shell
 # Copy and edit .env
 cp .env.sample .env

@@ -2,12 +2,18 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import styles from "./HomePage.module.css"
 import { RPC_CONFIG, RpcConfig } from "../config"
+import FoundryForm, { File } from "../components/FoundryForm"
 
 export function HomePage() {
   const navigate = useNavigate()
   const [inputs, setInputs] = useState({
-    chain: "eth-mainnet",
+    // TODO: uncomment
+    // chain: "eth-mainnet",
+    chain: "foundry-test",
     txHash: "",
+    // Foundry
+    abis: [],
+    trace: null,
   })
 
   const setChain = (chain: string) => {
@@ -24,17 +30,42 @@ export function HomePage() {
     })
   }
 
+  const setTraceFile = (file: File) => {
+    // TODO: store to context
+    setInputs({
+      ...inputs,
+      // @ts-ignore
+      trace: file.data,
+    })
+  }
+
+  const setABIFiles = (files: File[]) => {
+    // TODO: store to context
+    setInputs({
+      ...inputs,
+      // @ts-ignore
+      abis: files,
+    })
+  }
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const txHash = inputs.txHash.trim()
-    if (txHash != "") {
-      navigate(`/tx/${inputs.txHash}?chain=${inputs.chain}`)
+
+    if (inputs.chain == "foundry-test") {
+      if (inputs.trace != null) {
+        navigate(`/tx/?chain=${inputs.chain}`)
+      }
+    } else {
+      const txHash = inputs.txHash.trim()
+      if (txHash != "") {
+        navigate(`/tx/${inputs.txHash}?chain=${inputs.chain}`)
+      }
     }
   }
 
   return (
     <div className={styles.component}>
-      <form onSubmit={(e) => onSubmit(e)} className={styles.form}>
+      <form onSubmit={onSubmit} className={styles.form}>
         <select
           className={styles.select}
           value={inputs.chain}
@@ -46,14 +77,25 @@ export function HomePage() {
             </option>
           ))}
         </select>
-        <input
-          className={styles.input}
-          type="text"
-          value={inputs.txHash}
-          onChange={(e) => setTxHash(e.target.value)}
-          placeholder="tx hash"
-          autoFocus
-        />
+        {inputs.chain == "foundry-test" ? (
+          <div>
+            <FoundryForm
+              setTraceFile={setTraceFile}
+              setABIFiles={setABIFiles}
+              abis={inputs.abis}
+            />
+            <button type="submit">Go</button>
+          </div>
+        ) : (
+          <input
+            className={styles.input}
+            type="text"
+            value={inputs.txHash}
+            onChange={(e) => setTxHash(e.target.value)}
+            placeholder="tx hash"
+            autoFocus
+          />
+        )}
       </form>
       <a
         className={styles.footer}

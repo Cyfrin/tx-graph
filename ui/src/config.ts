@@ -35,6 +35,11 @@ export const RPC_CONFIG = {
     chainId: 84532,
     text: "Base Sepolia",
   },
+  "foundry-test": {
+    url: "",
+    chainId: 0,
+    text: "Foundry Test",
+  },
   "hyperliquid-mainnet": {
     url: import.meta.env.VITE_HYPERLIQUID_MAINNET_RPC_URL,
     chainId: 999,

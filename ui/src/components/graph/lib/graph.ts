@@ -63,11 +63,11 @@ export function bfs<A>(
 
 // Depth first search
 export function dfs<A>(
-  a: A,
+  start: A,
   get: (a: A) => A[],
   f: (i: number, d: number, a: A) => void,
 ) {
-  const q: [number, A][] = [[0, a]]
+  const q: [number, A][] = [[0, start]]
 
   let i = 0
   while (q.length > 0) {
@@ -77,10 +77,9 @@ export function dfs<A>(
     i++
 
     const next = get(a)
-    if (next.length > 0) {
-      for (const a of [...next].reverse()) {
-        q.push([d + 1, a])
-      }
+    // Reverse
+    for (let j = next.length - 1; j >= 0; j--) {
+      q.push([d + 1, next[j]])
     }
   }
 }

@@ -1,19 +1,20 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import styles from "./HomePage.module.css"
 import { RPC_CONFIG, RpcConfig } from "../config"
-import FoundryForm, { File } from "../components/FoundryForm"
+import { useFileStorageContext } from "../contexts/FileStorage"
+import FoundryForm from "../components/FoundryForm"
+import { File } from "../types/file"
+import styles from "./HomePage.module.css"
 
 export function HomePage() {
   const navigate = useNavigate()
+  const fileStorage = useFileStorageContext()
+
   const [inputs, setInputs] = useState({
     // TODO: uncomment
     // chain: "eth-mainnet",
     chain: "foundry-test",
     txHash: "",
-    // Foundry
-    abis: [],
-    trace: null,
   })
 
   const setChain = (chain: string) => {
@@ -31,28 +32,19 @@ export function HomePage() {
   }
 
   const setTraceFile = (file: File) => {
-    // TODO: store to context
-    setInputs({
-      ...inputs,
-      // @ts-ignore
-      trace: file.data,
-    })
+    fileStorage.set("trace", [file])
   }
 
   const setABIFiles = (files: File[]) => {
-    // TODO: store to context
-    setInputs({
-      ...inputs,
-      // @ts-ignore
-      abis: files,
-    })
+    fileStorage.set("abi", files)
   }
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (inputs.chain == "foundry-test") {
-      if (inputs.trace != null) {
+      const trace = fileStorage.get("trace")?.[0] || null
+      if (trace != null) {
         navigate(`/tx/?chain=${inputs.chain}`)
       }
     } else {
@@ -82,7 +74,7 @@ export function HomePage() {
             <FoundryForm
               setTraceFile={setTraceFile}
               setABIFiles={setABIFiles}
-              abis={inputs.abis}
+              abis={fileStorage.get("abi") || []}
             />
             <button type="submit">Go</button>
           </div>

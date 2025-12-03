@@ -1,10 +1,6 @@
 import styles from "./HomePage.module.css"
 
-export type File = {
-  name: string
-  path: string
-  data: Object
-}
+import { File } from "../types/file"
 
 const FoundryForm: React.FC<{
   setTraceFile: (file: File) => void

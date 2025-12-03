@@ -1,4 +1,5 @@
 import { ethers } from "ethers"
+import { RPC_CONFIG } from "./config"
 import * as api from "./api"
 import { TxCall, ContractInfo } from "./api/types"
 import { Id, Groups, Call } from "./components/graph/lib/types"
@@ -241,9 +242,9 @@ export async function getTrace(params: { txHash: string; chain: string }) {
   }
 
   const contracts: ContractInfo[] = await api.getContracts({
-    // TODO: chain params from input
     chain,
-    chain_id: 1,
+    // @ts-ignore
+    chain_id: RPC_CONFIG[chain]?.chainId,
     addrs: [...addrs.values()],
   })
 

@@ -1,6 +1,7 @@
 import { assert } from "../utils"
+import { TxCall } from "../types/tx"
+import { EtherscanContractInfo, ContractInfo } from "./types"
 import { post, get } from "./lib"
-import { TxCall, EtherscanContractInfo, ContractInfo } from "./types"
 import { RPC_CONFIG } from "../config"
 
 export async function getTxTrace(

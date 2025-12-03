@@ -45,7 +45,8 @@ export function HomePage() {
     if (inputs.chain == "foundry-test") {
       const trace = fileStorage.get("trace")?.[0] || null
       if (trace != null) {
-        navigate(`/tx/?chain=${inputs.chain}`)
+        // Need none empty tx hash for /tx to render
+        navigate(`/tx/0x00?chain=foundry-test`)
       }
     } else {
       const txHash = inputs.txHash.trim()

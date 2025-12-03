@@ -1,7 +1,8 @@
 import { ethers } from "ethers"
 import { RPC_CONFIG } from "./config"
+import { TxCall } from "./types/tx"
 import * as api from "./api"
-import { TxCall, ContractInfo } from "./api/types"
+import { ContractInfo } from "./api/types"
 import { Id, Groups, Call } from "./components/graph/lib/types"
 import { Trace, Input, Output, Fn } from "./components/tracer/types"
 import * as graph from "./components/graph/lib/graph"
@@ -224,7 +225,7 @@ export function build(
 
 export async function getTrace(params: { txHash: string; chain: string }) {
   const { txHash, chain } = params
-  const t = await api.getTxTrace(chain, txHash)
+  const t = chain == "foundry-test" ? null : await api.getTxTrace(chain, txHash)
 
   const txCalls: [number, TxCall][] = []
   graph.dfs<TxCall>(

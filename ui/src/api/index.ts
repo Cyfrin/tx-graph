@@ -12,6 +12,8 @@ export async function getTxTrace(
   const cfg = RPC_CONFIG[chain]
   assert(cfg, `Config for ${chain} is empty`)
 
+  // TODO: foundry
+
   return post<any, { result: TxCall }>(cfg.url, {
     jsonrpc: "2.0",
     method: "debug_traceTransaction",
@@ -49,6 +51,8 @@ export async function getContracts(params: {
   chain_id: number
   addrs: string[]
 }): Promise<ContractInfo[]> {
+  // TODO: foundry
+
   return post<any, ContractInfo[]>(
     `${import.meta.env.VITE_API_URL}/contracts`,
     params,

@@ -60,19 +60,26 @@ type Trace = {
   value: string
 }
 
-type ArenaNode = {
+type ArenaEntry = {
   trace: Trace
+  idx: number
+  parent: number | null
   children: number[]
 }
 
 type Arena = {
-  arena: ArenaNode[]
+  arena: ArenaEntry[]
 }
 
-type TestResult = {
-  traces?: Record<string, Arena>
+type LifeCycle = "Deployment" | "Setup" | "Execution"
+
+type Test = {
+  traces: [LifeCycle, Arena][]
   labeledAddresses?: Record<string, string>
 }
+
+// Test contract name => test name => Test
+type Tests = Record<string, { test_results: Record<string, Test> }>
 
 type Func = {
   funcSig: string
@@ -104,27 +111,6 @@ function skip(contractName: string): boolean {
   return false
 }
 
-function dfs<A>(
-  start: A,
-  get: (a: A) => A[],
-  f: (i: number, d: number, a: A) => void,
-) {
-  const q: [number, A][] = [[0, start]]
-
-  let i = 0
-  while (q.length > 0) {
-    const [d, a] = q.pop() as [number, A]
-
-    f(i, d, a)
-    i++
-
-    const next = get(a)
-    // Reverse
-    for (let j = next.length - 1; j >= 0; j--) {
-      q.push([d + 1, next[j]])
-    }
-  }
-}
 
 async function walkDir(
   rootPath: string,
@@ -382,16 +368,63 @@ export async function getABIs(
 }
 */
 
+function dfs<A>(
+  start: A,
+  get: (a: A) => A[],
+  f: (i: number, d: number, a: A) => void,
+) {
+  const q: [number, A][] = [[0, start]]
+
+  let i = 0
+  while (q.length > 0) {
+    const [d, a] = q.pop() as [number, A]
+
+    f(i, d, a)
+    i++
+
+    const next = get(a)
+    // Reverse
+    for (let j = next.length - 1; j >= 0; j--) {
+      q.push([d + 1, next[j]])
+    }
+  }
+}
+
 // TODO: rename test?
 //  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
 
-export function get(
-  testContractName: string,
-  abis: Record<string, Record<string, Func>>,
-  testRes: TestResult,
-): FuncCall[] {
-  if (!testRes.traces) return []
-
+// Build TxCall
+export function build(tests: Tests) {
+  for (const [testContractName, { test_results }] of Object.entries(tests)) {
+    for (const [testName, test] of Object.entries(test_results)) {
+      for (const [step, { arena }] of test.traces) {
+        switch (step) {
+          case "Deployment": {
+            break
+          }
+          case "Setup": {
+            break
+          }
+          case "Execution": {
+            // TODO: remove ts-ignore
+            dfs(
+              // @ts-ignore
+              arena[0].idx,
+              // @ts-ignore
+              (a) => arena[a].children,
+              (i, d, a) => {
+                console.log(i, a)
+              },
+            )
+            break
+          }
+          default: {
+            break
+          }
+        }
+      }
+    }
+  }
   /*
   const labels: Record<string, string> = {}
   if (testRes.labeled_addresses) {
@@ -410,6 +443,4 @@ export function get(
     // Ignore Setup
   }
   */
-
-  return []
 }

@@ -225,7 +225,7 @@ export function build(
 
 export async function getTrace(params: { txHash: string; chain: string }) {
   const { txHash, chain } = params
-  const t = chain == "foundry-test" ? null : await api.getTxTrace(chain, txHash)
+  const t = await api.getTxTrace(chain, txHash)
 
   const txCalls: [number, TxCall][] = []
   graph.dfs<TxCall>(

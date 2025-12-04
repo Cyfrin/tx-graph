@@ -6,6 +6,12 @@ import { Provider as FileStorageProvider } from "./contexts/FileStorage"
 import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
 
+import * as foundry from "./foundry"
+import out from "../tmp/out.json"
+
+// @ts-ignore
+foundry.build(out)
+
 // TODO: graph token transfers
 // TODO: Import trace from Foundry
 function App() {

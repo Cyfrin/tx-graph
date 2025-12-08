@@ -1,4 +1,6 @@
 import { Interface, ParamType } from "ethers"
+import { TxCall } from "./types/tx"
+import { File } from "./types/file"
 
 type AbiInput = {
   type: string
@@ -53,11 +55,14 @@ type FuncCall = {
 type Trace = {
   depth: number
   success: boolean
+  caller: string
   address: string
+  kind: "CREATE" | "CALL" | "DELEGATECALL" | "STATICCALL"
+  value: string
   data: string
   output: string
-  gasUsed: number
-  value: string
+  gas_limit: number
+  gas_used: number
 }
 
 type ArenaEntry = {
@@ -394,53 +399,66 @@ function dfs<A>(
 //  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
 
 // Build TxCall
-export function build(tests: Tests) {
-  for (const [testContractName, { test_results }] of Object.entries(tests)) {
-    for (const [testName, test] of Object.entries(test_results)) {
-      for (const [step, { arena }] of test.traces) {
-        switch (step) {
-          case "Deployment": {
-            break
-          }
-          case "Setup": {
-            break
-          }
-          case "Execution": {
-            // TODO: remove ts-ignore
-            dfs(
-              // @ts-ignore
-              arena[0].idx,
-              // @ts-ignore
-              (a) => arena[a].children,
-              (i, d, a) => {
-                console.log(i, a)
-              },
-            )
-            break
-          }
-          default: {
-            break
+// @ts-ignore
+export function build(get: (key: string) => File[] | null): TxCall {
+  // TODO: clean up
+  // @ts-ignore
+  try {
+    const tests: Tests = get("trace")?.[0]?.data
+
+    // TODO: aggregrate deployment + setup + tests
+    for (const [testContractName, { test_results }] of Object.entries(tests)) {
+      for (const [testName, test] of Object.entries(test_results)) {
+        for (const [step, { arena }] of test.traces) {
+          switch (step) {
+            case "Deployment": {
+              break
+            }
+            case "Setup": {
+              break
+            }
+            case "Execution": {
+              const stack: TxCall[] = []
+              dfs(
+                // TODO: remove ts-ignore
+                // @ts-ignore
+                arena[0].idx,
+                // @ts-ignore
+                (a) => arena[a].children,
+                (i, d, a) => {
+                  const { trace } = arena[a]
+                  const call: TxCall = {
+                    from: trace.caller,
+                    to: trace.address,
+                    type: trace.kind,
+                    input: trace.data,
+                    output: trace.output,
+                    gas: trace.gas_limit.toString(),
+                    gasUsed: trace.gas_used.toString(),
+                    value: trace.value,
+                    calls: [],
+                  }
+
+                  while (stack.length >= d + 1) {
+                    stack.pop()
+                  }
+                  const parent = stack[stack.length - 1]
+                  if (parent?.calls) {
+                    parent.calls.push(call)
+                  }
+                  stack.push(call)
+                },
+              )
+              return stack[0]
+            }
+            default: {
+              break
+            }
           }
         }
       }
     }
+  } catch (err) {
+    console.log("Foundry error:", err)
   }
-  /*
-  const labels: Record<string, string> = {}
-  if (testRes.labeled_addresses) {
-    Object.assign(labels, testRes.labeled_addresses)
-  }
-
-  for (const [label, arena] of Object.entries(testRes.traces)) {
-    if (label == "Deployment") {
-      const addr = arena.arena[0]?.trace.address
-      if (addr) {
-        labels[addr] = testContractName
-      }
-    } else if (label == "Execution") {
-      return walk(arena, { labels, func_sigs: abis })
-    }
-    // Ignore Setup
-  }
-  */
 }

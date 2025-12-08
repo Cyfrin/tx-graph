@@ -1,11 +1,13 @@
 import { ethers } from "ethers"
 import { RPC_CONFIG } from "./config"
 import { TxCall } from "./types/tx"
+import { File } from "./types/file"
 import * as api from "./api"
 import { ContractInfo } from "./api/types"
 import { Id, Groups, Call } from "./components/graph/lib/types"
 import { Trace, Input, Output, Fn } from "./components/tracer/types"
 import * as graph from "./components/graph/lib/graph"
+import * as foundry from "./foundry"
 import { zip } from "./utils"
 import { Account, Evm } from "./components/ctx/evm/types"
 
@@ -223,9 +225,17 @@ export function build(
   }
 }
 
-export async function getTrace(params: { txHash: string; chain: string }) {
+export async function getTrace(params: {
+  txHash: string
+  chain: string
+  // Get file saved to React context
+  get: (key: string) => File[] | null
+}) {
   const { txHash, chain } = params
-  const t = await api.getTxTrace(chain, txHash)
+  const t =
+    chain == "foundry-test"
+      ? { result: foundry.build(params.get) }
+      : await api.getTxTrace(chain, txHash)
 
   const txCalls: [number, TxCall][] = []
   graph.dfs<TxCall>(
@@ -242,12 +252,15 @@ export async function getTrace(params: { txHash: string; chain: string }) {
     addrs.add(c.to)
   }
 
-  const contracts: ContractInfo[] = await api.getContracts({
-    chain,
-    // @ts-ignore
-    chain_id: RPC_CONFIG[chain]?.chainId,
-    addrs: [...addrs.values()],
-  })
+  const contracts: ContractInfo[] =
+    chain == "foundry-test"
+      ? []
+      : await api.getContracts({
+          chain,
+          // @ts-ignore
+          chain_id: RPC_CONFIG[chain]?.chainId,
+          addrs: [...addrs.values()],
+        })
 
   const { calls, groups, objs, arrows, trace } = build(t.result, contracts)
 

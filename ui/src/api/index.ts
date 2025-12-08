@@ -3,6 +3,7 @@ import { TxCall } from "../types/tx"
 import { EtherscanContractInfo, ContractInfo } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
+import * as foundry from "../foundry"
 
 export async function getTxTrace(
   chain: string,
@@ -11,8 +12,6 @@ export async function getTxTrace(
   // @ts-ignore
   const cfg = RPC_CONFIG[chain]
   assert(cfg, `Config for ${chain} is empty`)
-
-  // TODO: foundry
 
   return post<any, { result: TxCall }>(cfg.url, {
     jsonrpc: "2.0",

@@ -1,6 +1,7 @@
 import { useEffect } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { useWindowSizeContext } from "../contexts/WindowSize"
+import { useFileStorageContext } from "../contexts/FileStorage"
 import Splits, { SPLIT_HEIGHT } from "../components/Splits"
 import {
   Provider as TracerProvider,
@@ -126,6 +127,7 @@ function TxPage() {
   const chain = q.get("chain")
 
   const windowSize = useWindowSizeContext()
+  const fileStorage = useFileStorageContext()
   const tracer = useTracerContext()
 
   const _getTrace = useAsync(getTrace)
@@ -133,7 +135,7 @@ function TxPage() {
   useEffect(() => {
     if (txHash && chain) {
       const f = async () => {
-        await _getTrace.exec({ txHash, chain })
+        await _getTrace.exec({ txHash, chain, get: fileStorage.get })
       }
       f()
     }

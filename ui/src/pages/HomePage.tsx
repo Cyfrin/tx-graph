@@ -23,8 +23,8 @@ export function HomePage() {
         data: out,
       },
     ])
-    foundry.build(fileStorage.get)
   }, [])
+  foundry.build(fileStorage.get)
 
   const [inputs, setInputs] = useState({
     // TODO: uncomment

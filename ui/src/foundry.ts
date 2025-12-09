@@ -1,5 +1,5 @@
 import { Interface, ParamType } from "ethers"
-import { TxCall } from "./types/tx"
+import { TxCall, ContractInfo } from "./types/tx"
 import { File } from "./types/file"
 
 type AbiInput = {
@@ -402,9 +402,11 @@ function dfs<A>(
 // @ts-ignore
 export function build(get: (key: string) => File[] | null): TxCall {
   // TODO: clean up
-  // @ts-ignore
   try {
+    // TODO: clean up
+    // @ts-ignore
     const tests: Tests = get("trace")?.[0]?.data
+    const txCalls: TxCall[] = []
 
     // TODO: aggregrate deployment + setup + tests
     for (const [testContractName, { test_results }] of Object.entries(tests)) {
@@ -419,6 +421,7 @@ export function build(get: (key: string) => File[] | null): TxCall {
             }
             case "Execution": {
               const stack: TxCall[] = []
+              // Create a nested TxCall
               dfs(
                 // TODO: remove ts-ignore
                 // @ts-ignore
@@ -449,7 +452,9 @@ export function build(get: (key: string) => File[] | null): TxCall {
                   stack.push(call)
                 },
               )
-              return stack[0]
+              // TODO: clean up
+              // @ts-ignore
+              txCalls.push(stack[0])
             }
             default: {
               break
@@ -458,7 +463,36 @@ export function build(get: (key: string) => File[] | null): TxCall {
         }
       }
     }
+
+    const txCall: TxCall = {
+      from: "foundry test",
+      // TODO: clean up
+      to: txCalls[0].from,
+      type: "CALL",
+      input: "",
+      output: "",
+      gas: "",
+      gasUsed: "",
+      value: "",
+      calls: txCalls,
+    }
+
+    return txCall
   } catch (err) {
     console.log("Foundry error:", err)
   }
+}
+
+export function getContracts(
+  addrs: string[],
+  get: (key: string) => File[] | null,
+): ContractInfo[] {
+  // TODO: clean up
+  // @ts-ignore
+  const tests: Tests = get("trace")?.[0]?.data
+  const abis = get("abi")
+
+  console.log("ABI", abis)
+
+  return []
 }

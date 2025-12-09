@@ -254,7 +254,7 @@ export async function getTrace(params: {
 
   const contracts: ContractInfo[] =
     chain == "foundry-test"
-      ? []
+      ? foundry.getContracts([...addrs.values()], params.get)
       : await api.getContracts({
           chain,
           // @ts-ignore

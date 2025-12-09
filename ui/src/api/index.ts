@@ -1,9 +1,8 @@
 import { assert } from "../utils"
-import { TxCall } from "../types/tx"
-import { EtherscanContractInfo, ContractInfo } from "./types"
+import { TxCall, ContractInfo } from "../types/tx"
+import { EtherscanContractInfo } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
-import * as foundry from "../foundry"
 
 export async function getTxTrace(
   chain: string,
@@ -19,6 +18,18 @@ export async function getTxTrace(
     params: [txHash, { tracer: "callTracer" }],
     id: cfg.chainId,
   })
+}
+
+// TODO: remove chain_id, get chain id from chain
+export async function getContracts(params: {
+  chain: string
+  chain_id: number
+  addrs: string[]
+}): Promise<ContractInfo[]> {
+  return post<any, ContractInfo[]>(
+    `${import.meta.env.VITE_API_URL}/contracts`,
+    params,
+  )
 }
 
 export async function getEtherscanContract(
@@ -42,18 +53,4 @@ export async function getEtherscanContract(
   }
 
   return { abi: parse(abi), name }
-}
-
-// TODO: remove chain_id, get chain id from chain
-export async function getContracts(params: {
-  chain: string
-  chain_id: number
-  addrs: string[]
-}): Promise<ContractInfo[]> {
-  // TODO: foundry
-
-  return post<any, ContractInfo[]>(
-    `${import.meta.env.VITE_API_URL}/contracts`,
-    params,
-  )
 }

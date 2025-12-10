@@ -1,4 +1,3 @@
-import { Interface, ParamType } from "ethers"
 import { TxCall, ContractInfo } from "./types/tx"
 import { File } from "./types/file"
 

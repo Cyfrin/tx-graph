@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { RPC_CONFIG, RpcConfig } from "../config"
 import { useFileStorageContext } from "../contexts/FileStorage"
@@ -6,30 +6,12 @@ import FoundryForm from "../components/FoundryForm"
 import { File } from "../types/file"
 import styles from "./HomePage.module.css"
 
-// TODO: remove
-import out from "../../tmp/out.json"
-import * as foundry from "../foundry"
-
 export function HomePage() {
   const navigate = useNavigate()
   const fileStorage = useFileStorageContext()
 
-  // TODO: remove
-  useEffect(() => {
-    fileStorage.set("trace", [
-      {
-        name: "trace",
-        path: "out/trace.json",
-        data: out,
-      },
-    ])
-  }, [])
-  foundry.build(fileStorage.get)
-
   const [inputs, setInputs] = useState({
-    // TODO: uncomment
-    // chain: "eth-mainnet",
-    chain: "foundry-test",
+    chain: "eth-mainnet",
     txHash: "",
   })
 

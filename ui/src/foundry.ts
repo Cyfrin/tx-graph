@@ -81,12 +81,6 @@ export function build(get: (key: string) => File[] | null): TxCall {
       for (const [testName, test] of Object.entries(test_results)) {
         for (const [step, { arena }] of test.traces) {
           switch (step) {
-            case "Deployment": {
-              break
-            }
-            case "Setup": {
-              break
-            }
             case "Execution": {
               const stack: TxCall[] = []
               // Create a nested TxCall
@@ -123,6 +117,7 @@ export function build(get: (key: string) => File[] | null): TxCall {
               // TODO: clean up
               // @ts-ignore
               txCalls.push(stack[0])
+              break
             }
             default: {
               break
@@ -186,9 +181,6 @@ export function getContracts(
               const addr = arena[0].trace.address
               const abi = files.get(`${name}.json`)
               addrToAbi.set(addr, { name, abi })
-              break
-            }
-            case "Setup": {
               break
             }
             default: {

@@ -1,9 +1,8 @@
 import { ethers } from "ethers"
 import { RPC_CONFIG } from "./config"
-import { TxCall } from "./types/tx"
+import { TxCall, ContractInfo, AbiEntry } from "./types/tx"
 import { File } from "./types/file"
 import * as api from "./api"
-import { ContractInfo } from "./api/types"
 import { Id, Groups, Call } from "./components/graph/lib/types"
 import { Trace, Input, Output, Fn } from "./components/tracer/types"
 import * as graph from "./components/graph/lib/graph"
@@ -27,7 +26,7 @@ export type Arrow<V> = {
 }
 
 function parse(
-  abi: any[] | null,
+  abi: AbiEntry[] | null,
   input: string,
   output?: string,
 ): {

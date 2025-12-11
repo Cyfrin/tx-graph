@@ -141,6 +141,12 @@ function TxPage() {
     }
   }, [txHash, chain])
 
+  console.log(_getTrace)
+
+  if (_getTrace.error) {
+    return <div>error :(</div>
+  }
+
   if (!windowSize || !_getTrace.data) {
     return <div>loading...</div>
   }

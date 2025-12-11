@@ -79,7 +79,6 @@ function parse(
   return fn
 }
 
-// TODO: clean up
 export function build(
   root: TxCall,
   contracts: ContractInfo[],

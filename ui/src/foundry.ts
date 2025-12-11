@@ -63,151 +63,140 @@ function dfs<A>(
   }
 }
 
-// TODO: rename test?
 //  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
 
 // Build TxCall
 // @ts-ignore
 export function build(get: (key: string) => File[] | null): TxCall {
   // TODO: clean up
-  try {
-    // TODO: clean up
-    // @ts-ignore
-    const tests: Tests = get("trace")?.[0]?.data
-    const txCalls: TxCall[] = []
+  // @ts-ignore
+  const tests: Tests = get("trace")?.[0]?.data
+  const txCalls: TxCall[] = []
 
-    // TODO: aggregrate deployment + setup + tests
-    for (const [testContractName, { test_results }] of Object.entries(tests)) {
-      for (const [testName, test] of Object.entries(test_results)) {
-        for (const [step, { arena }] of test.traces) {
-          switch (step) {
-            case "Execution": {
-              const stack: TxCall[] = []
-              // Create a nested TxCall
-              dfs(
-                // TODO: remove ts-ignore
-                // @ts-ignore
-                arena[0].idx,
-                // @ts-ignore
-                (a) => arena[a].children,
-                (i, d, a) => {
-                  const { trace } = arena[a]
-                  const call: TxCall = {
-                    from: trace.caller,
-                    to: trace.address,
-                    type: trace.kind,
-                    input: trace.data,
-                    output: trace.output,
-                    gas: trace.gas_limit.toString(),
-                    gasUsed: trace.gas_used.toString(),
-                    value: trace.value,
-                    calls: [],
-                  }
-
-                  while (stack.length >= d + 1) {
-                    stack.pop()
-                  }
-                  const parent = stack[stack.length - 1]
-                  if (parent?.calls) {
-                    parent.calls.push(call)
-                  }
-                  stack.push(call)
-                },
-              )
-              // TODO: clean up
+  // TODO: aggregrate deployment + setup + tests
+  for (const [testContractName, { test_results }] of Object.entries(tests)) {
+    for (const [testName, test] of Object.entries(test_results)) {
+      for (const [step, { arena }] of test.traces) {
+        switch (step) {
+          case "Execution": {
+            const stack: TxCall[] = []
+            // Create a nested TxCall
+            dfs(
+              // TODO: remove ts-ignore
               // @ts-ignore
-              txCalls.push(stack[0])
-              break
-            }
-            default: {
-              break
-            }
+              arena[0].idx,
+              // @ts-ignore
+              (a) => arena[a].children,
+              (i, d, a) => {
+                const { trace } = arena[a]
+                const call: TxCall = {
+                  from: trace.caller,
+                  to: trace.address,
+                  type: trace.kind,
+                  input: trace.data,
+                  output: trace.output,
+                  gas: trace.gas_limit.toString(),
+                  gasUsed: trace.gas_used.toString(),
+                  value: trace.value,
+                  calls: [],
+                }
+
+                while (stack.length >= d + 1) {
+                  stack.pop()
+                }
+                const parent = stack[stack.length - 1]
+                if (parent?.calls) {
+                  parent.calls.push(call)
+                }
+                stack.push(call)
+              },
+            )
+            // TODO: clean up
+            // @ts-ignore
+            txCalls.push(stack[0])
+            break
+          }
+          default: {
+            break
           }
         }
       }
     }
-
-    const txCall: TxCall = {
-      from: "foundry test",
-      // TODO: clean up
-      to: txCalls[0].from,
-      type: "CALL",
-      input: "",
-      output: "",
-      gas: "",
-      gasUsed: "",
-      value: "",
-      calls: txCalls,
-    }
-
-    return txCall
-  } catch (err) {
-    console.log("Foundry error:", err)
   }
+
+  const txCall: TxCall = {
+    from: "foundry test",
+    // TODO: clean up
+    to: txCalls[0].from,
+    type: "CALL",
+    input: "",
+    output: "",
+    gas: "",
+    gasUsed: "",
+    value: "",
+    calls: txCalls,
+  }
+
+  return txCall
 }
 
 export function getContracts(
   addrs: string[],
   get: (key: string) => File[] | null,
 ): ContractInfo[] {
-  try {
-    // TODO: clean up
-    // @ts-ignore
-    const tests: Tests = get("trace")?.[0]?.data
-    const abis = get("abi") || []
-    // contract name => ABI
-    const files = new Map(abis.map((f) => [f.name, f.data]))
-    const addrToAbi = new Map()
+  // TODO: clean up
+  // @ts-ignore
+  const tests: Tests = get("trace")?.[0]?.data
+  const abis = get("abi") || []
+  // contract name => ABI
+  const files = new Map(abis.map((f) => [f.name, f.data]))
+  const addrToAbi = new Map()
 
-    for (const [addr, name] of Object.entries(LABELS)) {
-      const abi = files.get(`${name}.json`)
-      addrToAbi.set(addr, { name, abi })
-    }
+  for (const [addr, name] of Object.entries(LABELS)) {
+    const abi = files.get(`${name}.json`)
+    addrToAbi.set(addr, { name, abi })
+  }
 
-    for (const [testContractName, { test_results }] of Object.entries(tests)) {
-      for (const [testName, test] of Object.entries(test_results)) {
-        if (test.labeled_addresses) {
-          for (const [addr, name] of Object.entries(test.labeled_addresses)) {
+  for (const [testContractName, { test_results }] of Object.entries(tests)) {
+    for (const [testName, test] of Object.entries(test_results)) {
+      if (test.labeled_addresses) {
+        for (const [addr, name] of Object.entries(test.labeled_addresses)) {
+          const abi = files.get(`${name}.json`)
+          addrToAbi.set(addr, { name, abi })
+        }
+      }
+
+      for (const [step, { arena }] of test.traces) {
+        switch (step) {
+          case "Deployment": {
+            // Test contract address
+            const name = testContractName.split(":")[1]
+            const addr = arena[0].trace.address
             const abi = files.get(`${name}.json`)
             addrToAbi.set(addr, { name, abi })
+            break
           }
-        }
-
-        for (const [step, { arena }] of test.traces) {
-          switch (step) {
-            case "Deployment": {
-              // Test contract address
-              const name = testContractName.split(":")[1]
-              const addr = arena[0].trace.address
-              const abi = files.get(`${name}.json`)
-              addrToAbi.set(addr, { name, abi })
-              break
-            }
-            default: {
-              break
-            }
+          default: {
+            break
           }
         }
       }
     }
+  }
 
-    return addrs.map((addr) => {
-      const val = addrToAbi.get(addr)
-      if (val) {
-        return {
-          chain: "foundry-test",
-          address: addr,
-          name: val.name,
-          abi: val.abi.abi,
-        }
-      }
+  return addrs.map((addr) => {
+    const val = addrToAbi.get(addr)
+    if (val) {
       return {
         chain: "foundry-test",
         address: addr,
+        name: val.name,
+        abi: val.abi.abi,
       }
-    })
-  } catch (err) {
-    console.log("Foundry error:", err)
-    return []
-  }
+    }
+    return {
+      chain: "foundry-test",
+      address: addr,
+    }
+  })
 }

@@ -1,6 +1,5 @@
-import styles from "./HomePage.module.css"
-
 import { File } from "../types/file"
+import styles from "./FoundryForm.module.css"
 
 const FoundryForm: React.FC<{
   setTraceFile: (file: File) => void
@@ -40,17 +39,28 @@ const FoundryForm: React.FC<{
 
   return (
     <div>
-      <div>Trace JSON file</div>
-      <input type="file" name="trace" onChange={onChange} />
-      <div>ABI files</div>
-      <input
-        type="file"
-        name="abi"
-        // @ts-ignore
-        webkitdirectory=""
-        multiple
-        onChange={onChange}
-      />
+      <div className={styles.input}>
+        <div>1. Upload output of test trace</div>
+        <div className={styles.wrap}>
+          <div className={styles.shell}>
+            <span style={{ color: "orange" }}>forge</span>
+            <span style={{ color: "lightblue" }}> test </span>
+            {`--match-path test/MyTest.t.sol -vvvv --json > out.json`}
+          </div>
+        </div>
+        <input type="file" name="trace" onChange={onChange} />
+      </div>
+      <div className={styles.input}>
+        <div>2. Upload ABI files</div>
+        <input
+          type="file"
+          name="abi"
+          // @ts-ignore
+          webkitdirectory=""
+          multiple
+          onChange={onChange}
+        />
+      </div>
       <ul style={{ maxHeight: 300, overflowY: "auto" }}>
         {abis.map((file, i) => (
           <li key={i}>{file.path}</li>

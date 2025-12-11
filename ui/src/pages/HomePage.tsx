@@ -11,7 +11,8 @@ export function HomePage() {
   const fileStorage = useFileStorageContext()
 
   const [inputs, setInputs] = useState({
-    chain: "eth-mainnet",
+    // chain: "eth-mainnet",
+    chain: "foundry-test",
     txHash: "",
   })
 

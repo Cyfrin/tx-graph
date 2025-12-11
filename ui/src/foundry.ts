@@ -174,12 +174,13 @@ export function getContracts(
 
   return addrs.map((addr) => {
     const val = addrToAbi.get(addr)
+    console.log("VAL", val)
     if (val) {
       return {
         chain: "foundry-test",
         address: addr,
         name: val.name,
-        abi: val.abi.abi,
+        abi: val.abi?.abi || null,
       }
     } else {
       return {

@@ -142,6 +142,7 @@ function TxPage() {
   }, [txHash, chain])
 
   if (_getTrace.error) {
+    console.log("ERROR", _getTrace.error)
     return <div>error :(</div>
   }
 

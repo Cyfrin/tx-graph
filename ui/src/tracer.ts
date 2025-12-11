@@ -7,7 +7,7 @@ import { Id, Groups, Call } from "./components/graph/lib/types"
 import { Trace, Input, Output, Fn } from "./components/tracer/types"
 import * as graph from "./components/graph/lib/graph"
 import * as foundry from "./foundry"
-import { zip } from "./utils"
+import { zip, assert } from "./utils"
 import { Account, Evm } from "./components/ctx/evm/types"
 
 // TODO: move to graph/lib/types?
@@ -230,13 +230,20 @@ export async function getTrace(params: {
   get: (key: string) => File[] | null
 }) {
   const { txHash, chain } = params
-  const t =
-    chain == "foundry-test"
-      ? { result: foundry.build(params.get) }
-      : await api.getTxTrace(chain, txHash)
+
+  let t: { result: TxCall } | null = null
+  if (chain == "foundry-test") {
+    const res = foundry.build(params.get)
+    assert(res != null, "Foundry trace is null")
+    // @ts-ignore
+    t = { result: res }
+  } else {
+    t = await api.getTxTrace(chain, txHash)
+  }
 
   const txCalls: [number, TxCall][] = []
   graph.dfs<TxCall>(
+    // @ts-ignore
     t.result,
     (c) => c?.calls || [],
     (_, d, c) => {
@@ -260,6 +267,7 @@ export async function getTrace(params: {
           addrs: [...addrs.values()],
         })
 
+  // @ts-ignore
   const { calls, groups, objs, arrows, trace } = build(t.result, contracts)
 
   return {

@@ -29,7 +29,7 @@ type LifeCycle = "Deployment" | "Setup" | "Execution"
 
 type Test = {
   traces: [LifeCycle, Arena][]
-  // TODO: address to label?
+  // Address => label
   labeled_addresses?: Record<string, string>
 }
 
@@ -66,59 +66,49 @@ function dfs<A>(
 //  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
 
 // Build TxCall
-// @ts-ignore
-export function build(get: (key: string) => File[] | null): TxCall {
-  // TODO: clean up
+export function build(get: (key: string) => File[] | null): TxCall | null {
   // @ts-ignore
   const tests: Tests = get("trace")?.[0]?.data
+  if (!tests) {
+    return null
+  }
+
   const txCalls: TxCall[] = []
 
-  // TODO: aggregrate deployment + setup + tests
   for (const [testContractName, { test_results }] of Object.entries(tests)) {
     for (const [testName, test] of Object.entries(test_results)) {
       for (const [step, { arena }] of test.traces) {
-        switch (step) {
-          case "Execution": {
-            const stack: TxCall[] = []
-            // Create a nested TxCall
-            dfs(
-              // TODO: remove ts-ignore
-              // @ts-ignore
-              arena[0].idx,
-              // @ts-ignore
-              (a) => arena[a].children,
-              (i, d, a) => {
-                const { trace } = arena[a]
-                const call: TxCall = {
-                  from: trace.caller,
-                  to: trace.address,
-                  type: trace.kind,
-                  input: trace.data,
-                  output: trace.output,
-                  gas: trace.gas_limit.toString(),
-                  gasUsed: trace.gas_used.toString(),
-                  value: trace.value,
-                  calls: [],
-                }
+        if (step == "Setup" || step == "Execution") {
+          const stack: TxCall[] = []
+          // Create a nested TxCall
+          dfs(
+            arena[0].idx,
+            (a) => arena[a].children,
+            (i, d, a) => {
+              const { trace } = arena[a]
+              const call: TxCall = {
+                from: trace.caller,
+                to: trace.address,
+                type: trace.kind,
+                input: trace.data,
+                output: trace.output,
+                gas: trace.gas_limit.toString(),
+                gasUsed: trace.gas_used.toString(),
+                value: trace.value,
+                calls: [],
+              }
 
-                while (stack.length >= d + 1) {
-                  stack.pop()
-                }
-                const parent = stack[stack.length - 1]
-                if (parent?.calls) {
-                  parent.calls.push(call)
-                }
-                stack.push(call)
-              },
-            )
-            // TODO: clean up
-            // @ts-ignore
-            txCalls.push(stack[0])
-            break
-          }
-          default: {
-            break
-          }
+              while (stack.length >= d + 1) {
+                stack.pop()
+              }
+              const parent = stack[stack.length - 1]
+              if (parent?.calls) {
+                parent.calls.push(call)
+              }
+              stack.push(call)
+            },
+          )
+          txCalls.push(stack[0])
         }
       }
     }
@@ -126,8 +116,7 @@ export function build(get: (key: string) => File[] | null): TxCall {
 
   const txCall: TxCall = {
     from: "foundry test",
-    // TODO: clean up
-    to: txCalls[0].from,
+    to: txCalls[0]?.from || "",
     type: "CALL",
     input: "",
     output: "",
@@ -144,19 +133,24 @@ export function getContracts(
   addrs: string[],
   get: (key: string) => File[] | null,
 ): ContractInfo[] {
-  // TODO: clean up
   // @ts-ignore
   const tests: Tests = get("trace")?.[0]?.data
+  if (!tests) {
+    return []
+  }
+
   const abis = get("abi") || []
   // contract name => ABI
   const files = new Map(abis.map((f) => [f.name, f.data]))
   const addrToAbi = new Map()
 
+  // Map Foundry addresses to ABIs
   for (const [addr, name] of Object.entries(LABELS)) {
     const abi = files.get(`${name}.json`)
     addrToAbi.set(addr, { name, abi })
   }
 
+  // Map addresses to ABIs
   for (const [testContractName, { test_results }] of Object.entries(tests)) {
     for (const [testName, test] of Object.entries(test_results)) {
       if (test.labeled_addresses) {
@@ -167,18 +161,12 @@ export function getContracts(
       }
 
       for (const [step, { arena }] of test.traces) {
-        switch (step) {
-          case "Deployment": {
-            // Test contract address
-            const name = testContractName.split(":")[1]
-            const addr = arena[0].trace.address
-            const abi = files.get(`${name}.json`)
-            addrToAbi.set(addr, { name, abi })
-            break
-          }
-          default: {
-            break
-          }
+        if (step == "Deployment") {
+          // Test contract address
+          const name = testContractName.split(":")[1]
+          const addr = arena[0].trace.address
+          const abi = files.get(`${name}.json`)
+          addrToAbi.set(addr, { name, abi })
         }
       }
     }
@@ -193,10 +181,11 @@ export function getContracts(
         name: val.name,
         abi: val.abi.abi,
       }
-    }
-    return {
-      chain: "foundry-test",
-      address: addr,
+    } else {
+      return {
+        chain: "foundry-test",
+        address: addr,
+      }
     }
   })
 }

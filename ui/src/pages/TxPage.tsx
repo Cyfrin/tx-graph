@@ -8,9 +8,9 @@ import {
   useTracerContext,
   State as TracerState,
 } from "../components/tracer/TracerContext"
-import { CallGraphUi } from "../components/graph/CallGraphUi"
-import { Id, Graph, Node, Arrow } from "../components/graph/lib/types"
-import { Hover } from "../components/graph/types"
+import { CallGraphUi } from "../components/svg-graph/CallGraphUi"
+import { Id, Graph, Node, Arrow } from "../components/svg-graph/lib/types"
+import { Hover } from "../components/svg-graph/types"
 import Tracer from "../components/tracer"
 import Evm from "../components/ctx/evm/tracer/Evm"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"

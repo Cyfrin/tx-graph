@@ -9,6 +9,7 @@ import {
   State as TracerState,
 } from "../components/tracer/TracerContext"
 import { CallGraphUi } from "../components/svg-graph/CallGraphUi"
+import CanvasGraph from "../components/canvas/Graph"
 import { Id, Graph, Node, Arrow } from "../components/svg-graph/lib/types"
 import { Hover } from "../components/svg-graph/types"
 import Tracer from "../components/tracer"
@@ -171,7 +172,15 @@ function TxPage() {
             />
           </div>
         )}
-        {(rect) => (
+        {
+          (rect) => (
+            <CanvasGraph
+              backgroundColor="var(--bg-dark-color)"
+              width={rect.width}
+              height={rect.height}
+            />
+          )
+          /*(rect) => (
           <CallGraphUi
             groups={groups}
             calls={calls}
@@ -250,7 +259,8 @@ function TxPage() {
               return null
             }}
           />
-        )}
+        )*/
+        }
       </Splits>
     </div>
   )

@@ -47,6 +47,11 @@ export type MidPoints = {
   center: Point
 }
 
+export type Canvas = {
+  graph: CanvasRenderingContext2D | null
+  ui: CanvasRenderingContext2D | null
+}
+
 export type Screen = {
   width: number
   height: number

@@ -1,9 +1,27 @@
-import { Point } from "./types"
+import { Canvas, Point } from "./types"
 
 const FONT = "sans-serif"
 const FONT_SIZE = 18
 
 // TODO: clean up
+
+export type Params = {
+  width: number
+  height: number
+}
+
+export function draw(ctx: Canvas, params: Params) {
+  const { width, height } = params
+  ctx.graph?.clearRect(0, 0, width, height)
+  ctx.ui?.clearRect(0, 0, width, height)
+
+  if (ctx.graph) {
+    //
+  }
+  if (ctx.ui) {
+    //
+  }
+}
 
 export function drawArrowHead(
   ctx: CanvasRenderingContext2D,

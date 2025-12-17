@@ -1,4 +1,8 @@
-import React, { useRef, useEffect } from "react"
+import React, { useMemo, useRef, useEffect } from "react"
+import { Canvas, Groups, Call, Point, Node, Arrow } from "./lib/types"
+import * as screen from "./lib/screen"
+import { draw } from "./lib/canvas"
+import { Hover, Tracer } from "./types"
 
 const STYLE: React.CSSProperties = {
   position: "absolute",
@@ -6,26 +10,25 @@ const STYLE: React.CSSProperties = {
   top: 0,
 }
 
-export type Context = {
-  graph: CanvasRenderingContext2D | null | undefined
-  ui: CanvasRenderingContext2D | null | undefined
-}
-
 type Refs = {
   graph: HTMLCanvasElement | null
   ui: HTMLCanvasElement | null
   // animation frame
-  animation: number | null
+  anim: number | null
   // NOTE: store params and layout as ref for animate to draw with latest params
-  // params: GraphParams
-  // layout: Layout
 }
 
 export type Props = {
   width: number
   height: number
   backgroundColor: string
-  animate?: boolean
+  groups: Groups
+  calls: Call[]
+  tracer?: Tracer
+  nodeWidth?: number
+  nodeHeight?: number
+  nodeXGap?: number
+  nodeYGap?: number
   /*
   onMouseMove?: (
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
@@ -59,7 +62,7 @@ export type Props = {
 
 /*
 function getMouse(
-  ctx: Context,
+  ctx: Canvas,
   e:
     | React.MouseEvent<HTMLCanvasElement, MouseEvent>
     | React.WheelEvent<HTMLCanvasElement>,
@@ -77,36 +80,67 @@ function getMouse(
 }
 */
 
-const Graph: React.FC<Partial<Props>> = (props) => {
-  const { backgroundColor, width, height } = props
+export const Graph: React.FC<Props> = ({
+  backgroundColor,
+  width,
+  height,
+  groups,
+  calls,
+  tracer,
+  nodeWidth = 100,
+  nodeHeight = 50,
+  nodeXGap = 50,
+  nodeYGap = 50,
+}) => {
+  const arrowXPadd = nodeXGap >> 1
+  const arrowYPadd = nodeYGap >> 1
+  const layout = useMemo(() => {
+    return screen.map(groups, calls, {
+      width,
+      height,
+      center: {
+        x: width >> 1,
+        y: height >> 1,
+      },
+      node: {
+        width: nodeWidth,
+        height: nodeHeight,
+        gap: {
+          x: nodeXGap,
+          y: nodeYGap,
+        },
+      },
+    })
+  }, [calls, width, height])
 
   const refs = useRef<Refs>({
     graph: null,
     ui: null,
-    animation: null,
+    anim: null,
   })
 
-  const ctx = useRef<Context>({ graph: null, ui: null })
+  const ctx = useRef<Canvas>({ graph: null, ui: null })
 
   useEffect(() => {
-    ctx.current.graph = refs.current.graph?.getContext("2d")
-    ctx.current.ui = refs.current.ui?.getContext("2d")
-
     if (ctx.current) {
+      ctx.current.graph = refs.current.graph?.getContext("2d") || null
+      ctx.current.ui = refs.current.ui?.getContext("2d") || null
       animate()
     }
 
     return () => {
-      if (refs.current.animation) {
-        window.cancelAnimationFrame(refs.current.animation)
+      if (refs.current.anim) {
+        window.cancelAnimationFrame(refs.current.anim)
       }
     }
   }, [width, height])
 
   function animate() {
-    refs.current.animation = window.requestAnimationFrame(animate)
-    if (refs.current) {
-      // draw(ctx.current, refs.current.layout, refs.current.params)
+    refs.current.anim = window.requestAnimationFrame(animate)
+    // @ts-ignore
+    if (refs.current && width > 0 && height > 0) {
+      // @ts-ignore
+      draw(ctx.current, { width, height })
     }
   }
 
@@ -139,5 +173,3 @@ const Graph: React.FC<Partial<Props>> = (props) => {
     </div>
   )
 }
-
-export default Graph

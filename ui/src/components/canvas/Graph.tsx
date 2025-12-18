@@ -140,7 +140,15 @@ export const Graph: React.FC<Props> = ({
     // @ts-ignore
     if (refs.current && width > 0 && height > 0) {
       // @ts-ignore
-      draw(ctx.current, { width, height })
+      draw(ctx.current, {
+        width,
+        height,
+        layout,
+        style: {
+          nodeFill: "blue",
+          nodeStroke: "red",
+        },
+      })
     }
   }
 

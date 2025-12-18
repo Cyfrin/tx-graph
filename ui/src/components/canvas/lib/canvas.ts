@@ -1,26 +1,79 @@
-import { Canvas, Point } from "./types"
+import { Canvas, Point, Layout } from "./types"
 
 const FONT = "sans-serif"
 const FONT_SIZE = 18
+
+const DEFAULT_FILL = "none"
+const DEFAULT_STROKE = "black"
 
 // TODO: clean up
 
 export type Params = {
   width: number
   height: number
+  layout: Layout
+  style?: {
+    nodeFill?: string
+    nodeStroke?: string
+  }
 }
 
 export function draw(ctx: Canvas, params: Params) {
-  const { width, height } = params
+  const { width, height, layout, style } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)
 
   if (ctx.graph) {
-    //
+    const nodes = layout.nodes.values()
+    for (const node of nodes) {
+      // TODO: get node style
+      drawRect(ctx.graph, {
+        x: node.rect.x,
+        y: node.rect.y,
+        width: node.rect.width,
+        height: node.rect.height,
+        fill: style?.nodeFill || DEFAULT_FILL,
+        stroke: style?.nodeStroke || DEFAULT_STROKE,
+      })
+    }
   }
   if (ctx.ui) {
     //
   }
+}
+
+export function drawRect(
+  ctx: CanvasRenderingContext2D,
+  params: {
+    x: number
+    y: number
+    width: number
+    height: number
+    borderRadius?: number
+    fill?: string
+    stroke?: string
+    strokeWidth?: number
+  },
+) {
+  const {
+    x,
+    y,
+    width,
+    height,
+    borderRadius = 8,
+    fill = "transparent",
+    stroke = "black",
+    strokeWidth = 2,
+  } = params
+
+  ctx.lineWidth = strokeWidth
+  ctx.strokeStyle = stroke
+  ctx.fillStyle = fill
+
+  ctx.roundRect(x, y, width, height, borderRadius)
+
+  ctx.fill()
+  ctx.stroke()
 }
 
 export function drawArrowHead(
@@ -47,50 +100,6 @@ export function drawArrowHead(
   ctx.fill()
 }
 
-export function drawRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  {
-    rx = 8,
-    ry = 8,
-    fill = "transparent",
-    stroke = "black",
-    strokeWidth = 2,
-  }: {
-    rx?: number
-    ry?: number
-    fill?: string
-    stroke?: string
-    strokeWidth?: number
-  } = {},
-) {
-  ctx.save()
-
-  ctx.lineWidth = strokeWidth
-  ctx.strokeStyle = stroke
-  ctx.fillStyle = fill
-
-  ctx.beginPath()
-  ctx.moveTo(x + rx, y)
-  ctx.lineTo(x + width - rx, y)
-  ctx.quadraticCurveTo(x + width, y, x + width, y + ry)
-  ctx.lineTo(x + width, y + height - ry)
-  ctx.quadraticCurveTo(x + width, y + height, x + width - rx, y + height)
-  ctx.lineTo(x + rx, y + height)
-  ctx.quadraticCurveTo(x, y + height, x, y + height - ry)
-  ctx.lineTo(x, y + ry)
-  ctx.quadraticCurveTo(x, y, x + rx, y)
-  ctx.closePath()
-
-  if (fill !== "transparent") ctx.fill()
-  ctx.stroke()
-
-  ctx.restore()
-}
-
 export function drawArrow(
   ctx: CanvasRenderingContext2D,
   x0: number,
@@ -111,8 +120,6 @@ export function drawArrow(
     textYGap?: number
   } = {},
 ) {
-  ctx.save()
-
   ctx.strokeStyle = stroke
   ctx.fillStyle = stroke
   ctx.lineWidth = strokeWidth
@@ -130,8 +137,6 @@ export function drawArrow(
     ctx.textBaseline = "middle"
     ctx.fillText(String(text), ((x0 + x1) >> 1) + textXGap, y0 + textYGap)
   }
-
-  ctx.restore()
 }
 
 export function drawZigZagArrow(

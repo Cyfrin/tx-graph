@@ -66,34 +66,39 @@ function getArrowType(
 // TODO: change node color on hover arrow
 function getNodeFillColor(
   objs: Map<Id, Obj<ObjType, Account | Fn>>,
-  hover: Hover,
+  hover: Hover | null,
   node: Node,
   graph: Graph,
   tracer: TracerState,
 ): string {
+  // TODO: fix - canvas doesn't recognize css var colors
+  return "rgb(6, 44, 65, 0.3)"
+
   const obj = objs.get(node.id) as Obj<ObjType, Account | Fn>
   // Arrows are hovered
-  if (hover.arrows != null && hover?.arrows?.size > 0) {
+  if (hover?.arrows && hover?.arrows?.size > 0) {
     if (obj?.type == "acc") {
       return "var(--node-dim-color)"
     }
     return "transparent"
   }
   // Hover or incoming or outgoing node
-  if (hover.node != null) {
-    if (hover.node == node.id) {
-      return "var(--node-hover-color)"
+  if (hover) {
+    if (hover?.node != null) {
+      if (hover?.node == node.id) {
+        return "var(--node-hover-color)"
+      }
+      if (
+        graph.incoming.get(hover.node)?.has(node.id) ||
+        graph.outgoing.get(hover.node)?.has(node.id)
+      ) {
+        return "var(--node-hover-color)"
+      }
+      if (obj?.type == "acc") {
+        return "var(--node-dim-color)"
+      }
+      return "transparent"
     }
-    if (
-      graph.incoming.get(hover.node)?.has(node.id) ||
-      graph.outgoing.get(hover.node)?.has(node.id)
-    ) {
-      return "var(--node-hover-color)"
-    }
-    if (obj?.type == "acc") {
-      return "var(--node-dim-color)"
-    }
-    return "transparent"
   }
   // Default (no hovered node or arrow)
   if (obj?.type == "acc") {
@@ -181,6 +186,18 @@ function TxPage() {
               groups={groups}
               calls={calls}
               tracer={tracer.state}
+              getNodeStyle={(hover, node) => {
+                return {
+                  fill: getNodeFillColor(
+                    objs,
+                    hover,
+                    node,
+                    graph,
+                    tracer.state,
+                  ),
+                  stroke: "var(--node-border-color)",
+                }
+              }}
             />
           )
           /*(rect) => (

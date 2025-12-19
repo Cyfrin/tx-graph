@@ -10,6 +10,9 @@ const STYLE: React.CSSProperties = {
   top: 0,
 }
 
+const DEFAULT_NODE_FILL = "none"
+const DEFAULT_NODE_STROKE = "black"
+
 type Refs = {
   graph: HTMLCanvasElement | null
   ui: HTMLCanvasElement | null
@@ -25,6 +28,10 @@ export type Props = {
   groups: Groups
   calls: Call[]
   tracer?: Tracer
+  getNodeStyle?: (
+    hover: Hover | null,
+    node: Node,
+  ) => { fill?: string; stroke?: string }
   nodeWidth?: number
   nodeHeight?: number
   nodeXGap?: number
@@ -87,6 +94,10 @@ export const Graph: React.FC<Props> = ({
   groups,
   calls,
   tracer,
+  getNodeStyle = () => ({
+    fill: DEFAULT_NODE_FILL,
+    stroke: DEFAULT_NODE_STROKE,
+  }),
   nodeWidth = 100,
   nodeHeight = 50,
   nodeXGap = 50,
@@ -144,10 +155,7 @@ export const Graph: React.FC<Props> = ({
         width,
         height,
         layout,
-        style: {
-          nodeFill: "blue",
-          nodeStroke: "red",
-        },
+        getNodeStyle: (node) => getNodeStyle(null, node),
       })
     }
   }

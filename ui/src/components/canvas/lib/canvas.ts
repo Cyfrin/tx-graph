@@ -7,24 +7,35 @@ const DEFAULT_FILL = "none"
 const DEFAULT_STROKE = "black"
 
 // TODO: clean up
+// TODO: clean up default params
 
 export type Params = {
   width: number
   height: number
   layout: Layout
   getNodeStyle: (node: Node) => { fill?: string; stroke?: string }
+  getNodeText: (node: Node) => string
+  arrowXPad: number
+  arrowYPad: number
 }
 
 export function draw(ctx: Canvas, params: Params) {
-  const { width, height, layout, getNodeStyle } = params
+  const {
+    width,
+    height,
+    layout,
+    getNodeStyle,
+    getNodeText,
+    arrowXPad,
+    arrowYPad,
+  } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)
 
   if (ctx.graph) {
-    const nodes = layout.nodes.values()
+    const nodes = [...layout.nodes.values()]
     for (const node of nodes) {
       const style = getNodeStyle(node)
-      // TODO: get node style
       drawRect(ctx.graph, {
         x: node.rect.x,
         y: node.rect.y,
@@ -46,25 +57,22 @@ export function draw(ctx: Canvas, params: Params) {
         })
       } else if (arrow.p1.x <= arrow.p0.x) {
         // Callback arrow
-        // TODO:
-        const arrowXPadd = 0
-        /*
-      const g = layout.rev.get(a.e)
-      let yPadd = -arrowYPadd
-      if (g != undefined) {
-        const group = layout.nodes.get(g)
-        if (group) {
-          yPadd -= a.p1.y - group.rect.y
+        const g = layout.rev.get(arrow.e)
+        let yPad = -arrowYPad
+        if (g != undefined) {
+          const group = layout.nodes.get(g)
+          if (group) {
+            yPad -= arrow.p1.y - group.rect.y
+          }
         }
-      }
-      */
+
         drawCallBackArrow(ctx.graph, {
           x0: arrow.p0.x,
           y0: arrow.p0.y,
           x1: arrow.p1.x,
           y1: arrow.p1.y,
-          xPadd: arrowXPadd,
-          yPadd: 0,
+          xPad: arrowXPad,
+          yPad: 0,
         })
       } else {
         // zig-zag arrow
@@ -73,6 +81,19 @@ export function draw(ctx: Canvas, params: Params) {
           y0: arrow.p0.y,
           x1: arrow.p1.x,
           y1: arrow.p1.y,
+        })
+      }
+    }
+
+    for (const node of nodes) {
+      const txt = getNodeText(node)
+      if (txt) {
+        drawText(ctx.graph, {
+          x: node.rect.x,
+          y: node.rect.y,
+          width: node.rect.width,
+          height: node.rect.height,
+          text: txt,
         })
       }
     }
@@ -115,6 +136,49 @@ export function drawRect(
 
   ctx.fill()
   ctx.stroke()
+  ctx.restore()
+}
+
+export function drawText(
+  ctx: CanvasRenderingContext2D,
+  params: {
+    x: number
+    y: number
+    width: number
+    height: number
+    xPad?: number
+    yPad?: number
+    text: string
+    color?: string
+    font?: string
+  },
+) {
+  const {
+    x,
+    y,
+    width,
+    height,
+    xPad = 14,
+    yPad = 14,
+    text,
+    color = "white",
+    font = "12px Arial",
+  } = params
+
+  ctx.save()
+  ctx.textBaseline = "middle"
+  ctx.textAlign = "left"
+
+  ctx.font = font
+  ctx.fillStyle = color
+
+  let t = text
+  const maxWidth = width - 2 * xPad
+  if (ctx.measureText(text).width > maxWidth) {
+    t = `${text.slice(0, 10)}...`
+  }
+
+  ctx.fillText(`${t}`, x + xPad, y + yPad)
   ctx.restore()
 }
 
@@ -255,8 +319,8 @@ export function drawCallBackArrow(
     y0: number
     x1: number
     y1: number
-    xPadd: number
-    yPadd: number
+    xPad: number
+    yPad: number
     stroke?: string
     strokeWidth?: number
     text?: string | number
@@ -269,8 +333,8 @@ export function drawCallBackArrow(
     y0,
     x1,
     y1,
-    xPadd,
-    yPadd,
+    xPad,
+    yPad,
     stroke = "black",
     strokeWidth = 2,
     text,
@@ -286,19 +350,19 @@ export function drawCallBackArrow(
 
   ctx.beginPath()
   ctx.moveTo(x0, y0)
-  ctx.lineTo(x0 + xPadd, y0)
-  ctx.lineTo(x0 + xPadd, y1 + yPadd)
-  ctx.lineTo(x1, y1 + yPadd)
+  ctx.lineTo(x0 + xPad, y0)
+  ctx.lineTo(x0 + xPad, y1 + yPad)
+  ctx.lineTo(x1, y1 + yPad)
   ctx.lineTo(x1, y1)
   ctx.stroke()
 
-  drawArrowHead(ctx, { x0: x1, y0: y1 + yPadd, x1: x1, y1 })
+  drawArrowHead(ctx, { x0: x1, y0: y1 + yPad, x1: x1, y1 })
 
   if (text != null) {
     ctx.font = `${FONT_SIZE}px ${FONT}`
     ctx.textAlign = "left"
     ctx.textBaseline = "middle"
-    ctx.fillText(text.toString(), x1 + textXGap, y1 + yPadd + textYGap)
+    ctx.fillText(text.toString(), x1 + textXGap, y1 + yPad + textYGap)
   }
 
   ctx.restore()

@@ -28,10 +28,11 @@ export type Props = {
   groups: Groups
   calls: Call[]
   tracer?: Tracer
-  getNodeStyle?: (
+  getNodeStyle: (
     hover: Hover | null,
     node: Node,
   ) => { fill?: string; stroke?: string }
+  getNodeText: (hover: Hover | null, node: Node) => string
   nodeWidth?: number
   nodeHeight?: number
   nodeXGap?: number
@@ -94,17 +95,15 @@ export const Graph: React.FC<Props> = ({
   groups,
   calls,
   tracer,
-  getNodeStyle = () => ({
-    fill: DEFAULT_NODE_FILL,
-    stroke: DEFAULT_NODE_STROKE,
-  }),
+  getNodeStyle,
+  getNodeText,
   nodeWidth = 100,
   nodeHeight = 50,
   nodeXGap = 50,
   nodeYGap = 50,
 }) => {
-  const arrowXPadd = nodeXGap >> 1
-  const arrowYPadd = nodeYGap >> 1
+  const arrowXPad = nodeXGap >> 1
+  const arrowYPad = nodeYGap >> 1
   const layout = useMemo(() => {
     return screen.map(groups, calls, {
       width,
@@ -156,6 +155,9 @@ export const Graph: React.FC<Props> = ({
         height,
         layout,
         getNodeStyle: (node) => getNodeStyle(null, node),
+        getNodeText: (node) => getNodeText(null, node),
+        arrowXPad,
+        arrowYPad,
       })
     }
   }

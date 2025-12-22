@@ -198,6 +198,12 @@ function TxPage() {
                   stroke: "var(--node-border-color)",
                 }
               }}
+              getNodeText={(hover, node) => {
+                // TODO: fix
+                // @ts-ignore
+                const obj = objs.get(node.id) as Obj<ObjType, Account>
+                return `${obj?.val.name || obj?.val?.addr || node.id || ""}`
+              }}
             />
           )
           /*(rect) => (

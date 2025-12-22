@@ -1,5 +1,6 @@
 import { Canvas, Point, Layout, Node } from "./types"
 
+const DEBUG = true
 const FONT = "sans-serif"
 const FONT_SIZE = 18
 
@@ -17,6 +18,7 @@ export type Params = {
   getNodeText: (node: Node) => string
   arrowXPad: number
   arrowYPad: number
+  mouse: Point | null
 }
 
 export function draw(ctx: Canvas, params: Params) {
@@ -28,6 +30,7 @@ export function draw(ctx: Canvas, params: Params) {
     getNodeText,
     arrowXPad,
     arrowYPad,
+    mouse,
   } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)
@@ -99,7 +102,14 @@ export function draw(ctx: Canvas, params: Params) {
     }
   }
   if (ctx.ui) {
-    //
+    if (DEBUG && mouse) {
+      drawDot(ctx.ui, {
+        x: mouse.x,
+        y: mouse.y,
+        radius: 5,
+        fill: "rgba(255, 0, 0, 0.5)",
+      })
+    }
   }
 }
 
@@ -110,7 +120,6 @@ export function drawRect(
     y: number
     width: number
     height: number
-    borderRadius?: number
     fill?: string
     stroke?: string
     strokeWidth?: number
@@ -121,7 +130,6 @@ export function drawRect(
     y,
     width,
     height,
-    borderRadius = 8,
     fill = "transparent",
     stroke = "black",
     strokeWidth = 2,
@@ -132,7 +140,7 @@ export function drawRect(
   ctx.strokeStyle = stroke
   ctx.fillStyle = fill
 
-  ctx.roundRect(x, y, width, height, borderRadius)
+  ctx.rect(x, y, width, height)
 
   ctx.fill()
   ctx.stroke()
@@ -166,6 +174,7 @@ export function drawText(
   } = params
 
   ctx.save()
+  // TODO: adjust text position based on function or contract
   ctx.textBaseline = "middle"
   ctx.textAlign = "left"
 
@@ -370,11 +379,14 @@ export function drawCallBackArrow(
 
 export function drawDot(
   ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  radius: number,
-  fill: string = "red",
+  params: {
+    x: number
+    y: number
+    radius: number
+    fill?: string
+  },
 ) {
+  const { x, y, radius, fill = "red" } = params
   ctx.save()
   ctx.fillStyle = fill
   ctx.beginPath()

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from "react"
+import React, { useState, useMemo, useRef, useEffect } from "react"
 import { Canvas, Groups, Call, Point, Node, Arrow } from "./lib/types"
 import * as screen from "./lib/screen"
 import { draw } from "./lib/canvas"
@@ -19,6 +19,7 @@ type Refs = {
   // animation frame
   anim: number | null
   // NOTE: store params and layout as ref for animate to draw with latest params
+  mouse: Point | null
 }
 
 export type Props = {
@@ -127,6 +128,7 @@ export const Graph: React.FC<Props> = ({
     graph: null,
     ui: null,
     anim: null,
+    mouse: null,
   })
 
   const ctx = useRef<Canvas>({ graph: null, ui: null })
@@ -158,8 +160,52 @@ export const Graph: React.FC<Props> = ({
         getNodeText: (node) => getNodeText(null, node),
         arrowXPad,
         arrowYPad,
+        mouse: refs.current?.mouse,
       })
     }
+  }
+
+  const getMouse = (
+    ref: HTMLCanvasElement | null,
+    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
+  ): Point | null => {
+    if (!ref) {
+      return null
+    }
+    const rect = ref.getBoundingClientRect()
+
+    return {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    }
+  }
+
+  const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    e.preventDefault()
+    const mouse = getMouse(refs.current?.ui, e)
+    if (mouse && refs.current) {
+      refs.current.mouse = mouse
+      // setMouse(mouse)
+      /*
+      if (drag) {
+        const dx = mouse.x - drag.startMouseX
+        const dy = mouse.y - drag.startMouseY
+        setViewBox({
+          ...viewBox,
+          x: drag.startViewBoxX - dx,
+          y: drag.startViewBoxY - dy,
+        })
+      }
+      */
+    }
+  }
+
+  const onMouseOut = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    e.preventDefault()
+    if (refs.current) {
+      refs.current.mouse = null
+    }
+    // setDrag(null)
   }
 
   return (
@@ -187,6 +233,8 @@ export const Graph: React.FC<Props> = ({
         style={STYLE}
         width={width}
         height={height}
+        onMouseMove={onMouseMove}
+        onMouseOut={onMouseOut}
       ></canvas>
     </div>
   )

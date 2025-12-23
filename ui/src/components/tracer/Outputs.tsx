@@ -1,7 +1,7 @@
 import React from "react"
 import CopyText from "../CopyText"
 import { Output } from "./types"
-import styles from "./Inputs.module.css"
+import styles from "./Outputs.module.css"
 
 const Outputs: React.FC<{ outputs: Output[] }> = ({ outputs }) => {
   const len = outputs.length

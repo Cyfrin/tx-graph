@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react"
-import { Canvas, Groups, Call, Point, Node, Arrow } from "./lib/types"
+import { Canvas, Groups, Call, Point, Node, Arrow, Rect } from "./lib/types"
 import * as screen from "./lib/screen"
+import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
 import { Hover, Tracer } from "./types"
 
@@ -19,6 +20,115 @@ const ZOOMS: number[] = [
 ]
 const MIN_ZOOM_INDEX = 0
 const MAX_ZOOM_INDEX = ZOOMS.length - 1
+
+const STEP = 50
+const MIN_STEPS = 4
+// Radius around mouse
+const R = 25
+const BOX_X_PADD = 10
+const BOX_Y_PADD = 10
+
+export type ArrowType = "arrow" | "zigzag" | "callback"
+
+export function getArrowType(p0: Point, p1: Point): ArrowType {
+  if (p0.y == p1.y) {
+    return "arrow"
+  }
+  if (p1.x <= p0.x) {
+    return "callback"
+  }
+  return "zigzag"
+}
+
+function poly(
+  p0: Point,
+  p1: Point,
+  xPad: number = 0,
+  yPad: number = 0,
+): Point[] {
+  const type = getArrowType(p0, p1)
+  switch (type) {
+    case "zigzag": {
+      const mid = (p0.x + p1.x) >> 1
+      return [p0, { x: mid, y: p0.y }, { x: mid, y: p1.y }, p1]
+    }
+    case "callback": {
+      return [
+        p0,
+        { x: p0.x + xPad, y: p0.y },
+        { x: p0.x + xPad, y: p1.y + yPad },
+        { x: p1.x, y: p1.y + yPad },
+        p1,
+      ]
+    }
+    default:
+      return [p0, p1]
+  }
+}
+
+function sample(a: Arrow, xPad: number = 0, yPad: number = 0): Point[] {
+  const ps = poly(a.p0, a.p1, xPad, yPad)
+  const [len] = math.len(ps)
+
+  const n = Math.max(len > STEP ? (len / STEP) | 0 : MIN_STEPS, MIN_STEPS)
+
+  return math.sample(n, (i) => {
+    const t = i / n
+    return math.perp(ps, t)
+  })
+}
+
+function getCanvasX(
+  // Screen coordinates
+  width: number,
+  mouseX: number,
+  // Canvas coordinates
+  canvasWidth: number,
+  canvasX: number,
+): number {
+  return math.lin(canvasWidth, width, mouseX, canvasX)
+}
+
+function getCanvasY(
+  // Screen coordinates
+  height: number,
+  mouseY: number,
+  // Canvas coordinates
+  canvasHeight: number,
+  canvasY: number,
+): number {
+  return math.lin(canvasHeight, height, mouseY, canvasY)
+}
+
+function box(points: Point[], xPad: number = 0, yPad: number = 0): Rect {
+  let xMin = points[0].x
+  let xMax = points[0].x
+  let yMin = points[0].y
+  let yMax = points[0].y
+
+  for (let i = 1; i < points.length; i++) {
+    const p = points[i]
+    if (p.x < xMin) {
+      xMin = p.x
+    }
+    if (p.y < yMin) {
+      yMin = p.y
+    }
+    if (p.x > xMax) {
+      xMax = p.x
+    }
+    if (p.y > yMax) {
+      yMax = p.y
+    }
+  }
+
+  return {
+    x: xMin - xPad,
+    y: yMin - yPad,
+    width: xMax - xMin + 2 * xPad,
+    height: yMax - yMin + 2 * yPad,
+  }
+}
 
 type Refs = {
   graph: HTMLCanvasElement | null
@@ -284,6 +394,67 @@ export const Graph: React.FC<Props> = ({
           y: refs.current.drag.startViewY + dy,
         }
       }
+
+      const view = refs.current
+        ? refs.current.view
+        : {
+            x: 0,
+            y: 0,
+            width,
+            height,
+          }
+
+      const canvasX = mouse ? getCanvasX(width, mouse.x, view.width, view.x) : 0
+      const canvasY = mouse
+        ? getCanvasY(height, mouse.y, view.height, view.y)
+        : 0
+      const mouseCanvasXY = { x: canvasX, y: canvasY }
+
+      const dragging = !!refs.current?.drag
+
+      const hover: Hover = { node: null, arrows: null }
+      if (!dragging && mouse && canvasX != 0 && canvasY != 0) {
+        for (const node of layout.nodes.values()) {
+          if (screen.isInside(mouseCanvasXY, node.rect)) {
+            // Assign to the last node that the mouse is hovering - don't break from for loop
+            hover.node = node.id
+          }
+        }
+
+        if (hover.node == null) {
+          hover.arrows = new Set()
+
+          for (let i = 0; i < layout.arrows.length; i++) {
+            const a = layout.arrows[i]
+            let yPad = -arrowYPad
+            if (getArrowType(a.p0, a.p1) == "callback") {
+              const g = layout.rev.get(a.e)
+              if (g != undefined) {
+                const group = layout.nodes.get(g)
+                if (group) {
+                  yPad -= a.p1.y - group.rect.y
+                }
+              }
+            }
+            const b = box(
+              poly(a.p0, a.p1, arrowXPad, yPad),
+              BOX_X_PADD,
+              BOX_Y_PADD,
+            )
+            if (screen.isInside(mouseCanvasXY, b)) {
+              const points = sample(a, arrowXPad, yPad)
+              for (let i = 0; i < points.length; i++) {
+                if (math.dist(points[i], mouseCanvasXY) < R) {
+                  hover.arrows.add(a.i)
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // TODO: set hover - fix after drag and zoom
+      console.log("HOVER", hover)
     }
   }
 

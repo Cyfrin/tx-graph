@@ -19,6 +19,9 @@ export type Params = {
   arrowXPad: number
   arrowYPad: number
   mouse: Point | null
+  scale: number
+  offsetX: number
+  offsetY: number
 }
 
 export function draw(ctx: Canvas, params: Params) {
@@ -31,11 +34,19 @@ export function draw(ctx: Canvas, params: Params) {
     arrowXPad,
     arrowYPad,
     mouse,
+    scale,
+    offsetX,
+    offsetY,
   } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)
 
   if (ctx.graph) {
+    ctx.graph.save()
+
+    ctx.graph.translate(offsetX, offsetY)
+    ctx.graph.scale(scale, scale)
+
     const nodes = [...layout.nodes.values()]
     for (const node of nodes) {
       const style = getNodeStyle(node)
@@ -100,6 +111,8 @@ export function draw(ctx: Canvas, params: Params) {
         })
       }
     }
+
+    ctx.graph.restore()
   }
   if (ctx.ui) {
     if (DEBUG && mouse) {
@@ -239,7 +252,7 @@ export function drawArrow(
     y0,
     x1,
     y1,
-    stroke = "black",
+    stroke = "white",
     strokeWidth = 2,
     text,
     textXGap = 0,
@@ -288,7 +301,7 @@ export function drawZigZagArrow(
     y0,
     x1,
     y1,
-    stroke = "black",
+    stroke = "white",
     strokeWidth = 2,
     text = null,
     textXGap = -14,
@@ -344,7 +357,7 @@ export function drawCallBackArrow(
     y1,
     xPad,
     yPad,
-    stroke = "black",
+    stroke = "white",
     strokeWidth = 2,
     text,
     textXGap = 0,

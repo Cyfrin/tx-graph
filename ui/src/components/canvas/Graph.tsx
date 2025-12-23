@@ -13,13 +13,27 @@ const STYLE: React.CSSProperties = {
 const DEFAULT_NODE_FILL = "none"
 const DEFAULT_NODE_STROKE = "black"
 
+const ZOOMS: number[] = [
+  0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
+  1.7, 1.8, 1.9, 2.0,
+]
+const MIN_ZOOM_INDEX = 0
+const MAX_ZOOM_INDEX = ZOOMS.length - 1
+
 type Refs = {
   graph: HTMLCanvasElement | null
   ui: HTMLCanvasElement | null
   // animation frame
   anim: number | null
-  // NOTE: store params and layout as ref for animate to draw with latest params
+  // NOTE: store params as ref for animate to draw with latest params
   mouse: Point | null
+  zoomIndex: number
+  view: {
+    x: number
+    y: number
+    width: number
+    height: number
+  }
 }
 
 export type Props = {
@@ -129,9 +143,18 @@ export const Graph: React.FC<Props> = ({
     ui: null,
     anim: null,
     mouse: null,
+    zoomIndex: 9,
+    view: {
+      x: 0,
+      y: 0,
+      width,
+      height,
+    },
   })
 
   const ctx = useRef<Canvas>({ graph: null, ui: null })
+
+  const [zoomIndex, setZoomIndex] = useState<number>(9)
 
   useEffect(() => {
     if (ctx.current) {
@@ -160,7 +183,10 @@ export const Graph: React.FC<Props> = ({
         getNodeText: (node) => getNodeText(null, node),
         arrowXPad,
         arrowYPad,
-        mouse: refs.current?.mouse,
+        mouse: refs.current.mouse,
+        scale: ZOOMS[refs.current.zoomIndex],
+        offsetX: refs.current.view.x,
+        offsetY: refs.current.view.y,
       })
     }
   }
@@ -177,6 +203,36 @@ export const Graph: React.FC<Props> = ({
     return {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
+    }
+  }
+
+  const zoom = (next: number) => {
+    if (next == zoomIndex || !refs.current) {
+      return
+    }
+    // TODO: center around mouse if not zoom from zoom controller
+
+    // Zoom in -> view box decrease width and height
+    // Zoom out -> view box increase width and height
+    const up = next > zoomIndex
+    const nextZoomIndex = up
+      ? Math.min(next, MAX_ZOOM_INDEX)
+      : Math.max(next, MIN_ZOOM_INDEX)
+    const w = Math.floor(width / ZOOMS[nextZoomIndex])
+    const h = Math.floor(height / ZOOMS[nextZoomIndex])
+    const center = {
+      x: refs.current.view.x + (refs.current.view.width >> 1),
+      y: refs.current.view.y + (refs.current.view.height >> 1),
+    }
+
+    setZoomIndex(nextZoomIndex)
+
+    refs.current.zoomIndex = nextZoomIndex
+    refs.current.view = {
+      x: center.x - (w >> 1),
+      y: center.y - (h >> 1),
+      width: w,
+      height: h,
     }
   }
 
@@ -208,6 +264,19 @@ export const Graph: React.FC<Props> = ({
     // setDrag(null)
   }
 
+  const onWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    if (!refs.current) {
+      return
+    }
+    if (e.deltaY < 0) {
+      // Zoom in
+      zoom(zoomIndex + 1)
+    } else {
+      // Zoom out
+      zoom(zoomIndex - 1)
+    }
+  }
+
   return (
     <div
       style={{
@@ -235,6 +304,7 @@ export const Graph: React.FC<Props> = ({
         height={height}
         onMouseMove={onMouseMove}
         onMouseOut={onMouseOut}
+        onWheel={onWheel}
       ></canvas>
     </div>
   )

@@ -9,6 +9,7 @@ const DEFAULT_STROKE = "black"
 
 // TODO: clean up
 // TODO: clean up default params
+// TODO: line flow animation
 
 export type Params = {
   width: number
@@ -47,19 +48,7 @@ export function draw(ctx: Canvas, params: Params) {
     ctx.graph.translate(offsetX, offsetY)
     ctx.graph.scale(scale, scale)
 
-    const nodes = [...layout.nodes.values()]
-    for (const node of nodes) {
-      const style = getNodeStyle(node)
-      drawRect(ctx.graph, {
-        x: node.rect.x,
-        y: node.rect.y,
-        width: node.rect.width,
-        height: node.rect.height,
-        fill: style?.fill || DEFAULT_FILL,
-        stroke: style?.stroke || DEFAULT_STROKE,
-      })
-    }
-
+    // TODO: Render arrows that are not hovered first
     for (const arrow of layout.arrows) {
       if (arrow.p0.y == arrow.p1.y) {
         // Straight arrow
@@ -86,7 +75,7 @@ export function draw(ctx: Canvas, params: Params) {
           x1: arrow.p1.x,
           y1: arrow.p1.y,
           xPad: arrowXPad,
-          yPad: 0,
+          yPad,
         })
       } else {
         // zig-zag arrow
@@ -97,6 +86,19 @@ export function draw(ctx: Canvas, params: Params) {
           y1: arrow.p1.y,
         })
       }
+    }
+
+    const nodes = [...layout.nodes.values()]
+    for (const node of nodes) {
+      const style = getNodeStyle(node)
+      drawRect(ctx.graph, {
+        x: node.rect.x,
+        y: node.rect.y,
+        width: node.rect.width,
+        height: node.rect.height,
+        fill: style?.fill || DEFAULT_FILL,
+        stroke: style?.stroke || DEFAULT_STROKE,
+      })
     }
 
     for (const node of nodes) {

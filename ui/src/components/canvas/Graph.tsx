@@ -34,6 +34,12 @@ type Refs = {
     width: number
     height: number
   }
+  drag: {
+    startMouseX: number
+    startMouseY: number
+    startViewX: number
+    startViewY: number
+  } | null
 }
 
 export type Props = {
@@ -150,6 +156,7 @@ export const Graph: React.FC<Props> = ({
       width,
       height,
     },
+    drag: null,
   })
 
   const ctx = useRef<Canvas>({ graph: null, ui: null })
@@ -236,23 +243,47 @@ export const Graph: React.FC<Props> = ({
     }
   }
 
+  const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    e.preventDefault()
+
+    if (!refs.current) {
+      return
+    }
+
+    const mouse = getMouse(refs.current?.ui, e)
+    if (mouse) {
+      refs.current.drag = {
+        startMouseX: mouse.x,
+        startMouseY: mouse.y,
+        startViewX: refs.current.view.x,
+        startViewY: refs.current.view.y,
+      }
+    }
+  }
+
+  const onMouseUp = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+    e.preventDefault()
+    if (refs.current) {
+      refs.current.drag = null
+    }
+  }
+
   const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     e.preventDefault()
+
     const mouse = getMouse(refs.current?.ui, e)
     if (mouse && refs.current) {
       refs.current.mouse = mouse
-      // setMouse(mouse)
-      /*
-      if (drag) {
-        const dx = mouse.x - drag.startMouseX
-        const dy = mouse.y - drag.startMouseY
-        setViewBox({
-          ...viewBox,
-          x: drag.startViewBoxX - dx,
-          y: drag.startViewBoxY - dy,
-        })
+
+      if (refs.current.drag) {
+        const dx = mouse.x - refs.current.drag.startMouseX
+        const dy = mouse.y - refs.current.drag.startMouseY
+        refs.current.view = {
+          ...refs.current.view,
+          x: refs.current.drag.startViewX + dx,
+          y: refs.current.drag.startViewY + dy,
+        }
       }
-      */
     }
   }
 
@@ -260,8 +291,8 @@ export const Graph: React.FC<Props> = ({
     e.preventDefault()
     if (refs.current) {
       refs.current.mouse = null
+      refs.current.drag = null
     }
-    // setDrag(null)
   }
 
   const onWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
@@ -303,6 +334,8 @@ export const Graph: React.FC<Props> = ({
         width={width}
         height={height}
         onMouseMove={onMouseMove}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
         onMouseOut={onMouseOut}
         onWheel={onWheel}
       ></canvas>

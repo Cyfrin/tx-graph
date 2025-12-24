@@ -404,18 +404,12 @@ export const Graph: React.FC<Props> = ({
             height,
           }
 
-      const canvasX = mouse ? getCanvasX(width, mouse.x, view.width, view.x) : 0
-      const canvasY = mouse
-        ? getCanvasY(height, mouse.y, view.height, view.y)
-        : 0
-      const mouseCanvasXY = { x: canvasX, y: canvasY }
-
       const dragging = !!refs.current?.drag
 
       const hover: Hover = { node: null, arrows: null }
-      if (!dragging && mouse && canvasX != 0 && canvasY != 0) {
+      if (!dragging && mouse) {
         for (const node of layout.nodes.values()) {
-          if (screen.isInside(mouseCanvasXY, node.rect)) {
+          if (screen.isInside(mouse, node.rect)) {
             // Assign to the last node that the mouse is hovering - don't break from for loop
             hover.node = node.id
           }
@@ -441,10 +435,10 @@ export const Graph: React.FC<Props> = ({
               BOX_X_PADD,
               BOX_Y_PADD,
             )
-            if (screen.isInside(mouseCanvasXY, b)) {
+            if (screen.isInside(mouse, b)) {
               const points = sample(a, arrowXPad, yPad)
               for (let i = 0; i < points.length; i++) {
-                if (math.dist(points[i], mouseCanvasXY) < R) {
+                if (math.dist(points[i], mouse) < R) {
                   hover.arrows.add(a.i)
                 }
               }

@@ -1,4 +1,5 @@
 import { Canvas, Point, Layout, Node } from "./types"
+import * as math from "./math"
 
 const DEBUG = true
 const FONT = "sans-serif"
@@ -6,6 +7,28 @@ const FONT_SIZE = 18
 
 const DEFAULT_FILL = "none"
 const DEFAULT_STROKE = "black"
+
+function getCanvasX(
+  // Screen coordinates
+  width: number,
+  mouseX: number,
+  // Canvas coordinates
+  canvasWidth: number,
+  canvasX: number,
+): number {
+  return math.lin(canvasWidth, width, mouseX, canvasX)
+}
+
+function getCanvasY(
+  // Screen coordinates
+  height: number,
+  mouseY: number,
+  // Canvas coordinates
+  canvasHeight: number,
+  canvasY: number,
+): number {
+  return math.lin(canvasHeight, height, mouseY, canvasY)
+}
 
 // TODO: clean up
 // TODO: clean up default params
@@ -118,6 +141,24 @@ export function draw(ctx: Canvas, params: Params) {
   }
   if (ctx.ui) {
     if (DEBUG && mouse) {
+      const canvasX = getCanvasX(width, mouse.x, width, offsetX)
+      const canvasY = getCanvasY(height, mouse.y, height, offsetY)
+
+      /*
+      console.log({
+        x: mouse.x,
+        y: mouse.y,
+        canvasX,
+        canvasY,
+      })
+      */
+
+      drawDot(ctx.ui, {
+        x: canvasX,
+        y: canvasY,
+        radius: 5,
+        fill: "rgba(0, 255, 0, 0.5)",
+      })
       drawDot(ctx.ui, {
         x: mouse.x,
         y: mouse.y,

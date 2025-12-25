@@ -150,6 +150,7 @@ type Refs = {
     startViewX: number
     startViewY: number
   } | null
+  hover: Hover | null
 }
 
 export type Props = {
@@ -267,6 +268,7 @@ export const Graph: React.FC<Props> = ({
       height,
     },
     drag: null,
+    hover: null,
   })
 
   const ctx = useRef<Canvas>({ graph: null, ui: null })
@@ -296,8 +298,8 @@ export const Graph: React.FC<Props> = ({
         width,
         height,
         layout,
-        getNodeStyle: (node) => getNodeStyle(null, node),
-        getNodeText: (node) => getNodeText(null, node),
+        getNodeStyle: (node) => getNodeStyle(refs.current.hover, node),
+        getNodeText: (node) => getNodeText(refs.current.hover, node),
         arrowXPad,
         arrowYPad,
         mouse: refs.current.mouse,
@@ -449,6 +451,7 @@ export const Graph: React.FC<Props> = ({
 
       // TODO: set hover - fix after drag and zoom
       console.log("HOVER", hover)
+      refs.current.hover = hover
     }
   }
 
@@ -457,6 +460,7 @@ export const Graph: React.FC<Props> = ({
     if (refs.current) {
       refs.current.mouse = null
       refs.current.drag = null
+      refs.current.hover = null
     }
   }
 

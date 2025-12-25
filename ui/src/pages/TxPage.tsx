@@ -72,13 +72,14 @@ function getNodeFillColor(
   tracer: TracerState,
 ): string {
   // TODO: fix - canvas doesn't recognize css var colors
-  return "rgb(6, 44, 65, 0.3)"
+  // return "rgb(6, 44, 65, 0.3)"
 
   const obj = objs.get(node.id) as Obj<ObjType, Account | Fn>
   // Arrows are hovered
   if (hover?.arrows && hover?.arrows?.size > 0) {
     if (obj?.type == "acc") {
-      return "var(--node-dim-color)"
+      // return "var(--node-dim-color)"
+      return "green"
     }
     return "transparent"
   }
@@ -86,7 +87,8 @@ function getNodeFillColor(
   if (hover) {
     if (hover?.node != null) {
       if (hover?.node == node.id) {
-        return "var(--node-hover-color)"
+        // return "var(--node-hover-color)"
+        return "red"
       }
       if (
         graph.incoming.get(hover.node)?.has(node.id) ||

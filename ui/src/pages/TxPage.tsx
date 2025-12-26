@@ -28,6 +28,17 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // TODO: on click graph -> pin trace
 // TODO: error handling
 
+// Canvas doesn't recognize css var colors
+const STYLES = {
+  NODE_COLOR: "rgb(6, 44, 65)",
+  NODE_TEXT_COLOR: "white",
+  NODE_BORDER_COLOR: "transparent",
+  NODE_HOVER_COLOR: "rgb(10, 60, 90)",
+  NODE_HOVER_TEXT_COLOR: "rgb(160, 230, 255)",
+  NODE_HOVER_BORDER_COLOR: "transparent",
+  NODE_DIM_COLOR: "rgb(6, 44, 65, 0.3)",
+}
+
 type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | ""
 
 function getArrowType(
@@ -71,15 +82,11 @@ function getNodeFillColor(
   graph: Graph,
   tracer: TracerState,
 ): string {
-  // TODO: fix - canvas doesn't recognize css var colors
-  // return "rgb(6, 44, 65, 0.3)"
-
   const obj = objs.get(node.id) as Obj<ObjType, Account | Fn>
   // Arrows are hovered
   if (hover?.arrows && hover?.arrows?.size > 0) {
     if (obj?.type == "acc") {
-      // return "var(--node-dim-color)"
-      return "green"
+      return STYLES.NODE_DIM_COLOR
     }
     return "transparent"
   }
@@ -87,24 +94,23 @@ function getNodeFillColor(
   if (hover) {
     if (hover?.node != null) {
       if (hover?.node == node.id) {
-        // return "var(--node-hover-color)"
-        return "red"
+        return STYLES.NODE_HOVER_COLOR
       }
       if (
         graph.incoming.get(hover.node)?.has(node.id) ||
         graph.outgoing.get(hover.node)?.has(node.id)
       ) {
-        return "var(--node-hover-color)"
+        return STYLES.NODE_HOVER_COLOR
       }
       if (obj?.type == "acc") {
-        return "var(--node-dim-color)"
+        return STYLES.NODE_DIM_COLOR
       }
       return "transparent"
     }
   }
   // Default (no hovered node or arrow)
   if (obj?.type == "acc") {
-    return "var(--node-color)"
+    return STYLES.NODE_COLOR
   }
   return "transparent"
 }

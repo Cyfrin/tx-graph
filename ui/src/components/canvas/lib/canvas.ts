@@ -125,6 +125,7 @@ export function draw(ctx: Canvas, params: Params) {
       }
     }
 
+    /*
     if (DEBUG) {
       drawRect(ctx.graph, {
         ...layout.rect,
@@ -132,33 +133,18 @@ export function draw(ctx: Canvas, params: Params) {
         fill: "transparent",
       })
     }
+    */
 
     ctx.graph.restore()
   }
 
   if (ctx.ui) {
     if (DEBUG && mouse) {
-      const canvasX = math.lin(width * scale, width, mouse.x, offsetX)
-      const canvasY = math.lin(height * scale, width, mouse.y, offsetY)
-
-      console.log({
+      drawDot(ctx.ui, {
         x: mouse.x,
         y: mouse.y,
-        canvasX,
-        canvasY,
-      })
-
-      drawDot(ctx.ui, {
-        x: canvasX,
-        y: canvasY,
         radius: 5,
         fill: "rgba(0, 255, 0, 0.5)",
-      })
-      drawDot(ctx.ui, {
-        x: mouse.x,
-        y: mouse.y,
-        radius: 5,
-        fill: "rgba(255, 0, 0, 0.5)",
       })
     }
   }

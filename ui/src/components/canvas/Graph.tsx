@@ -329,7 +329,7 @@ export const Graph: React.FC<Props> = ({
     if (next == zoomIndex || !refs.current) {
       return
     }
-    // TODO: center around mouse if not zoom from zoom controller
+    // TODO: FIX center around mouse if not zoom from zoom controller
 
     // Zoom in -> view box decrease width and height
     // Zoom out -> view box increase width and height
@@ -438,6 +438,7 @@ export const Graph: React.FC<Props> = ({
               BOX_Y_PADD,
             )
             if (screen.isInside(mouse, b)) {
+              // TODO: cache
               const points = sample(a, arrowXPad, yPad)
               for (let i = 0; i < points.length; i++) {
                 if (math.dist(points[i], mouse) < R) {

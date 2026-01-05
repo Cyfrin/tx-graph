@@ -203,7 +203,7 @@ function TxPage() {
                     graph,
                     tracer.state,
                   ),
-                  stroke: "var(--node-border-color)",
+                  stroke: STYLES.NODE_BORDER_COLOR,
                 }
               }}
               getNodeText={(hover, node) => {

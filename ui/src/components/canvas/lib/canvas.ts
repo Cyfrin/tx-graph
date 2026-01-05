@@ -7,6 +7,7 @@ const FONT_SIZE = 18
 
 const DEFAULT_FILL = "none"
 const DEFAULT_STROKE = "black"
+const DEFAULT_TEXT_COLOR = "white"
 
 function getCanvasX(
   // Screen coordinates
@@ -186,12 +187,11 @@ export function drawRect(
     y,
     width,
     height,
-    fill = "transparent",
-    stroke = "black",
+    fill = DEFAULT_FILL,
+    stroke = DEFAULT_STROKE,
     strokeWidth = 2,
   } = params
 
-  ctx.save()
   ctx.lineWidth = strokeWidth
   ctx.strokeStyle = stroke
   ctx.fillStyle = fill
@@ -200,7 +200,6 @@ export function drawRect(
 
   ctx.fill()
   ctx.stroke()
-  ctx.restore()
 }
 
 export function drawText(
@@ -225,11 +224,10 @@ export function drawText(
     xPad = 14,
     yPad = 14,
     text,
-    color = "white",
-    font = "12px Arial",
+    color = DEFAULT_TEXT_COLOR,
+    font = "12px system-ui",
   } = params
 
-  ctx.save()
   // TODO: adjust text position based on function or contract
   ctx.textBaseline = "middle"
   ctx.textAlign = "left"
@@ -244,7 +242,6 @@ export function drawText(
   }
 
   ctx.fillText(`${t}`, x + xPad, y + yPad)
-  ctx.restore()
 }
 
 export function drawArrowHead(
@@ -260,7 +257,6 @@ export function drawArrowHead(
   const { x0, y0, x1, y1, size = 10 } = params
   const angle = Math.atan2(y1 - y0, x1 - x0)
 
-  ctx.save()
   ctx.beginPath()
   ctx.moveTo(x1, y1)
   ctx.lineTo(
@@ -273,7 +269,6 @@ export function drawArrowHead(
   )
   ctx.closePath()
   ctx.fill()
-  ctx.restore()
 }
 
 export function drawArrow(
@@ -295,14 +290,12 @@ export function drawArrow(
     y0,
     x1,
     y1,
-    stroke = "white",
+    stroke = DEFAULT_STROKE,
     strokeWidth = 2,
     text,
     textXGap = 0,
     textYGap = -10,
   } = params
-
-  ctx.save()
 
   ctx.strokeStyle = stroke
   ctx.fillStyle = stroke
@@ -321,8 +314,6 @@ export function drawArrow(
     ctx.textBaseline = "middle"
     ctx.fillText(String(text), ((x0 + x1) >> 1) + textXGap, y0 + textYGap)
   }
-
-  ctx.restore()
 }
 
 export function drawZigZagArrow(
@@ -344,14 +335,13 @@ export function drawZigZagArrow(
     y0,
     x1,
     y1,
-    stroke = "white",
+    stroke = DEFAULT_STROKE,
     strokeWidth = 2,
     text = null,
     textXGap = -14,
     textYGap = -14,
   } = params
 
-  ctx.save()
   const midX = (x0 + x1) >> 1
 
   ctx.strokeStyle = stroke
@@ -373,8 +363,6 @@ export function drawZigZagArrow(
     ctx.textBaseline = "middle"
     ctx.fillText(text.toString(), midX + textXGap, y1 + textYGap)
   }
-
-  ctx.restore()
 }
 
 export function drawCallBackArrow(
@@ -400,14 +388,12 @@ export function drawCallBackArrow(
     y1,
     xPad,
     yPad,
-    stroke = "white",
+    stroke = DEFAULT_STROKE,
     strokeWidth = 2,
     text,
     textXGap = 0,
     textYGap = -14,
   } = params
-
-  ctx.save()
 
   ctx.strokeStyle = stroke
   ctx.fillStyle = stroke
@@ -429,8 +415,6 @@ export function drawCallBackArrow(
     ctx.textBaseline = "middle"
     ctx.fillText(text.toString(), x1 + textXGap, y1 + yPad + textYGap)
   }
-
-  ctx.restore()
 }
 
 export function drawDot(
@@ -443,10 +427,8 @@ export function drawDot(
   },
 ) {
   const { x, y, radius, fill = "red" } = params
-  ctx.save()
   ctx.fillStyle = fill
   ctx.beginPath()
   ctx.arc(x, y, radius, 0, Math.PI * 2)
   ctx.fill()
-  ctx.restore()
 }

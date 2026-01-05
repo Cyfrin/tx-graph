@@ -52,6 +52,7 @@ export function draw(ctx: Canvas, params: Params) {
     ctx.graph.save()
 
     // TODO: translate using canvas coordinates?
+    // Map (0, 0) -> (offsetX, offsetY)
     ctx.graph.translate(offsetX, offsetY)
     ctx.graph.scale(scale, scale)
 

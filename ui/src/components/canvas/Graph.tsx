@@ -291,8 +291,6 @@ export const Graph: React.FC<Props> = ({
     }
   }, [width, height])
 
-  console.log(layout)
-
   function animate() {
     refs.current.anim = window.requestAnimationFrame(animate)
     // @ts-ignore
@@ -416,8 +414,16 @@ export const Graph: React.FC<Props> = ({
 
       const hover: Hover = { node: null, arrows: null }
       if (!dragging && mouse) {
+        // Canvas coordinates
+        // TODO: fix hover on zoom
+        const xy = {
+          x: mouse.x - view.x,
+          y: mouse.y - view.y,
+        }
+        console.log({ offsetX: view.x, offsetY: view.y })
+
         for (const node of layout.nodes.values()) {
-          if (screen.isInside(mouse, node.rect)) {
+          if (screen.isInside(xy, node.rect)) {
             // Assign to the last node that the mouse is hovering - don't break from for loop
             hover.node = node.id
           }
@@ -447,7 +453,7 @@ export const Graph: React.FC<Props> = ({
               // TODO: cache?
               const points = sample(a, arrowXPad, yPad)
               for (let i = 0; i < points.length; i++) {
-                if (math.dist(points[i], mouse) < R) {
+                if (math.dist(points[i], xy) < R) {
                   hover.arrows.add(a.i)
                 }
               }

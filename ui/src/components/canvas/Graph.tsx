@@ -291,6 +291,8 @@ export const Graph: React.FC<Props> = ({
     }
   }, [width, height])
 
+  console.log(layout)
+
   function animate() {
     refs.current.anim = window.requestAnimationFrame(animate)
     // @ts-ignore
@@ -400,6 +402,7 @@ export const Graph: React.FC<Props> = ({
         }
       }
 
+      // TODO: remove?
       const view = refs.current
         ? refs.current.view
         : {
@@ -441,7 +444,7 @@ export const Graph: React.FC<Props> = ({
               BOX_Y_PADD,
             )
             if (screen.isInside(mouse, b)) {
-              // TODO: cache
+              // TODO: cache?
               const points = sample(a, arrowXPad, yPad)
               for (let i = 0; i < points.length; i++) {
                 if (math.dist(points[i], mouse) < R) {

@@ -60,9 +60,9 @@ export function perp(points: Point[], t: number): Point {
 
 // Samples f(i) for i in 0 to n
 export function sample<A>(n: number, f: (i: number) => A): A[] {
-  const data = []
+  const data = new Array<A>(n + 1)
   for (let i = 0; i <= n; i++) {
-    data.push(f(i))
+    data[i] = f(i)
   }
   return data
 }

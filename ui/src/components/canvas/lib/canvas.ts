@@ -9,28 +9,6 @@ const DEFAULT_FILL = "none"
 const DEFAULT_STROKE = "black"
 const DEFAULT_TEXT_COLOR = "white"
 
-function getCanvasX(
-  // Screen coordinates
-  width: number,
-  mouseX: number,
-  // Canvas coordinates
-  canvasWidth: number,
-  canvasX: number,
-): number {
-  return math.lin(canvasWidth, width, mouseX, canvasX)
-}
-
-function getCanvasY(
-  // Screen coordinates
-  height: number,
-  mouseY: number,
-  // Canvas coordinates
-  canvasHeight: number,
-  canvasY: number,
-): number {
-  return math.lin(canvasHeight, height, mouseY, canvasY)
-}
-
 // TODO: clean up
 // TODO: clean up default params
 // TODO: line flow animation
@@ -44,8 +22,10 @@ export type Params = {
   getArrowStyle: (arrow: Arrow) => { stroke?: string }
   arrowXPad: number
   arrowYPad: number
+  // window coordinates
   mouse: Point | null
   scale: number
+  // window coordinates
   offsetX: number
   offsetY: number
 }
@@ -71,6 +51,7 @@ export function draw(ctx: Canvas, params: Params) {
   if (ctx.graph) {
     ctx.graph.save()
 
+    // TODO: translate using canvas coordinates?
     ctx.graph.translate(offsetX, offsetY)
     ctx.graph.scale(scale, scale)
 
@@ -144,21 +125,28 @@ export function draw(ctx: Canvas, params: Params) {
       }
     }
 
+    if (DEBUG) {
+      drawRect(ctx.graph, {
+        ...layout.rect,
+        stroke: "red",
+        fill: "transparent",
+      })
+    }
+
     ctx.graph.restore()
   }
+
   if (ctx.ui) {
     if (DEBUG && mouse) {
-      const canvasX = getCanvasX(width, mouse.x, width, offsetX)
-      const canvasY = getCanvasY(height, mouse.y, height, offsetY)
+      const canvasX = math.lin(width * scale, width, mouse.x, offsetX)
+      const canvasY = math.lin(height * scale, width, mouse.y, offsetY)
 
-      /*
       console.log({
         x: mouse.x,
         y: mouse.y,
         canvasX,
         canvasY,
       })
-      */
 
       drawDot(ctx.ui, {
         x: canvasX,
@@ -203,7 +191,6 @@ export function drawRect(
   ctx.fillStyle = fill
 
   ctx.rect(x, y, width, height)
-
   ctx.fill()
   ctx.stroke()
 }
@@ -237,7 +224,6 @@ export function drawText(
   // TODO: adjust text position based on function or contract
   ctx.textBaseline = "middle"
   ctx.textAlign = "left"
-
   ctx.font = font
   ctx.fillStyle = color
 

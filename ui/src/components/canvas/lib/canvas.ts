@@ -1,4 +1,4 @@
-import { Canvas, Point, Layout, Node } from "./types"
+import { Canvas, Point, Layout, Node, Arrow } from "./types"
 import * as math from "./math"
 
 const DEBUG = true
@@ -41,6 +41,7 @@ export type Params = {
   layout: Layout
   getNodeStyle: (node: Node) => { fill?: string; stroke?: string }
   getNodeText: (node: Node) => string
+  getArrowStyle: (arrow: Arrow) => { stroke?: string }
   arrowXPad: number
   arrowYPad: number
   mouse: Point | null
@@ -56,6 +57,7 @@ export function draw(ctx: Canvas, params: Params) {
     layout,
     getNodeStyle,
     getNodeText,
+    getArrowStyle,
     arrowXPad,
     arrowYPad,
     mouse,
@@ -74,6 +76,7 @@ export function draw(ctx: Canvas, params: Params) {
 
     // TODO: Render arrows that are not hovered first
     for (const arrow of layout.arrows) {
+      const style = getArrowStyle(arrow)
       if (arrow.p0.y == arrow.p1.y) {
         // Straight arrow
         drawArrow(ctx.graph, {
@@ -81,6 +84,7 @@ export function draw(ctx: Canvas, params: Params) {
           y0: arrow.p0.y,
           x1: arrow.p1.x,
           y1: arrow.p1.y,
+          stroke: style.stroke,
         })
       } else if (arrow.p1.x <= arrow.p0.x) {
         // Callback arrow
@@ -100,6 +104,7 @@ export function draw(ctx: Canvas, params: Params) {
           y1: arrow.p1.y,
           xPad: arrowXPad,
           yPad,
+          stroke: style.stroke,
         })
       } else {
         // zig-zag arrow
@@ -108,6 +113,7 @@ export function draw(ctx: Canvas, params: Params) {
           y0: arrow.p0.y,
           x1: arrow.p1.x,
           y1: arrow.p1.y,
+          stroke: style.stroke,
         })
       }
     }
@@ -252,10 +258,14 @@ export function drawArrowHead(
     x1: number
     y1: number
     size?: number
+    stroke?: string
   },
 ) {
-  const { x0, y0, x1, y1, size = 10 } = params
+  const { x0, y0, x1, y1, size = 10, stroke = DEFAULT_STROKE } = params
   const angle = Math.atan2(y1 - y0, x1 - x0)
+
+  ctx.strokeStyle = stroke
+  ctx.fillStyle = stroke
 
   ctx.beginPath()
   ctx.moveTo(x1, y1)
@@ -306,7 +316,7 @@ export function drawArrow(
   ctx.lineTo(x1, y1)
   ctx.stroke()
 
-  drawArrowHead(ctx, { x0, y0, x1, y1 })
+  drawArrowHead(ctx, { x0, y0, x1, y1, stroke })
 
   if (text != null) {
     ctx.font = `${FONT_SIZE}px ${FONT}`
@@ -355,7 +365,7 @@ export function drawZigZagArrow(
   ctx.lineTo(x1, y1)
   ctx.stroke()
 
-  drawArrowHead(ctx, { x0: midX, y0: y1, x1, y1 })
+  drawArrowHead(ctx, { x0: midX, y0: y1, x1, y1, stroke })
 
   if (text != null) {
     ctx.font = `${FONT_SIZE}px ${FONT}`
@@ -407,7 +417,7 @@ export function drawCallBackArrow(
   ctx.lineTo(x1, y1)
   ctx.stroke()
 
-  drawArrowHead(ctx, { x0: x1, y0: y1 + yPad, x1: x1, y1 })
+  drawArrowHead(ctx, { x0: x1, y0: y1 + yPad, x1: x1, y1, stroke })
 
   if (text != null) {
     ctx.font = `${FONT_SIZE}px ${FONT}`

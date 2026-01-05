@@ -30,6 +30,7 @@ import { getTrace, Obj, ObjType } from "../tracer"
 
 // Canvas doesn't recognize css var colors
 const STYLES = {
+  BG_COLOR: "#171717",
   NODE_COLOR: "rgb(6, 44, 65)",
   NODE_TEXT_COLOR: "white",
   NODE_BORDER_COLOR: "transparent",
@@ -37,15 +38,25 @@ const STYLES = {
   NODE_HOVER_TEXT_COLOR: "rgb(160, 230, 255)",
   NODE_HOVER_BORDER_COLOR: "transparent",
   NODE_DIM_COLOR: "rgb(6, 44, 65, 0.3)",
+  ARROW_COLOR: "#a4a4a4",
+  ARROW_DIM_COLOR: "rgba(255, 255, 255, 0.2)",
+  ARROW_IN_COLOR: "rgb(145, 32, 24)",
+  ARROW_OUT_COLOR: "rgb(70, 173, 221)",
+  ARROW_HOVER_COLOR: "rgb(128, 88, 255)",
+  ARROW_PIN_COLOR: "rgb(254, 200, 75)",
+  ARROW_TRACER_COLOR: "#32cd32",
 }
 
 type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | ""
 
 function getArrowType(
-  hover: Hover,
+  hover: Hover | null,
   arrow: Arrow,
   tracer: TracerState,
 ): ArrowType {
+  if (!hover) {
+    return ""
+  }
   if (tracer.pins.has(arrow.i)) {
     return "pin"
   }
@@ -118,19 +129,19 @@ function getNodeFillColor(
 function getArrowColor(t: ArrowType): string {
   switch (t) {
     case "in":
-      return "var(--arrow-in-color)"
+      return STYLES.ARROW_IN_COLOR
     case "out":
-      return "var(--arrow-out-color)"
+      return STYLES.ARROW_OUT_COLOR
     case "hover":
-      return "var(--arrow-hover-color)"
+      return STYLES.ARROW_HOVER_COLOR
     case "dim":
-      return "var(--arrow-dim-color)"
+      return STYLES.ARROW_DIM_COLOR
     case "pin":
-      return "var(--arrow-pin-color)"
+      return STYLES.ARROW_PIN_COLOR
     case "tracer":
-      return "var(--arrow-tracer-color)"
+      return STYLES.ARROW_TRACER_COLOR
     default:
-      return "var(--arrow-color)"
+      return STYLES.ARROW_COLOR
   }
 }
 
@@ -190,7 +201,7 @@ function TxPage() {
             <CanvasGraph
               width={rect.width}
               height={rect.height}
-              backgroundColor="var(--bg-dark-color)"
+              backgroundColor={STYLES.BG_COLOR}
               groups={groups}
               calls={calls}
               tracer={tracer.state}
@@ -211,6 +222,12 @@ function TxPage() {
                 // @ts-ignore
                 const obj = objs.get(node.id) as Obj<ObjType, Account>
                 return `${obj?.val.name || obj?.val?.addr || node.id || ""}`
+              }}
+              getArrowStyle={(hover, arrow) => {
+                const t = getArrowType(hover, arrow, tracer.state)
+                return {
+                  stroke: getArrowColor(t),
+                }
               }}
             />
           )

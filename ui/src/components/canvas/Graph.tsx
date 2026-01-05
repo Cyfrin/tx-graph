@@ -165,6 +165,7 @@ export type Props = {
     node: Node,
   ) => { fill?: string; stroke?: string }
   getNodeText: (hover: Hover | null, node: Node) => string
+  getArrowStyle: (hover: Hover | null, arrow: Arrow) => { stroke?: string }
   nodeWidth?: number
   nodeHeight?: number
   nodeXGap?: number
@@ -229,6 +230,7 @@ export const Graph: React.FC<Props> = ({
   tracer,
   getNodeStyle,
   getNodeText,
+  getArrowStyle,
   nodeWidth = 100,
   nodeHeight = 50,
   nodeXGap = 50,
@@ -300,6 +302,7 @@ export const Graph: React.FC<Props> = ({
         layout,
         getNodeStyle: (node) => getNodeStyle(refs.current.hover, node),
         getNodeText: (node) => getNodeText(refs.current.hover, node),
+        getArrowStyle: (arrow) => getArrowStyle(refs.current.hover, arrow),
         arrowXPad,
         arrowYPad,
         mouse: refs.current.mouse,

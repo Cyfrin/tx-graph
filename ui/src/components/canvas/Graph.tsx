@@ -139,8 +139,9 @@ type Refs = {
   mouse: Point | null
   zoomIndex: number
   view: {
-    x: number
-    y: number
+    // TODO: Window or canvas coordinates?
+    left: number
+    top: number
     width: number
     height: number
   }
@@ -264,8 +265,8 @@ export const Graph: React.FC<Props> = ({
     mouse: null,
     zoomIndex: 9,
     view: {
-      x: 0,
-      y: 0,
+      left: 0,
+      top: 0,
       width,
       height,
     },
@@ -307,8 +308,9 @@ export const Graph: React.FC<Props> = ({
         arrowYPad,
         mouse: refs.current.mouse,
         scale: ZOOMS[refs.current.zoomIndex],
-        offsetX: refs.current.view.x,
-        offsetY: refs.current.view.y,
+        // TODO: convert to canvas coordinates?
+        offsetX: refs.current.view.left,
+        offsetY: refs.current.view.top,
       })
     }
   }
@@ -343,16 +345,20 @@ export const Graph: React.FC<Props> = ({
     const w = Math.floor(width / ZOOMS[nextZoomIndex])
     const h = Math.floor(height / ZOOMS[nextZoomIndex])
     const center = {
-      x: refs.current.view.x + (refs.current.view.width >> 1),
-      y: refs.current.view.y + (refs.current.view.height >> 1),
+      // x: refs.current.view.left + (w >> 1),
+      // y: refs.current.view.top + (h >> 1),
+      x: refs.current.view.left,
+      y: refs.current.view.top,
     }
 
     setZoomIndex(nextZoomIndex)
 
     refs.current.zoomIndex = nextZoomIndex
     refs.current.view = {
-      x: center.x - (w >> 1),
-      y: center.y - (h >> 1),
+      left: refs.current.view.left,
+      top: refs.current.view.top,
+      // left: center.x - (w >> 1),
+      // top: center.y - (h >> 1),
       width: w,
       height: h,
     }
@@ -370,8 +376,8 @@ export const Graph: React.FC<Props> = ({
       refs.current.drag = {
         startMouseX: mouse.x,
         startMouseY: mouse.y,
-        startViewX: refs.current.view.x,
-        startViewY: refs.current.view.y,
+        startViewX: refs.current.view.left,
+        startViewY: refs.current.view.top,
       }
     }
   }
@@ -395,36 +401,33 @@ export const Graph: React.FC<Props> = ({
         const dy = mouse.y - refs.current.drag.startMouseY
         refs.current.view = {
           ...refs.current.view,
-          x: refs.current.drag.startViewX + dx,
-          y: refs.current.drag.startViewY + dy,
+          left: refs.current.drag.startViewX + dx,
+          top: refs.current.drag.startViewY + dy,
         }
       }
-
-      // TODO: remove?
-      const view = refs.current
-        ? refs.current.view
-        : {
-            x: 0,
-            y: 0,
-            width,
-            height,
-          }
 
       const dragging = !!refs.current?.drag
 
       const hover: Hover = { node: null, arrows: null }
       if (!dragging && mouse) {
+        const view = refs.current
+          ? refs.current.view
+          : {
+              left: 0,
+              top: 0,
+              width,
+              height,
+            }
+        const scale = ZOOMS[refs.current.zoomIndex]
         // Canvas coordinates
-        // TODO: fix hover on zoom
         const xy = {
-          x: mouse.x - view.x,
-          y: mouse.y - view.y,
+          x: (mouse.x - view.left) / scale,
+          y: (mouse.y - view.top) / scale,
         }
-        console.log({ offsetX: view.x, offsetY: view.y })
 
         for (const node of layout.nodes.values()) {
           if (screen.isInside(xy, node.rect)) {
-            // Assign to the last node that the mouse is hovering - don't break from for loop
+            // Assign to the last node that the mouse is hovering
             hover.node = node.id
           }
         }
@@ -449,7 +452,7 @@ export const Graph: React.FC<Props> = ({
               BOX_X_PADD,
               BOX_Y_PADD,
             )
-            if (screen.isInside(mouse, b)) {
+            if (screen.isInside(xy, b)) {
               // TODO: cache?
               const points = sample(a, arrowXPad, yPad)
               for (let i = 0; i < points.length; i++) {
@@ -462,8 +465,6 @@ export const Graph: React.FC<Props> = ({
         }
       }
 
-      // TODO: set hover - fix after drag and zoom
-      console.log("HOVER", hover)
       refs.current.hover = hover
     }
   }

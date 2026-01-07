@@ -13,6 +13,16 @@ import {
 } from "./types"
 import { assert } from "./utils"
 
+// TODO: remove
+export function translate(rect: Rect, x0: number = 0, y0: number = 0): Rect {
+  return {
+    x: rect.x + x0,
+    y: rect.y + y0,
+    width: rect.width,
+    height: rect.height,
+  }
+}
+
 export function isInside(p: Point, rect: Rect): boolean {
   return (
     p.x >= rect.x &&

@@ -139,11 +139,8 @@ type Refs = {
   mouse: Point | null
   zoomIndex: number
   view: {
-    // TODO: Window or canvas coordinates?
     left: number
     top: number
-    width: number
-    height: number
   }
   drag: {
     startMouseX: number
@@ -267,8 +264,6 @@ export const Graph: React.FC<Props> = ({
     view: {
       left: 0,
       top: 0,
-      width,
-      height,
     },
     drag: null,
     hover: null,
@@ -308,7 +303,6 @@ export const Graph: React.FC<Props> = ({
         arrowYPad,
         mouse: refs.current.mouse,
         scale: ZOOMS[refs.current.zoomIndex],
-        // TODO: convert to canvas coordinates?
         offsetX: refs.current.view.left,
         offsetY: refs.current.view.top,
       })
@@ -334,34 +328,14 @@ export const Graph: React.FC<Props> = ({
     if (next == zoomIndex || !refs.current) {
       return
     }
-    // TODO: FIX center around mouse if not zoom from zoom controller
-
-    // Zoom in -> view box decrease width and height
-    // Zoom out -> view box increase width and height
     const up = next > zoomIndex
     const nextZoomIndex = up
       ? Math.min(next, MAX_ZOOM_INDEX)
       : Math.max(next, MIN_ZOOM_INDEX)
-    const w = Math.floor(width / ZOOMS[nextZoomIndex])
-    const h = Math.floor(height / ZOOMS[nextZoomIndex])
-    const center = {
-      // x: refs.current.view.left + (w >> 1),
-      // y: refs.current.view.top + (h >> 1),
-      x: refs.current.view.left,
-      y: refs.current.view.top,
-    }
 
     setZoomIndex(nextZoomIndex)
 
     refs.current.zoomIndex = nextZoomIndex
-    refs.current.view = {
-      left: refs.current.view.left,
-      top: refs.current.view.top,
-      // left: center.x - (w >> 1),
-      // top: center.y - (h >> 1),
-      width: w,
-      height: h,
-    }
   }
 
   const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -415,8 +389,6 @@ export const Graph: React.FC<Props> = ({
           : {
               left: 0,
               top: 0,
-              width,
-              height,
             }
         const scale = ZOOMS[refs.current.zoomIndex]
         // Canvas coordinates

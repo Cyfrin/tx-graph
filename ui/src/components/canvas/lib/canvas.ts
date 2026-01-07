@@ -5,7 +5,7 @@ const DEBUG = true
 const FONT = "sans-serif"
 const FONT_SIZE = 18
 
-const DEFAULT_FILL = "none"
+const DEFAULT_FILL = "translate"
 const DEFAULT_STROKE = "black"
 const DEFAULT_TEXT_COLOR = "white"
 
@@ -51,7 +51,6 @@ export function draw(ctx: Canvas, params: Params) {
   if (ctx.graph) {
     ctx.graph.save()
 
-    // TODO: translate using canvas coordinates?
     // Object at (x, y) -> drawn at (x + offsetX, y + offsetY)
     ctx.graph.translate(offsetX, offsetY)
     ctx.graph.scale(scale, scale)
@@ -177,6 +176,7 @@ export function drawRect(
   ctx.strokeStyle = stroke
   ctx.fillStyle = fill
 
+  ctx.beginPath()
   ctx.rect(x, y, width, height)
   ctx.fill()
   ctx.stroke()

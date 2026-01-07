@@ -22,6 +22,36 @@ export function isInside(p: Point, rect: Rect): boolean {
   )
 }
 
+export function box(points: Point[], xPad: number = 0, yPad: number = 0): Rect {
+  let xMin = points[0].x
+  let xMax = points[0].x
+  let yMin = points[0].y
+  let yMax = points[0].y
+
+  for (let i = 1; i < points.length; i++) {
+    const p = points[i]
+    if (p.x < xMin) {
+      xMin = p.x
+    }
+    if (p.y < yMin) {
+      yMin = p.y
+    }
+    if (p.x > xMax) {
+      xMax = p.x
+    }
+    if (p.y > yMax) {
+      yMax = p.y
+    }
+  }
+
+  return {
+    x: xMin - xPad,
+    y: yMin - yPad,
+    width: xMax - xMin + 2 * xPad,
+    height: yMax - yMin + 2 * yPad,
+  }
+}
+
 export function getMidPoints(rect: Rect): MidPoints {
   const mw = rect.width >> 1
   const mh = rect.height >> 1

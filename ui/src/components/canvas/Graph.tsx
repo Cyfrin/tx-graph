@@ -78,58 +78,6 @@ function sample(a: Arrow, xPad: number = 0, yPad: number = 0): Point[] {
   })
 }
 
-function getCanvasX(
-  // Screen coordinates
-  width: number,
-  mouseX: number,
-  // Canvas coordinates
-  canvasWidth: number,
-  canvasX: number,
-): number {
-  return math.lin(canvasWidth, width, mouseX, canvasX)
-}
-
-function getCanvasY(
-  // Screen coordinates
-  height: number,
-  mouseY: number,
-  // Canvas coordinates
-  canvasHeight: number,
-  canvasY: number,
-): number {
-  return math.lin(canvasHeight, height, mouseY, canvasY)
-}
-
-function box(points: Point[], xPad: number = 0, yPad: number = 0): Rect {
-  let xMin = points[0].x
-  let xMax = points[0].x
-  let yMin = points[0].y
-  let yMax = points[0].y
-
-  for (let i = 1; i < points.length; i++) {
-    const p = points[i]
-    if (p.x < xMin) {
-      xMin = p.x
-    }
-    if (p.y < yMin) {
-      yMin = p.y
-    }
-    if (p.x > xMax) {
-      xMax = p.x
-    }
-    if (p.y > yMax) {
-      yMax = p.y
-    }
-  }
-
-  return {
-    x: xMin - xPad,
-    y: yMin - yPad,
-    width: xMax - xMin + 2 * xPad,
-    height: yMax - yMin + 2 * yPad,
-  }
-}
-
 type Refs = {
   graph: HTMLCanvasElement | null
   ui: HTMLCanvasElement | null
@@ -198,26 +146,6 @@ export type Props = {
   ) => void
   */
 }
-
-/*
-function getMouse(
-  ctx: Canvas,
-  e:
-    | React.MouseEvent<HTMLCanvasElement, MouseEvent>
-    | React.WheelEvent<HTMLCanvasElement>,
-): Point | null {
-  if (!ctx.ui) {
-    return null
-  }
-
-  const rect = ctx.ui.canvas.getBoundingClientRect()
-
-  return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top,
-  }
-}
-*/
 
 export const Graph: React.FC<Props> = ({
   backgroundColor,
@@ -419,7 +347,7 @@ export const Graph: React.FC<Props> = ({
                 }
               }
             }
-            const b = box(
+            const b = screen.box(
               poly(a.p0, a.p1, arrowXPad, yPad),
               BOX_X_PADD,
               BOX_Y_PADD,

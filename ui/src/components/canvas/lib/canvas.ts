@@ -18,7 +18,7 @@ export type Params = {
   height: number
   layout: Layout
   getNodeStyle: (node: Node) => { fill?: string; stroke?: string }
-  getNodeText: (node: Node) => string
+  getNodeText: (node: Node) => { txt: string; top: boolean }
   getArrowStyle: (arrow: Arrow) => { stroke?: string }
   arrowXPad: number
   arrowYPad: number
@@ -47,6 +47,8 @@ export function draw(ctx: Canvas, params: Params) {
   } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)
+
+  // TODO: fix overlapped colors
 
   if (ctx.graph) {
     ctx.graph.save()
@@ -113,7 +115,7 @@ export function draw(ctx: Canvas, params: Params) {
     }
 
     for (const node of nodes) {
-      const txt = getNodeText(node)
+      const { txt, top } = getNodeText(node)
       if (txt) {
         drawText(ctx.graph, {
           x: node.rect.x,
@@ -121,6 +123,7 @@ export function draw(ctx: Canvas, params: Params) {
           width: node.rect.width,
           height: node.rect.height,
           text: txt,
+          top,
         })
       }
     }
@@ -194,6 +197,7 @@ export function drawText(
     text: string
     color?: string
     font?: string
+    top?: boolean
   },
 ) {
   const {
@@ -202,10 +206,11 @@ export function drawText(
     width,
     height,
     xPad = 14,
-    yPad = 14,
+    yPad = 20,
     text,
     color = DEFAULT_TEXT_COLOR,
     font = "12px system-ui",
+    top = false,
   } = params
 
   // TODO: adjust text position based on function or contract
@@ -220,7 +225,7 @@ export function drawText(
     t = `${text.slice(0, 10)}...`
   }
 
-  ctx.fillText(`${t}`, x + xPad, y + yPad)
+  ctx.fillText(`${t}`, x + xPad, y + (top ? yPad : height >> 1))
 }
 
 export function drawArrowHead(

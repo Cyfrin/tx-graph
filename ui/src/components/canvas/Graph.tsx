@@ -11,9 +11,6 @@ const STYLE: React.CSSProperties = {
   top: 0,
 }
 
-const DEFAULT_NODE_FILL = "none"
-const DEFAULT_NODE_STROKE = "black"
-
 const ZOOMS: number[] = [
   0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
   1.7, 1.8, 1.9, 2.0,
@@ -110,7 +107,10 @@ export type Props = {
     hover: Hover | null,
     node: Node,
   ) => { fill?: string; stroke?: string }
-  getNodeText: (hover: Hover | null, node: Node) => string
+  getNodeText: (
+    hover: Hover | null,
+    node: Node,
+  ) => { txt: string; top: boolean }
   getArrowStyle: (hover: Hover | null, arrow: Arrow) => { stroke?: string }
   nodeWidth?: number
   nodeHeight?: number
@@ -157,8 +157,8 @@ export const Graph: React.FC<Props> = ({
   getNodeStyle,
   getNodeText,
   getArrowStyle,
-  nodeWidth = 100,
-  nodeHeight = 50,
+  nodeWidth = 200,
+  nodeHeight = 40,
   nodeXGap = 50,
   nodeYGap = 50,
 }) => {
@@ -182,6 +182,8 @@ export const Graph: React.FC<Props> = ({
       },
     })
   }, [calls, width, height])
+
+  console.log(layout)
 
   const refs = useRef<Refs>({
     graph: null,
@@ -264,6 +266,8 @@ export const Graph: React.FC<Props> = ({
     setZoomIndex(nextZoomIndex)
 
     refs.current.zoomIndex = nextZoomIndex
+
+    // TODO: zoom around current view (not center of graph)
   }
 
   const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {

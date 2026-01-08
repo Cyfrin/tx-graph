@@ -23,7 +23,6 @@ import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
 import { getTrace, Obj, ObjType } from "../tracer"
 
-// TODO: import foundry trace
 // TODO: graph - ETH and token transfers
 // TODO: on click graph -> pin trace
 // TODO: error handling
@@ -176,6 +175,7 @@ function TxPage() {
   }
 
   const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
+  console.log("OBJS", objs)
 
   return (
     <div className={styles.component}>
@@ -221,7 +221,10 @@ function TxPage() {
                 // TODO: fix
                 // @ts-ignore
                 const obj = objs.get(node.id) as Obj<ObjType, Account>
-                return `${obj?.val.name || obj?.val?.addr || node.id || ""}`
+                return {
+                  txt: `${obj?.val.name || obj?.val?.addr || node.id || ""}`,
+                  top: obj?.type == "acc",
+                }
               }}
               getArrowStyle={(hover, arrow) => {
                 const t = getArrowType(hover, arrow, tracer.state)

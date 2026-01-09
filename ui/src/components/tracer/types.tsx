@@ -16,6 +16,8 @@ export type Fn = {
   id: Id
   mod: Id
   name: string
+  inputs: Input[]
+  outputs: Output[]
 }
 
 export type Trace<C> = {
@@ -23,8 +25,6 @@ export type Trace<C> = {
   i: number
   depth: number
   fn: Fn
-  inputs: Input[]
-  outputs: Output[]
   // TODO: ok + error?
   calls: Trace<C>[]
   ctx: C

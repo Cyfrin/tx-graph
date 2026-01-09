@@ -81,7 +81,6 @@ type Refs = {
   // animation frame
   anim: number | null
   // NOTE: store params as ref for animate to draw with latest params
-  mouse: Point | null
   zoomIndex: number
   view: {
     left: number
@@ -93,6 +92,7 @@ type Refs = {
     startViewX: number
     startViewY: number
   } | null
+  mouse: Point | null
   hover: Hover | null
 }
 
@@ -116,35 +116,7 @@ export type Props = {
   nodeHeight?: number
   nodeXGap?: number
   nodeYGap?: number
-  /*
-  onMouseMove?: (
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-    mouse: Point | null,
-    layout: Layout,
-    xRange: XRange | null,
-  ) => void
-  onMouseOut?: (
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-    mouse: Point | null,
-    layout: Layout,
-  ) => void
-  onMouseDown?: (
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-    mouse: Point | null,
-    layout: Layout,
-  ) => void
-  onMouseUp?: (
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-    mouse: Point | null,
-    layout: Layout,
-  ) => void
-  onWheel?: (
-    e: React.WheelEvent<HTMLCanvasElement>,
-    mouse: Point | null,
-    layout: Layout,
-    xRange: XRange | null,
-  ) => void
-  */
+  renderHover?: (hover: Hover, mouse: Point | null) => React.ReactNode
 }
 
 export const Graph: React.FC<Props> = ({
@@ -161,6 +133,7 @@ export const Graph: React.FC<Props> = ({
   nodeHeight = 40,
   nodeXGap = 50,
   nodeYGap = 50,
+  renderHover,
 }) => {
   const arrowXPad = nodeXGap >> 1
   const arrowYPad = nodeYGap >> 1
@@ -183,22 +156,25 @@ export const Graph: React.FC<Props> = ({
     })
   }, [calls, width, height])
 
+  // Some states and refs are duplicated to render React components and HTML canvas objects
   const refs = useRef<Refs>({
     graph: null,
     ui: null,
     anim: null,
-    mouse: null,
     zoomIndex: 9,
     view: {
       left: 0,
       top: 0,
     },
     drag: null,
+    mouse: null,
     hover: null,
   })
 
   const ctx = useRef<Canvas>({ graph: null, ui: null })
 
+  const [mouse, setMouse] = useState<{ x: number; y: number } | null>(null)
+  const [hover, setHover] = useState<Hover | null>(null)
   const [zoomIndex, setZoomIndex] = useState<number>(9)
 
   useEffect(() => {
@@ -299,6 +275,7 @@ export const Graph: React.FC<Props> = ({
     const mouse = getMouse(refs.current?.ui, e)
     if (mouse && refs.current) {
       refs.current.mouse = mouse
+      setMouse(mouse)
 
       if (refs.current.drag) {
         const dx = mouse.x - refs.current.drag.startMouseX
@@ -368,16 +345,19 @@ export const Graph: React.FC<Props> = ({
       }
 
       refs.current.hover = hover
+      setHover(hover)
     }
   }
 
   const onMouseOut = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     e.preventDefault()
     if (refs.current) {
-      refs.current.mouse = null
       refs.current.drag = null
+      refs.current.mouse = null
       refs.current.hover = null
     }
+    setMouse(null)
+    setHover(null)
   }
 
   const onWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
@@ -424,6 +404,19 @@ export const Graph: React.FC<Props> = ({
         onMouseOut={onMouseOut}
         onWheel={onWheel}
       ></canvas>
+      {hover && mouse && renderHover ? (
+        <div style={{ position: "relative" }}>
+          <div
+            style={{
+              position: "absolute",
+              top: mouse.y + 12,
+              left: mouse.x + 12,
+            }}
+          >
+            {renderHover(hover, mouse)}
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

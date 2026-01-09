@@ -145,9 +145,9 @@ export function build(
           // @ts-ignore
           mod: cons[c.to]?.name || c.to,
           name: fn?.name || "",
+          inputs: fn?.inputs || [],
+          outputs: fn?.outputs || [],
         },
-        inputs: fn?.inputs || [],
-        outputs: fn?.outputs || [],
         ctx: {
           // @ts-ignore
           name: cons[c.to]?.name,

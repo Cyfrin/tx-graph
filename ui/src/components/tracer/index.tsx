@@ -115,13 +115,13 @@ function Fn<V>({
           </div>
           {renderCallCtx ? renderCallCtx(trace.ctx) : null}
           <div>(</div>
-          <Inputs inputs={trace.inputs} />
+          <Inputs inputs={trace.fn.inputs} />
           <div>)</div>
-          {trace.outputs.length > 0 ? (
+          {trace.fn.outputs.length > 0 ? (
             <div className={styles.outputs}>
               <div className={styles.arrow}>{"=>"}</div>
               <div>(</div>
-              <Outputs outputs={trace.outputs} />
+              <Outputs outputs={trace.fn.outputs} />
               <div>)</div>
             </div>
           ) : null}

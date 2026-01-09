@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { useWindowSizeContext } from "../contexts/WindowSize"
 import { useFileStorageContext } from "../contexts/FileStorage"
@@ -222,6 +222,84 @@ function TxPage() {
               return {
                 stroke: getArrowColor(t),
               }
+            }}
+            renderHover={(hover, mouse) => {
+              if (!mouse) {
+                return null
+              }
+              if (hover.node != null) {
+                const obj = objs.get(hover.node)
+                if (obj?.type == "acc") {
+                  // @ts-ignore
+                  const label = obj?.val?.name || obj?.val?.addr || "?"
+                  // @ts-ignore
+                  const addr = obj?.val?.addr || ""
+                  return (
+                    <div className={styles.hoverNode}>
+                      <div>{label}</div>
+                      {addr ? <div className={styles.addr}>{addr}</div> : null}
+                    </div>
+                  )
+                }
+                if (obj?.type == "fn") {
+                  // @ts-ignore
+                  const inLen = obj?.val?.inputs?.length || 0
+                  // @ts-ignore
+                  const ins = (obj?.val?.inputs || [])
+                    // @ts-ignore
+                    .map((v, i) => (
+                      <React.Fragment key={i}>
+                        <span>{v.name}</span>
+                        <span>: </span>
+                        <span className={styles.type}>{v.type}</span>
+                        {i < inLen - 1 ? <span>, </span> : null}
+                      </React.Fragment>
+                    ))
+
+                  // @ts-ignore
+                  const outLen = obj?.val?.outputs?.length || 0
+                  // @ts-ignore
+                  const outs = (obj?.val?.outputs || [])
+                    // @ts-ignore
+                    .map((v, i) => (
+                      <React.Fragment key={i}>
+                        <span>{v.name}</span>
+                        <span>: </span>
+                        <span className={styles.type}>{v.type}</span>
+                        {i < outLen - 1 ? <span>, </span> : null}
+                      </React.Fragment>
+                    ))
+
+                  const fn = obj?.val?.name || ""
+
+                  if (fn) {
+                    return (
+                      <div className={styles.hoverNode}>
+                        <div>
+                          <span className={styles.fn}>{fn}</span>
+                          <span>(</span>
+                          {ins}
+                          <span>)</span>
+                          {outs.length > 0 ? (
+                            <>
+                              <span> {`->`} </span>
+                              <span>(</span>
+                              {outs}
+                              <span>)</span>
+                            </>
+                          ) : null}
+                        </div>
+                      </div>
+                    )
+                  }
+                  return (
+                    <div className={styles.hoverNode}>
+                      <div>?</div>
+                    </div>
+                  )
+                }
+              }
+              return null
             }}
           />
         )}

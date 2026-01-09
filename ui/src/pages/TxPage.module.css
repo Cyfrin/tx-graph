@@ -59,6 +59,15 @@
   color: var(--text-hover-color);
   font-size: 12px;
 }
+.addr {
+  color: #edc389;
+}
+.type {
+  color: #edc389;
+}
+.fn {
+  color: #6e56cf;
+}
 .hoverArrows {
   display: flex;
   flex-direction: column;

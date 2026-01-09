@@ -2,16 +2,15 @@ import { useEffect } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { useWindowSizeContext } from "../contexts/WindowSize"
 import { useFileStorageContext } from "../contexts/FileStorage"
-import Splits, { SPLIT_HEIGHT } from "../components/Splits"
+import Splits from "../components/Splits"
 import {
   Provider as TracerProvider,
   useTracerContext,
   State as TracerState,
 } from "../components/tracer/TracerContext"
-import { CallGraphUi } from "../components/svg-graph/CallGraphUi"
 import { Graph as CanvasGraph } from "../components/canvas/Graph"
-import { Id, Graph, Node, Arrow } from "../components/svg-graph/lib/types"
-import { Hover } from "../components/svg-graph/types"
+import { Id, Graph, Node, Arrow } from "../components/canvas/lib/types"
+import { Hover } from "../components/canvas/types"
 import Tracer from "../components/tracer"
 import Evm from "../components/ctx/evm/tracer/Evm"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"
@@ -53,9 +52,6 @@ function getArrowType(
   arrow: Arrow,
   tracer: TracerState,
 ): ArrowType {
-  if (!hover) {
-    return ""
-  }
   if (tracer.pins.has(arrow.i)) {
     return "pin"
   }
@@ -64,6 +60,9 @@ function getArrowType(
       return "tracer"
     }
     return "dim"
+  }
+  if (!hover) {
+    return ""
   }
   if (hover.node != null) {
     if (hover.node == arrow.s) {
@@ -175,7 +174,6 @@ function TxPage() {
   }
 
   const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
-  console.log("OBJS", objs)
 
   return (
     <div className={styles.component}>
@@ -196,125 +194,37 @@ function TxPage() {
             />
           </div>
         )}
-        {
-          (rect) => (
-            <CanvasGraph
-              width={rect.width}
-              height={rect.height}
-              backgroundColor={STYLES.BG_COLOR}
-              groups={groups}
-              calls={calls}
-              tracer={tracer.state}
-              getNodeStyle={(hover, node) => {
-                return {
-                  fill: getNodeFillColor(
-                    objs,
-                    hover,
-                    node,
-                    graph,
-                    tracer.state,
-                  ),
-                  stroke: STYLES.NODE_BORDER_COLOR,
-                }
-              }}
-              getNodeText={(hover, node) => {
-                // TODO: fix
-                // @ts-ignore
-                const obj = objs.get(node.id) as Obj<ObjType, Account>
-                return {
-                  txt: `${obj?.val.name || obj?.val?.addr || node.id || ""}`,
-                  top: obj?.type == "acc",
-                }
-              }}
-              getArrowStyle={(hover, arrow) => {
-                const t = getArrowType(hover, arrow, tracer.state)
-                return {
-                  stroke: getArrowColor(t),
-                }
-              }}
-            />
-          )
-          /*(rect) => (
-          <CallGraphUi
+        {(rect) => (
+          <CanvasGraph
+            width={rect.width}
+            height={rect.height}
+            backgroundColor={STYLES.BG_COLOR}
             groups={groups}
             calls={calls}
             tracer={tracer.state}
-            backgroundColor="var(--bg-dark-color)"
-            width={rect.width}
-            height={rect.height}
-            showDot={true}
-            nodeWidth={220}
-            nodeHeight={40}
-            nodeXGap={100}
-            nodeYGap={80}
             getNodeStyle={(hover, node) => {
               return {
                 fill: getNodeFillColor(objs, hover, node, graph, tracer.state),
-                stroke: "var(--node-border-color)",
+                stroke: STYLES.NODE_BORDER_COLOR,
+              }
+            }}
+            getNodeText={(hover, node) => {
+              // TODO: fix
+              // @ts-ignore
+              const obj = objs.get(node.id) as Obj<ObjType, Account>
+              return {
+                txt: `${obj?.val.name || obj?.val?.addr || node.id || ""}`,
+                top: obj?.type == "acc",
               }
             }}
             getArrowStyle={(hover, arrow) => {
               const t = getArrowType(hover, arrow, tracer.state)
               return {
-                type: t,
-                style: {
-                  stroke: getArrowColor(t),
-                },
+                stroke: getArrowColor(t),
               }
-            }}
-            renderArrowText={(arrow) => {
-              return `${arrow.i}`
-            }}
-            renderNode={(hover, node) => {
-              // TODO: fix
-              // @ts-ignore
-              const obj = objs.get(node.id) as Obj<ObjType, Account>
-              if (obj?.type == "acc") {
-                return (
-                  <div className={styles.accNode}>
-                    <span className={styles.nodeText}>
-                      {obj?.val.name || obj?.val?.addr || node.id}
-                    </span>
-                  </div>
-                )
-              }
-              return (
-                <div className={styles.fnNode}>
-                  <span className={styles.nodeText}>
-                    {obj?.val.name || node.id}
-                  </span>
-                </div>
-              )
-            }}
-            renderHover={(hover, mouse) => {
-              if (!mouse) {
-                return null
-              }
-              if (hover.node != null) {
-                const obj = objs.get(hover.node)
-                const text =
-                  obj?.val?.name ||
-                  // @ts-ignore
-                  (obj?.type == "acc" ? obj?.val?.addr : "?") ||
-                  "?"
-                return (
-                  <div
-                    className={styles.hoverNode}
-                    style={{
-                      position: "absolute",
-                      top: mouse.y + 10,
-                      left: mouse.x + 10,
-                    }}
-                  >
-                    {text}
-                  </div>
-                )
-              }
-              return null
             }}
           />
-        )*/
-        }
+        )}
       </Splits>
     </div>
   )

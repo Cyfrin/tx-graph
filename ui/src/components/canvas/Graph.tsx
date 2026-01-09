@@ -102,7 +102,7 @@ export type Props = {
   backgroundColor: string
   groups: Groups
   calls: Call[]
-  tracer?: Tracer
+  tracer: Tracer
   getNodeStyle: (
     hover: Hover | null,
     node: Node,
@@ -183,8 +183,6 @@ export const Graph: React.FC<Props> = ({
     })
   }, [calls, width, height])
 
-  console.log(layout)
-
   const refs = useRef<Refs>({
     graph: null,
     ui: null,
@@ -215,7 +213,7 @@ export const Graph: React.FC<Props> = ({
         window.cancelAnimationFrame(refs.current.anim)
       }
     }
-  }, [width, height])
+  }, [calls, tracer, width, height])
 
   function animate() {
     refs.current.anim = window.requestAnimationFrame(animate)

@@ -175,6 +175,8 @@ function TxPage() {
 
   const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
 
+  console.log(calls)
+
   return (
     <div className={styles.component}>
       <Splits>
@@ -185,6 +187,7 @@ function TxPage() {
               <div className={styles.txHash}>
                 <CopyText text={txHash} />
               </div>
+              <div>{calls.length} steps</div>
             </div>
             <Tracer
               trace={trace}

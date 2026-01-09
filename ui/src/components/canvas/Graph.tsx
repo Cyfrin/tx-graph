@@ -5,6 +5,8 @@ import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
 import { Hover, Tracer } from "./types"
 
+// TODO: fix arrow colors overlap (cannot see pins)
+
 const STYLE: React.CSSProperties = {
   position: "absolute",
   left: 0,

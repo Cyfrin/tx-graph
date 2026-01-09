@@ -175,8 +175,6 @@ function TxPage() {
 
   const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
 
-  console.log(calls)
-
   return (
     <div className={styles.component}>
       <Splits>

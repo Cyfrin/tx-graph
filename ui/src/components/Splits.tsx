@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react"
 import { useWindowSizeContext } from "../contexts/WindowSize"
-import { bound } from "../utils"
 import useSplits from "../hooks/useSplits"
 import styles from "./Splits.module.css"
 
@@ -31,7 +30,8 @@ const Splits: React.FC<{
         left: 0,
         width: windowSize.width,
         height: windowSize.height,
-        split: windowSize.height >> 2,
+        // top height = 3 / 8 window height
+        split: (windowSize.height >> 3) * 3,
       })
     }
   }, [windowSize])

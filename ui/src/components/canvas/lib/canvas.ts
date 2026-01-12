@@ -52,14 +52,19 @@ export function draw(ctx: Canvas, params: Params) {
     ctx.graph.scale(scale, scale)
 
     // TODO: Render arrows that are not hovered first
+    const hovers = []
     for (const arrow of layout.arrows) {
-      drawArrow(ctx.graph, {
-        layout,
-        arrow,
-        getArrowStyle,
-        arrowXPad,
-        arrowYPad,
-      })
+      if (arrow.i == hover?.node || hover?.arrows?.has(arrow.i)) {
+        hovers.push(arrow)
+      } else {
+        drawArrow(ctx.graph, {
+          layout,
+          arrow,
+          getArrowStyle,
+          arrowXPad,
+          arrowYPad,
+        })
+      }
     }
 
     const nodes = [...layout.nodes.values()]
@@ -87,6 +92,16 @@ export function draw(ctx: Canvas, params: Params) {
           top,
         })
       }
+    }
+
+    for (const arrow of hovers) {
+      drawArrow(ctx.graph, {
+        layout,
+        arrow,
+        getArrowStyle,
+        arrowXPad,
+        arrowYPad,
+      })
     }
 
     /*

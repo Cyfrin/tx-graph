@@ -26,18 +26,18 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // TODO: error handling
 
 // Canvas doesn't recognize css var colors
-// Don't use opaque colors (rgba) to prevent overlapping objects intensifying the colors
+// Don't use opaque colors (rgba) for overlapping objects (it intensifies the colors)
 const STYLES = {
   BG_COLOR: "rgb(17, 17, 17)",
   NODE_BORDER_COLOR: "rgb(17, 17, 17)",
-  NODE_COLOR: "rgb(12, 62, 92)",
+  NODE_COLOR: "rgba(12, 62, 92, 0.85)",
   NODE_TEXT_COLOR: "rgb(255, 255, 255)",
-  NODE_HOVER_COLOR: "rgb(18, 85, 125)",
+  NODE_HOVER_COLOR: "rgba(18, 85, 125, 0.9)",
   NODE_HOVER_TEXT_COLOR: "rgb(180, 240, 255)",
   NODE_HOVER_BORDER_COLOR: "rgb(70, 180, 220)",
-  NODE_DIM_COLOR: "rgb(30, 42, 52)",
-  ARROW_COLOR: "rgb(180, 180, 180)",
-  ARROW_DIM_COLOR: "rgb(90, 90, 90)",
+  NODE_DIM_COLOR: "rgba(30, 42, 52, 0.7)",
+  ARROW_COLOR: "rgb(120, 120, 120)",
+  ARROW_DIM_COLOR: "rgb(55, 55, 55)",
   ARROW_IN_COLOR: "rgb(200, 60, 50)",
   ARROW_OUT_COLOR: "rgb(90, 195, 240)",
   ARROW_HOVER_COLOR: "rgb(160, 120, 255)",

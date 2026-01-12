@@ -1,4 +1,4 @@
-import { Canvas, Point, Layout, Node, Arrow, Hover } from "./types"
+import { Canvas, Point, Layout, Node, Arrow } from "./types"
 
 const DEBUG = true
 const FONT = "system-ui"
@@ -13,7 +13,7 @@ export type Params = {
   layout: Layout
   getNodeStyle: (node: Node) => { fill?: string; stroke?: string }
   getNodeText: (node: Node) => { txt: string; top: boolean }
-  getArrowStyle: (arrow: Arrow) => { stroke?: string }
+  getArrowStyle: (arrow: Arrow) => { top: boolean; style: { stroke?: string } }
   arrowXPad: number
   arrowYPad: number
   // window coordinates
@@ -22,7 +22,6 @@ export type Params = {
   // window coordinates
   offsetX: number
   offsetY: number
-  hover: Hover | null
 }
 
 export function draw(ctx: Canvas, params: Params) {
@@ -39,7 +38,6 @@ export function draw(ctx: Canvas, params: Params) {
     scale,
     offsetX,
     offsetY,
-    hover,
   } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)
@@ -51,16 +49,16 @@ export function draw(ctx: Canvas, params: Params) {
     ctx.graph.translate(offsetX, offsetY)
     ctx.graph.scale(scale, scale)
 
-    // TODO: Render arrows that are not hovered first
     const hovers = []
     for (const arrow of layout.arrows) {
-      if (arrow.i == hover?.node || hover?.arrows?.has(arrow.i)) {
+      const { top, style } = getArrowStyle(arrow)
+      if (top) {
         hovers.push(arrow)
       } else {
         drawArrow(ctx.graph, {
           layout,
           arrow,
-          getArrowStyle,
+          style,
           arrowXPad,
           arrowYPad,
         })
@@ -95,10 +93,11 @@ export function draw(ctx: Canvas, params: Params) {
     }
 
     for (const arrow of hovers) {
+      const { style } = getArrowStyle(arrow)
       drawArrow(ctx.graph, {
         layout,
         arrow,
-        getArrowStyle,
+        style,
         arrowXPad,
         arrowYPad,
       })
@@ -246,14 +245,13 @@ export function drawArrow(
   params: {
     layout: Layout
     arrow: Arrow
-    getArrowStyle: (arrow: Arrow) => { stroke?: string }
+    style: { stroke?: string }
     arrowXPad: number
     arrowYPad: number
   },
 ) {
-  const { layout, arrow, getArrowStyle, arrowXPad, arrowYPad } = params
+  const { layout, arrow, style, arrowXPad, arrowYPad } = params
 
-  const style = getArrowStyle(arrow)
   if (arrow.p0.y == arrow.p1.y) {
     // Straight arrow
     drawStraightArrow(ctx, {

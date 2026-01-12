@@ -52,19 +52,17 @@ function getArrowType(
   arrow: Arrow,
   tracer: TracerState,
 ): ArrowType {
-  if (tracer.pins.has(arrow.i)) {
-    return "pin"
-  }
   if (tracer.hover != null) {
     if (tracer.hover == arrow.i) {
       return "tracer"
     }
     return "dim"
   }
-  if (!hover) {
-    return ""
+  if (tracer.pins.has(arrow.i)) {
+    return "pin"
   }
-  if (hover.node != null) {
+
+  if (hover?.node != null) {
     if (hover.node == arrow.s) {
       return "out"
     }
@@ -73,7 +71,7 @@ function getArrowType(
     }
     return "dim"
   }
-  if (hover.arrows != null && hover.arrows.size > 0) {
+  if (hover?.arrows != null && hover?.arrows.size > 0) {
     if (hover.arrows.has(arrow.i)) {
       return "hover"
     }
@@ -220,9 +218,17 @@ function TxPage() {
               }
             }}
             getArrowStyle={(hover, arrow) => {
+              const top =
+                hover?.node == arrow.i ||
+                hover?.arrows?.has(arrow.i) ||
+                tracer.state.hover == arrow.i ||
+                tracer.state.pins.has(arrow.i)
               const t = getArrowType(hover, arrow, tracer.state)
               return {
-                stroke: getArrowColor(t),
+                top,
+                style: {
+                  stroke: getArrowColor(t),
+                },
               }
             }}
             renderHover={(hover, mouse) => {

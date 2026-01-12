@@ -122,7 +122,10 @@ export type Props = {
     hover: Hover | null,
     node: Node,
   ) => { txt: string; top: boolean }
-  getArrowStyle: (hover: Hover | null, arrow: Arrow) => { stroke?: string }
+  getArrowStyle: (
+    hover: Hover | null,
+    arrow: Arrow,
+  ) => { top: boolean; style: { stroke?: string } }
   nodeWidth?: number
   nodeHeight?: number
   nodeXGap?: number
@@ -220,7 +223,6 @@ export const Graph: React.FC<Props> = ({
         scale: ZOOMS[refs.current.zoomIndex],
         offsetX: refs.current.view.left,
         offsetY: refs.current.view.top,
-        hover: refs.current.hover,
       })
     }
   }

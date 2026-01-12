@@ -90,7 +90,7 @@ export type Layout = {
 // UI
 export type Hover = {
   node: Id | null
-  // Set of Arrow.i
+  // Set of Arrow id
   arrows: Set<Id> | null
 }
 

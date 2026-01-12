@@ -53,46 +53,13 @@ export function draw(ctx: Canvas, params: Params) {
 
     // TODO: Render arrows that are not hovered first
     for (const arrow of layout.arrows) {
-      const style = getArrowStyle(arrow)
-      if (arrow.p0.y == arrow.p1.y) {
-        // Straight arrow
-        drawArrow(ctx.graph, {
-          x0: arrow.p0.x,
-          y0: arrow.p0.y,
-          x1: arrow.p1.x,
-          y1: arrow.p1.y,
-          stroke: style.stroke,
-        })
-      } else if (arrow.p1.x <= arrow.p0.x) {
-        // Callback arrow
-        const g = layout.rev.get(arrow.e)
-        let yPad = -arrowYPad
-        if (g != undefined) {
-          const group = layout.nodes.get(g)
-          if (group) {
-            yPad -= arrow.p1.y - group.rect.y
-          }
-        }
-
-        drawCallBackArrow(ctx.graph, {
-          x0: arrow.p0.x,
-          y0: arrow.p0.y,
-          x1: arrow.p1.x,
-          y1: arrow.p1.y,
-          xPad: arrowXPad,
-          yPad,
-          stroke: style.stroke,
-        })
-      } else {
-        // zig-zag arrow
-        drawZigZagArrow(ctx.graph, {
-          x0: arrow.p0.x,
-          y0: arrow.p0.y,
-          x1: arrow.p1.x,
-          y1: arrow.p1.y,
-          stroke: style.stroke,
-        })
-      }
+      drawArrow(ctx.graph, {
+        layout,
+        arrow,
+        getArrowStyle,
+        arrowXPad,
+        arrowYPad,
+      })
     }
 
     const nodes = [...layout.nodes.values()]
@@ -260,6 +227,60 @@ export function drawArrowHead(
 }
 
 export function drawArrow(
+  ctx: CanvasRenderingContext2D,
+  params: {
+    layout: Layout
+    arrow: Arrow
+    getArrowStyle: (arrow: Arrow) => { stroke?: string }
+    arrowXPad: number
+    arrowYPad: number
+  },
+) {
+  const { layout, arrow, getArrowStyle, arrowXPad, arrowYPad } = params
+
+  const style = getArrowStyle(arrow)
+  if (arrow.p0.y == arrow.p1.y) {
+    // Straight arrow
+    drawStraightArrow(ctx, {
+      x0: arrow.p0.x,
+      y0: arrow.p0.y,
+      x1: arrow.p1.x,
+      y1: arrow.p1.y,
+      stroke: style.stroke,
+    })
+  } else if (arrow.p1.x <= arrow.p0.x) {
+    // Callback arrow
+    const g = layout.rev.get(arrow.e)
+    let yPad = -arrowYPad
+    if (g != undefined) {
+      const group = layout.nodes.get(g)
+      if (group) {
+        yPad -= arrow.p1.y - group.rect.y
+      }
+    }
+
+    drawCallBackArrow(ctx, {
+      x0: arrow.p0.x,
+      y0: arrow.p0.y,
+      x1: arrow.p1.x,
+      y1: arrow.p1.y,
+      xPad: arrowXPad,
+      yPad,
+      stroke: style.stroke,
+    })
+  } else {
+    // zig-zag arrow
+    drawZigZagArrow(ctx, {
+      x0: arrow.p0.x,
+      y0: arrow.p0.y,
+      x1: arrow.p1.x,
+      y1: arrow.p1.y,
+      stroke: style.stroke,
+    })
+  }
+}
+
+export function drawStraightArrow(
   ctx: CanvasRenderingContext2D,
   params: {
     x0: number

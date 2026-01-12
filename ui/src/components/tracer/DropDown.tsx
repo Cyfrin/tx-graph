@@ -23,7 +23,6 @@ const DropDown: React.FC<{
     set(!show)
   }
 
-  // TODO: css
   return (
     <div
       className={`${styles.component} ${highlight ? styles.highlight : styles.no_highlight}`}

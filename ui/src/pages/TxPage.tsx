@@ -9,8 +9,7 @@ import {
   State as TracerState,
 } from "../contexts/Tracer"
 import { Graph as CanvasGraph } from "../components/canvas/Graph"
-import { Id, Graph, Node, Arrow } from "../components/canvas/lib/types"
-import { Hover } from "../components/canvas/types"
+import { Id, Graph, Node, Arrow, Hover } from "../components/canvas/lib/types"
 import Tracer from "../components/tracer"
 import Evm from "../components/ctx/evm/tracer/Evm"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"

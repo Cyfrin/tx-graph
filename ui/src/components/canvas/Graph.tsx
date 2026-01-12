@@ -1,9 +1,18 @@
 import React, { useState, useMemo, useRef, useEffect } from "react"
-import { Canvas, Groups, Call, Point, Node, Arrow, Rect } from "./lib/types"
+import {
+  Canvas,
+  Groups,
+  Call,
+  Point,
+  Node,
+  Arrow,
+  Rect,
+  Hover,
+  Tracer,
+} from "./lib/types"
 import * as screen from "./lib/screen"
 import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
-import { Hover, Tracer } from "./types"
 
 // TODO: fix arrow colors overlap (cannot see pins)
 
@@ -211,6 +220,7 @@ export const Graph: React.FC<Props> = ({
         scale: ZOOMS[refs.current.zoomIndex],
         offsetX: refs.current.view.left,
         offsetY: refs.current.view.top,
+        hover: refs.current.hover,
       })
     }
   }

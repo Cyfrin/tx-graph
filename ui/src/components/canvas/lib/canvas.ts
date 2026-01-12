@@ -1,4 +1,4 @@
-import { Canvas, Point, Layout, Node, Arrow } from "./types"
+import { Canvas, Point, Layout, Node, Arrow, Hover } from "./types"
 
 const DEBUG = true
 const FONT = "system-ui"
@@ -22,6 +22,7 @@ export type Params = {
   // window coordinates
   offsetX: number
   offsetY: number
+  hover: Hover | null
 }
 
 export function draw(ctx: Canvas, params: Params) {
@@ -38,6 +39,7 @@ export function draw(ctx: Canvas, params: Params) {
     scale,
     offsetX,
     offsetY,
+    hover,
   } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)

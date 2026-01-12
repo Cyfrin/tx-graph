@@ -86,3 +86,16 @@ export type Layout = {
   arrows: Arrow[]
   rev: Rev
 }
+
+// UI
+export type Hover = {
+  node: Id | null
+  // Set of Arrow.i
+  arrows: Set<Id> | null
+}
+
+export type Tracer = {
+  hover: Id | null
+  pins: Set<Id>
+  hidden: Set<Id>
+}

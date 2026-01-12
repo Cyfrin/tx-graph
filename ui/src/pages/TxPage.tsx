@@ -185,7 +185,7 @@ function TxPage() {
               <div className={styles.txHash}>
                 <CopyText text={txHash} />
               </div>
-              <div>{calls.length} steps</div>
+              <div>{calls.length} calls</div>
             </div>
             <Tracer
               trace={trace}

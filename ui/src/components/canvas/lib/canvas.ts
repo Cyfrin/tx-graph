@@ -212,8 +212,15 @@ export function drawText(
 
   let t = text
   const maxWidth = width - 2 * xPad
-  if (ctx.measureText(text).width > maxWidth) {
-    t = `${text.slice(0, 10)}...`
+  const textWidth = ctx.measureText(text).width
+  if (textWidth > maxWidth) {
+    const len = Math.max(
+      // - 3 for extra space on the right
+      Math.floor((text.length / textWidth) * maxWidth) - 3,
+      // Arbitrary cap
+      14,
+    )
+    t = `${text.slice(0, len)}...`
   }
 
   ctx.fillText(`${t}`, x + xPad, y + (top ? yPad : height >> 1))

@@ -29,10 +29,10 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // Canvas doesn't recognize css var colors
 // Don't use opaque colors (rgba) to prevent overlapping objects intensifying the colors
 const STYLES = {
-  BG_COLOR: "rgb(23, 23, 23)",
+  BG_COLOR: "rgb(17, 17, 17)",
+  NODE_BORDER_COLOR: "rgb(17, 17, 17)",
   NODE_COLOR: "rgb(6, 44, 65)",
   NODE_TEXT_COLOR: "rgb(255, 255, 255)",
-  NODE_BORDER_COLOR: "rgb(23, 23, 23)",
   NODE_HOVER_COLOR: "rgb(10, 60, 90)",
   NODE_HOVER_TEXT_COLOR: "rgb(160, 230, 255)",
   NODE_HOVER_BORDER_COLOR: "rgb(23, 23, 23)",

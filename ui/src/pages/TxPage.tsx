@@ -27,22 +27,23 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // TODO: error handling
 
 // Canvas doesn't recognize css var colors
+// Don't use opaque colors (rgba) to prevent overlapping objects intensifying the colors
 const STYLES = {
-  BG_COLOR: "#171717",
+  BG_COLOR: "rgb(23, 23, 23)",
   NODE_COLOR: "rgb(6, 44, 65)",
-  NODE_TEXT_COLOR: "white",
-  NODE_BORDER_COLOR: "transparent",
+  NODE_TEXT_COLOR: "rgb(255, 255, 255)",
+  NODE_BORDER_COLOR: "rgb(23, 23, 23)",
   NODE_HOVER_COLOR: "rgb(10, 60, 90)",
   NODE_HOVER_TEXT_COLOR: "rgb(160, 230, 255)",
-  NODE_HOVER_BORDER_COLOR: "transparent",
-  NODE_DIM_COLOR: "rgb(6, 44, 65, 0.3)",
-  ARROW_COLOR: "#a4a4a4",
-  ARROW_DIM_COLOR: "rgba(255, 255, 255, 0.2)",
+  NODE_HOVER_BORDER_COLOR: "rgb(23, 23, 23)",
+  NODE_DIM_COLOR: "rgb(18, 29, 36)",
+  ARROW_COLOR: "rgb(164, 164, 164)",
+  ARROW_DIM_COLOR: "rgb(69, 69, 69)",
   ARROW_IN_COLOR: "rgb(145, 32, 24)",
   ARROW_OUT_COLOR: "rgb(70, 173, 221)",
   ARROW_HOVER_COLOR: "rgb(128, 88, 255)",
   ARROW_PIN_COLOR: "rgb(254, 200, 75)",
-  ARROW_TRACER_COLOR: "#32cd32",
+  ARROW_TRACER_COLOR: "rgb(50, 205, 50)",
 }
 
 type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | ""

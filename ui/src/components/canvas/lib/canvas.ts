@@ -1,17 +1,11 @@
 import { Canvas, Point, Layout, Node, Arrow } from "./types"
-import * as math from "./math"
 
 const DEBUG = true
-const FONT = "sans-serif"
+const FONT = "system-ui"
 const FONT_SIZE = 18
-
-const DEFAULT_FILL = "translate"
-const DEFAULT_STROKE = "black"
-const DEFAULT_TEXT_COLOR = "white"
-
-// TODO: clean up
-// TODO: clean up default params
-// TODO: line flow animation
+const FILL = "translate"
+const STROKE = "black"
+const TEXT_COLOR = "white"
 
 export type Params = {
   width: number
@@ -47,8 +41,6 @@ export function draw(ctx: Canvas, params: Params) {
   } = params
   ctx.graph?.clearRect(0, 0, width, height)
   ctx.ui?.clearRect(0, 0, width, height)
-
-  // TODO: fix overlapped colors
 
   if (ctx.graph) {
     ctx.graph.save()
@@ -109,8 +101,8 @@ export function draw(ctx: Canvas, params: Params) {
         y: node.rect.y,
         width: node.rect.width,
         height: node.rect.height,
-        fill: style?.fill || DEFAULT_FILL,
-        stroke: style?.stroke || DEFAULT_STROKE,
+        fill: style?.fill || FILL,
+        stroke: style?.stroke || STROKE,
       })
     }
 
@@ -170,8 +162,8 @@ export function drawRect(
     y,
     width,
     height,
-    fill = DEFAULT_FILL,
-    stroke = DEFAULT_STROKE,
+    fill = FILL,
+    stroke = STROKE,
     strokeWidth = 2,
   } = params
 
@@ -208,12 +200,11 @@ export function drawText(
     xPad = 14,
     yPad = 20,
     text,
-    color = DEFAULT_TEXT_COLOR,
-    font = "12px system-ui",
+    color = TEXT_COLOR,
+    font = `${FONT_SIZE}px ${FONT}`,
     top = false,
   } = params
 
-  // TODO: adjust text position based on function or contract
   ctx.textBaseline = "middle"
   ctx.textAlign = "left"
   ctx.font = font
@@ -239,7 +230,7 @@ export function drawArrowHead(
     stroke?: string
   },
 ) {
-  const { x0, y0, x1, y1, size = 10, stroke = DEFAULT_STROKE } = params
+  const { x0, y0, x1, y1, size = 10, stroke = STROKE } = params
   const angle = Math.atan2(y1 - y0, x1 - x0)
 
   ctx.strokeStyle = stroke
@@ -278,7 +269,7 @@ export function drawArrow(
     y0,
     x1,
     y1,
-    stroke = DEFAULT_STROKE,
+    stroke = STROKE,
     strokeWidth = 2,
     text,
     textXGap = 0,
@@ -323,7 +314,7 @@ export function drawZigZagArrow(
     y0,
     x1,
     y1,
-    stroke = DEFAULT_STROKE,
+    stroke = STROKE,
     strokeWidth = 2,
     text = null,
     textXGap = -14,
@@ -376,7 +367,7 @@ export function drawCallBackArrow(
     y1,
     xPad,
     yPad,
-    stroke = DEFAULT_STROKE,
+    stroke = STROKE,
     strokeWidth = 2,
     text,
     textXGap = 0,

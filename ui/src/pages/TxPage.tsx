@@ -7,7 +7,7 @@ import {
   Provider as TracerProvider,
   useTracerContext,
   State as TracerState,
-} from "../components/tracer/TracerContext"
+} from "../contexts/Tracer"
 import { Graph as CanvasGraph } from "../components/canvas/Graph"
 import { Id, Graph, Node, Arrow } from "../components/canvas/lib/types"
 import { Hover } from "../components/canvas/types"
@@ -144,6 +144,7 @@ function getArrowColor(t: ArrowType): string {
 }
 
 // TODO: light theme
+// TODO: popup on click graph nodes or arrows
 function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()

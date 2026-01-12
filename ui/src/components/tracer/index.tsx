@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import styles from "./index.module.css"
 import { Trace } from "./types"
-import { useTracerContext } from "./TracerContext"
+import { useTracerContext } from "../../contexts/Tracer"
 import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
@@ -151,7 +151,6 @@ type TracerProps<V> = {
   renderFnDropDown?: (ctx: V) => React.ReactNode
 }
 
-// TODO: hover and copy func selector, etc
 function Tracer<V>({
   trace,
   renderCallCtx,

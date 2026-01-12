@@ -1,41 +1,27 @@
 :root {
   /* TODO: move to body.light and dark */
-  --bg-color: #212121;
-  --bg-dim-color: #232329;
-  --bg-dim-hover-color: #2e2d39;
-  --text-color: #e0e0e0;
-  --text-hover-color: white;
-  --secondary-text-color: #a0a0a0;
-  --arrow-color: #a4a4a4;
-  --arrow-dim-color: rgba(255, 255, 255, 0.2);
-  --arrow-in-color: rgb(145, 32, 24);
-  --arrow-out-color: rgb(70, 173, 221);
-  --arrow-hover-color: rgb(128, 88, 255);
-  --arrow-pin-color: rgb(254, 200, 75);
-  --arrow-tracer-color: #32cd32;
-  --node-color: rgb(6, 44, 65);
-  --node-text-color: white;
-  --node-border-color: transparent;
-  --node-hover-color: rgb(10, 60, 90);
-  --node-hover-text-color: rgb(160, 230, 255);
-  --node-hover-border-color: transparent;
-  --node-dim-color: rgb(6, 44, 65, 0.3);
+  --bg-color: rgb(18, 18, 20);
+  --bg-dim-color: rgb(28, 28, 32);
+  --bg-dim-hover-color: rgb(42, 42, 50);
+  --text-color: rgb(220, 220, 225);
+  --text-hover-color: rgb(250, 250, 250);
+  --secondary-text-color: rgb(145, 145, 155);
 
-  --tracer-fn-color: white;
-  --tracer-index-color: #9b9aa2;
-  --tracer-index-hover-color: white;
-  --tracer-input-value-color: #edc389;
-  --tracer-output-value-color: #edc389;
-  --tracer-eq-color: grey;
-  --tracer-pin-color: orange;
-  --tracer-func-color: white;
-  --tracer-fold-color: #9b9aa2;
-  --tracer-fold-hover-color: white;
-  --tracer-obj-color: #71aefe;
-  --tracer-func-name-color: #6e56cf;
-  --tracer-arrow-color: #f88c6c;
-  --tracer-dot-color: white;
-  --tracer-vm-value-color: #e863e3;
+  --tracer-fn-color: rgb(230, 230, 230);
+  --tracer-index-color: rgb(130, 130, 140);
+  --tracer-index-hover-color: rgb(250, 250, 250);
+  --tracer-input-value-color: rgb(250, 200, 130);
+  --tracer-output-value-color: rgb(130, 210, 150);
+  --tracer-eq-color: rgb(90, 90, 95);
+  --tracer-pin-color: rgb(250, 175, 55);
+  --tracer-func-color: rgb(230, 230, 230);
+  --tracer-fold-color: rgb(130, 130, 140);
+  --tracer-fold-hover-color: rgb(250, 250, 250);
+  --tracer-obj-color: rgb(100, 170, 250);
+  --tracer-func-name-color: rgb(150, 110, 220);
+  --tracer-arrow-color: rgb(250, 140, 110);
+  --tracer-dot-color: rgb(230, 230, 230);
+  --tracer-vm-value-color: rgb(235, 120, 235);
 
   height: 100vh;
   width: 100vw;
@@ -101,17 +87,17 @@ body.light {
 }
 
 body.dark {
-  --bg-0-color: #212121;
-  --bg-1-color: #303030;
-  --bg-2-color: #414141;
-  --bg-dark-color: #171717;
-  --text-0-color: white;
-  --text-1-color: #f3f3f3;
-  --text-2-color: #afafaf;
-  --icon-color: #afafaf;
-  --icon-hover-color: #f3f3f3;
-  --copy-text-color: #edc389;
-  --border-color: #414141;
+  --bg-0-color: rgb(18, 18, 20);
+  --bg-1-color: rgb(32, 32, 38);
+  --bg-2-color: rgb(48, 48, 56);
+  --bg-dark-color: rgb(12, 12, 14);
+  --text-0-color: rgb(250, 250, 250);
+  --text-1-color: rgb(230, 230, 235);
+  --text-2-color: rgb(155, 155, 165);
+  --icon-color: rgb(155, 155, 165);
+  --icon-hover-color: rgb(230, 230, 235);
+  --copy-text-color: rgb(250, 200, 130);
+  --border-color: rgb(55, 55, 65);
 }
 
 #root {

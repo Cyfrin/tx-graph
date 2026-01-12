@@ -36,13 +36,13 @@ const STYLES = {
   NODE_HOVER_TEXT_COLOR: "rgb(180, 240, 255)",
   NODE_HOVER_BORDER_COLOR: "rgb(70, 180, 220)",
   NODE_DIM_COLOR: "rgba(30, 42, 52, 0.7)",
-  ARROW_COLOR: "rgb(120, 120, 120)",
-  ARROW_DIM_COLOR: "rgb(55, 55, 55)",
-  ARROW_IN_COLOR: "rgb(200, 60, 50)",
-  ARROW_OUT_COLOR: "rgb(90, 195, 240)",
-  ARROW_HOVER_COLOR: "rgb(160, 120, 255)",
-  ARROW_PIN_COLOR: "rgb(255, 210, 100)",
-  ARROW_TRACER_COLOR: "rgb(80, 230, 80)",
+  ARROW_COLOR: "rgb(160, 160, 170)",
+  ARROW_DIM_COLOR: "rgb(80, 85, 95)",
+  ARROW_IN_COLOR: "rgb(255, 99, 99)",
+  ARROW_OUT_COLOR: "rgb(64, 196, 255)",
+  ARROW_HOVER_COLOR: "rgb(200, 160, 255)",
+  ARROW_PIN_COLOR: "rgb(255, 215, 0)",
+  ARROW_TRACER_COLOR: "rgb(0, 255, 136)",
 }
 
 type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | ""

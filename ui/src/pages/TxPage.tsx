@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { useWindowSizeContext } from "../contexts/WindowSize"
 import { useFileStorageContext } from "../contexts/FileStorage"
@@ -17,6 +17,7 @@ import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
 import { Fn } from "../components/tracer/types"
 import CopyText from "../components/CopyText"
 import { Account } from "../components/ctx/evm/types"
+import Checkbox from "../components/Checkbox"
 import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
 import { getTrace, Obj, ObjType } from "../tracer"
@@ -52,14 +53,14 @@ function getArrowType(
   arrow: Arrow,
   tracer: TracerState,
 ): ArrowType {
+  if (tracer.pins.has(arrow.i)) {
+    return "pin"
+  }
   if (tracer.hover != null) {
     if (tracer.hover == arrow.i) {
       return "tracer"
     }
     return "dim"
-  }
-  if (tracer.pins.has(arrow.i)) {
-    return "pin"
   }
 
   if (hover?.node != null) {
@@ -151,8 +152,8 @@ function TxPage() {
   const windowSize = useWindowSizeContext()
   const fileStorage = useFileStorageContext()
   const tracer = useTracerContext()
-
   const _getTrace = useAsync(getTrace)
+  const [checked, setChecked] = useState(false)
 
   useEffect(() => {
     if (txHash && chain) {
@@ -174,17 +175,38 @@ function TxPage() {
 
   const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
 
+  function onCheck() {
+    setChecked(!checked)
+
+    const idxs: number[] = []
+    for (let i = 0; i < calls.length; i++) {
+      // @ts-ignore
+      if (calls[i].ctx.value > 0) {
+        idxs.push(i)
+      }
+    }
+
+    if (idxs.length > 0) {
+      tracer.pin(idxs)
+    }
+  }
+
   return (
     <div className={styles.component}>
       <Splits>
         {() => (
           <div className={styles.tracer}>
-            <div className={styles.tx}>
-              <div className={styles.txHashLabel}>TX hash:</div>
-              <div className={styles.txHash}>
-                <CopyText text={txHash} />
+            <div className={styles.tracerController}>
+              <div className={styles.tx}>
+                <div className={styles.txHashLabel}>TX hash:</div>
+                <div className={styles.txHash}>
+                  <CopyText text={txHash} />
+                </div>
+                <div>{calls.length} calls</div>
               </div>
-              <div>{calls.length} calls</div>
+              <Checkbox checked={checked} onChange={onCheck}>
+                Pin ETH transfers
+              </Checkbox>
             </div>
             <Tracer
               trace={trace}

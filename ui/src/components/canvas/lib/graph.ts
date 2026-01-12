@@ -2,7 +2,7 @@ import { Call, Neighbors, Graph } from "./types"
 import { assert } from "./utils"
 
 // Build adjaceny map
-export function build(calls: Call[]): Graph {
+export function build<A>(calls: Call<A>[]): Graph {
   // dst => sources
   const incoming: Neighbors = new Map()
   // src => destinations

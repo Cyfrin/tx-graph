@@ -9,10 +9,13 @@
   height: 100%;
   padding: 10px 14px 10px 14px;
 }
+.tracerController {
+  display: flex;
+  flex-direction: column;
+}
 .tx {
   display: flex;
   flex-direction: row;
-  margin: 10px 0 10px 0;
 }
 .txHashLabel {
   padding-right: 10px;

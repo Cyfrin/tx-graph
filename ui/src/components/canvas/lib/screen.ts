@@ -109,7 +109,11 @@ function arrow(nodes: Map<Id, Node>, i: number, start: Id, end: Id): Arrow {
   }
 }
 
-export function map(groups: Groups, calls: Call[], screen: Screen): Layout {
+export function map<A>(
+  groups: Groups,
+  calls: Call<A>[],
+  screen: Screen,
+): Layout {
   const nodes: Map<Id, Node> = new Map()
   // Reverse look up call.src or call.dst to group id
   const rev: Rev = new Map()

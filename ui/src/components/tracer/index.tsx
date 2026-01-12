@@ -46,7 +46,7 @@ function Fn<V>({
   const { state, fold, setHover, pin } = useTracerContext()
 
   const onClick = () => {
-    pin(trace.i)
+    pin([trace.i])
   }
 
   const onClickFold = () => {

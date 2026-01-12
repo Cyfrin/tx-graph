@@ -7,5 +7,5 @@
 }
 .value {
   margin-left: 4px;
-  color: #ff94fb;
+  color: var(--tracer-vm-value-color);
 }

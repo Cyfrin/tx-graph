@@ -21,7 +21,8 @@
   --tracer-func-name-color: rgb(150, 110, 220);
   --tracer-arrow-color: rgb(250, 140, 110);
   --tracer-dot-color: rgb(230, 230, 230);
-  --tracer-vm-value-color: rgb(235, 120, 235);
+  /*--tracer-vm-value-color: rgb(235, 120, 235);*/
+  --tracer-vm-value-color: yellow;
   --tracer-line-hover-color: rgb(45, 45, 52);
   --tracer-hl-bg-color: rgb(30, 45, 60);
   --tracer-hl-color: rgb(235, 235, 240);
@@ -56,21 +57,6 @@
 }
 ::-webkit-scrollbar-corner {
   background: #1e1e1e;
-}
-
-/* SVG line flow animation */
-@keyframes flow {
-  0% {
-    stroke-dashoffset: 400;
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-.flow {
-  /*stroke: url(#cold-gradient)*/
-  stroke-dasharray: 20 10;
-  animation: flow 14s linear infinite;
 }
 
 *:focus {

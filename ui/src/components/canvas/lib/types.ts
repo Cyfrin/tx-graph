@@ -1,10 +1,11 @@
 export type Id = number
 
 // Call graph
-export type Call = {
+export type Call<A> = {
   src: Id
   dst: Id
   depth: number
+  ctx?: A
 }
 
 // Group id => ids

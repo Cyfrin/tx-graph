@@ -86,7 +86,7 @@ export function build(
   objs: Map<Id, Obj<ObjType, Account | Fn>>
   arrows: Arrow<Fn>[]
   groups: Groups
-  calls: Call[]
+  calls: Call<Evm>[]
   trace: Trace<Evm>
 } {
   const cons: { [key: string]: ContractInfo[] } = contracts.reduce((z, c) => {
@@ -100,7 +100,7 @@ export function build(
   const objs: Map<Id, Obj<ObjType, Account | Fn>> = new Map()
   const arrows: Arrow<Fn>[] = []
   const groups: Groups = new Map()
-  const calls: Call[] = []
+  const calls: Call<Evm>[] = []
   const stack: Trace<Evm>[] = []
 
   // Put initial caller into it's own group
@@ -210,6 +210,7 @@ export function build(
         // @ts-ignore
         dst: trace.fn.id,
         depth: d,
+        ctx: trace.ctx,
       })
     },
   )

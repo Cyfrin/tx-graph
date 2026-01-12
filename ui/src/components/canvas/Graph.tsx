@@ -6,7 +6,6 @@ import {
   Point,
   Node,
   Arrow,
-  Rect,
   Hover,
   Tracer,
 } from "./lib/types"
@@ -14,6 +13,7 @@ import * as screen from "./lib/screen"
 import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
 
+// TODO: hover arrow?
 // TODO: fix arrow colors overlap (cannot see pins)
 
 const STYLE: React.CSSProperties = {

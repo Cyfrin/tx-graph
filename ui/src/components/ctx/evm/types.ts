@@ -1,10 +1,10 @@
-import { Id, Fn } from "../../tracer/types"
+import { Id, FnDef } from "../../tracer/types"
 
 // Contract and EOA
 export type Account = {
   name?: string
   addr: string
-  fns: Map<Id, Fn>
+  fns: Map<Id, FnDef>
 }
 
 export type Evm = {
@@ -12,7 +12,7 @@ export type Evm = {
   name?: string
   src: string
   dst: string
-  value?: bigint
+  val?: bigint
   // call, staticcall, delegatecall, event, etc...
   type: string
   raw?: {

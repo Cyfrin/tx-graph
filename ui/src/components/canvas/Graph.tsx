@@ -106,12 +106,12 @@ type Refs = {
   hover: Hover | null
 }
 
-export type Props<A> = {
+export type Props<A, F> = {
   width: number
   height: number
   backgroundColor: string
   groups: Groups
-  calls: Call<A>[]
+  calls: Call<A, F>[]
   tracer: Tracer
   getNodeStyle: (
     hover: Hover | null,
@@ -132,7 +132,7 @@ export type Props<A> = {
   renderHover?: (hover: Hover, mouse: Point | null) => React.ReactNode
 }
 
-export const Graph = <A,>({
+export const Graph = <A, F>({
   backgroundColor,
   width,
   height,
@@ -147,7 +147,7 @@ export const Graph = <A,>({
   nodeXGap = 50,
   nodeYGap = 50,
   renderHover,
-}: Props<A>) => {
+}: Props<A, F>) => {
   const arrowXPad = nodeXGap >> 1
   const arrowYPad = nodeYGap >> 1
   const layout = useMemo(() => {

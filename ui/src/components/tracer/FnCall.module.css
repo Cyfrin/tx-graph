@@ -1,0 +1,21 @@
+.component {
+  display: flex;
+  flex-direction: row;
+}
+.fn {
+  color: var(--tracer-func-name-color);
+}
+.val {
+  color: var(--tracer-val-color)
+}
+.name {
+}
+.eq {
+  margin-left: 4px;
+  margin-right: 4px;
+  color: var(--tracer-eq-color);
+}
+.send {
+  margin-left: 4px;
+  color: var(--tracer-vm-val-color);
+}

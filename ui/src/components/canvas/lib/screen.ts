@@ -109,9 +109,9 @@ function arrow(nodes: Map<Id, Node>, i: number, start: Id, end: Id): Arrow {
   }
 }
 
-export function map<A>(
+export function map<A, F>(
   groups: Groups,
-  calls: Call<A>[],
+  calls: Call<A, F>[],
   screen: Screen,
 ): Layout {
   const nodes: Map<Id, Node> = new Map()

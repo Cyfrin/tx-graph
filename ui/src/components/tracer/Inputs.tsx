@@ -15,8 +15,8 @@ const Inputs: React.FC<{ inputs: Input[] }> = ({ inputs }) => {
               <span className={styles.eq}>=</span>
             </>
           ) : null}
-          <span className={styles.value}>
-            <CopyText text={input.value.toString()} />
+          <span className={styles.val}>
+            <CopyText text={input.val.toString()} />
           </span>
           {i < len - 1 ? <span className={styles.comma}>,</span> : null}
         </div>

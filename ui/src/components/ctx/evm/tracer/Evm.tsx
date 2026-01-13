@@ -1,8 +1,8 @@
 import React from "react"
 import styles from "./Evm.module.css"
 
-const Evm: React.FC<{ ctx: { value?: bigint } }> = ({ ctx }) => {
-  if (!ctx.value) {
+const Evm: React.FC<{ ctx: { val?: bigint } }> = ({ ctx }) => {
+  if (!ctx.val) {
     return null
   }
 
@@ -10,7 +10,7 @@ const Evm: React.FC<{ ctx: { value?: bigint } }> = ({ ctx }) => {
     <div className={styles.ctx}>
       <div>{"{"}</div>
       <div className={styles.label}>value: </div>
-      <div className={styles.value}>{(ctx.value || 0).toString()}</div>
+      <div className={styles.val}>{(ctx.val || 0).toString()}</div>
       <div>{"}"}</div>
     </div>
   )

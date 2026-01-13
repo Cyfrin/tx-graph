@@ -4,7 +4,7 @@ import { TxCall, ContractInfo, AbiEntry } from "./types/tx"
 import { File } from "./types/file"
 import * as api from "./api"
 import { Id, Call, Groups } from "./components/canvas/lib/types"
-import { Trace, Input, Output, Fn } from "./components/tracer/types"
+import { Trace, Input, Output, FnCall, FnDef } from "./components/tracer/types"
 import * as graph from "./components/canvas/lib/graph"
 import * as foundry from "./foundry"
 import { zip, assert } from "./utils"
@@ -60,7 +60,7 @@ function parse(
       return {
         type: t.type,
         name: t.name,
-        value: v,
+        val: v,
       }
     })
   }
@@ -72,7 +72,7 @@ function parse(
       return {
         type: t.type,
         name: t.name,
-        value: v,
+        val: v,
       }
     })
   }
@@ -83,10 +83,10 @@ export function build(
   root: TxCall,
   contracts: ContractInfo[],
 ): {
-  objs: Map<Id, Obj<ObjType, Account | Fn>>
-  arrows: Arrow<Fn>[]
+  objs: Map<Id, Obj<ObjType, Account | FnDef>>
+  arrows: Arrow<FnCall>[]
   groups: Groups
-  calls: Call<Evm>[]
+  calls: Call<Evm, FnCall>[]
   trace: Trace<Evm>
 } {
   const cons: { [key: string]: ContractInfo[] } = contracts.reduce((z, c) => {
@@ -97,10 +97,10 @@ export function build(
 
   // Account or function to Id
   const ids: Map<string, Id> = new Map()
-  const objs: Map<Id, Obj<ObjType, Account | Fn>> = new Map()
-  const arrows: Arrow<Fn>[] = []
+  const objs: Map<Id, Obj<ObjType, Account | FnDef>> = new Map()
+  const arrows: Arrow<FnCall>[] = []
   const groups: Groups = new Map()
-  const calls: Call<Evm>[] = []
+  const calls: Call<Evm, FnCall>[] = []
   const stack: Trace<Evm>[] = []
 
   // Put initial caller into it's own group
@@ -153,7 +153,7 @@ export function build(
           name: cons[c.to]?.name,
           src: c.from,
           dst: c.to,
-          value: BigInt(c.value || 0),
+          val: BigInt(c.value || 0),
           type: c.type.toLowerCase(),
           raw: {
             input: c.input,
@@ -167,7 +167,17 @@ export function build(
 
       // Objects
       if (!objs.has(trace.fn.id)) {
-        objs.set(trace.fn.id, { id: trace.fn.id, type: "fn", val: trace.fn })
+        objs.set(trace.fn.id, {
+          id: trace.fn.id,
+          type: "fn",
+          val: {
+            id: trace.fn.id,
+            mod: trace.fn.mod,
+            name: trace.fn.name,
+            inputs: trace.fn.inputs.map(({ name, type }) => ({ name, type })),
+            outputs: trace.fn.outputs.map(({ name, type }) => ({ name, type })),
+          },
+        })
       }
 
       // Stack
@@ -211,6 +221,7 @@ export function build(
         dst: trace.fn.id,
         depth: d,
         ctx: trace.ctx,
+        fn: trace.fn,
       })
     },
   )

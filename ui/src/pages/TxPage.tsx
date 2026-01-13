@@ -14,8 +14,9 @@ import Tracer from "../components/tracer"
 import Evm from "../components/ctx/evm/tracer/Evm"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"
 import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
-import { Fn } from "../components/tracer/types"
+import * as TracerTypes from "../components/tracer/types"
 import FnDef from "../components/tracer/FnDef"
+import FnCall from "../components/tracer/FnCall"
 import CopyText from "../components/CopyText"
 import { Account } from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
@@ -26,7 +27,7 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // TODO: graph - ETH and token transfers
 // TODO: on click graph -> pin trace
 // TODO: error handling
-// TODO: hover arrow -> render func into in graph
+// TODO: hover pin or modal on click
 
 // Canvas doesn't recognize css var colors
 // Don't use opaque colors (rgba) for overlapping objects (it intensifies the colors)
@@ -86,13 +87,13 @@ function getArrowType(
 // TODO: change text color on hover
 // TODO: change node color on hover arrow
 function getNodeFillColor(
-  objs: Map<Id, Obj<ObjType, Account | Fn>>,
+  objs: Map<Id, Obj<ObjType, Account | TracerTypes.FnDef>>,
   hover: Hover | null,
   node: Node,
   graph: Graph,
   tracer: TracerState,
 ): string {
-  const obj = objs.get(node.id) as Obj<ObjType, Account | Fn>
+  const obj = objs.get(node.id) as Obj<ObjType, Account | TracerTypes.FnDef>
   // Arrows are hovered
   if (hover?.arrows && hover?.arrows?.size > 0) {
     if (obj?.type == "acc") {
@@ -145,7 +146,6 @@ function getArrowColor(t: ArrowType): string {
 }
 
 // TODO: light theme
-// TODO: popup on click graph nodes or arrows
 function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
@@ -183,7 +183,7 @@ function TxPage() {
     const idxs: number[] = []
     for (let i = 0; i < calls.length; i++) {
       // @ts-ignore
-      if (calls[i].ctx.value > 0) {
+      if (calls[i].ctx.val > 0) {
         idxs.push(i)
       }
     }
@@ -267,7 +267,7 @@ function TxPage() {
                   // @ts-ignore
                   const addr = obj?.val?.addr || ""
                   return (
-                    <div className={styles.hoverNode}>
+                    <div className={styles.hover}>
                       <div>{label}</div>
                       {addr ? <div className={styles.addr}>{addr}</div> : null}
                     </div>
@@ -282,17 +282,63 @@ function TxPage() {
 
                   if (fn) {
                     return (
-                      <div className={styles.hoverNode}>
+                      <div className={styles.hover}>
                         <FnDef name={fn} inputs={inputs} outputs={outputs} />
                       </div>
                     )
                   }
                   return (
-                    <div className={styles.hoverNode}>
+                    <div className={styles.hover}>
                       <div>?</div>
                     </div>
                   )
                 }
+              }
+              if (hover.arrows != null && hover.arrows.size > 0) {
+                const nodes = []
+                for (const i of hover.arrows) {
+                  const call = calls[i]
+                  const src = objs.get(call.src)
+                  const dst = objs.get(call.dst)
+                  nodes.push({
+                    i,
+                    // @ts-ignore
+                    src: src?.val?.mod || call?.ctx?.src || "?",
+                    // @ts-ignore
+                    dst: dst?.val?.mod || call?.ctx?.dst || "?",
+                    val: call?.ctx?.val || 0,
+                    type: call?.ctx?.type || "",
+                    fn: dst?.val?.name || "",
+                    inputs: call?.fn?.inputs || [],
+                    outputs: call?.fn?.outputs || [],
+                  })
+                }
+
+                return (
+                  <div className={styles.hover}>
+                    {nodes.map((node) => {
+                      return (
+                        <div className={styles.arrow}>
+                          <div className={styles.arrowIndex}>{node.i}</div>
+                          <div className={styles.arrowSrc}>{node.src}</div>
+                          <div>{`→`}</div>
+                          <div className={styles.arrowDst}>{node.dst}</div>
+                          {node.fn ? (
+                            <>
+                              <div>.</div>
+                              <FnCall
+                                name={node.fn}
+                                val={node.val}
+                                inputs={node.inputs}
+                                outputs={node.outputs}
+                              />
+                            </>
+                          ) : null}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
               }
               return null
             }}

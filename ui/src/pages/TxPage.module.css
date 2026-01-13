@@ -52,12 +52,12 @@
   font-size: 20px;
   padding: 10px 12px 10px 12px;
 }
-.hoverNode {
+.hover {
   display: flex;
   flex-direction: column;
+  flex-wrap: nowrap;
   padding: 8px;
   border-radius: 4px;
-  /*background-color: rgba(0, 0, 0, 0,5);*/
   background-color: var(--bg-dim-color);
   color: var(--text-hover-color);
   font-size: 12px;
@@ -65,15 +65,21 @@
 .addr {
   color: var(--tracer-val-color);
 }
-.hoverArrows {
+.arrow {
   display: flex;
-  flex-direction: column;
-  padding: 8px;
-  border-radius: 4px;
-  /*background-color: rgba(0, 0, 0, 0,5);*/
-  background-color: var(--bg-dim-color);
-  color: var(--text-hover-color);
-  font-size: 12px;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.arrowIndex {
+  color: var(--tracer-index-color);
+  margin-right: 10px;
+}
+.arrowSrc {
+  color: var(--tracer-obj-color);
+}
+.arrowDst {
+  color: var(--tracer-obj-color);
 }
 .call {
   display: flex;

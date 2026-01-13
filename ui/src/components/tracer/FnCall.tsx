@@ -1,26 +1,36 @@
 import React from "react"
-import { InputDef, OutputDef } from "./types"
-import styles from "./FnDef.module.css"
+import { Input, Output } from "./types"
+import styles from "./FnCall.module.css"
 
-const FnDef: React.FC<{
+const FnCall: React.FC<{
   name: string
-  inputs: InputDef[]
-  outputs: OutputDef[]
-}> = ({ name, inputs, outputs }) => {
+  val: number | BigInt
+  inputs: Input[]
+  outputs: Output[]
+}> = ({ name, val, inputs, outputs }) => {
+  const v = BigInt(val.toString())
   return (
     <div className={styles.component}>
       <div>
         <span className={styles.fn}>{name}</span>
+        {v > 0n ? (
+          <>
+            <span>{"{"}</span>
+            <span className={styles.label}>value: </span>
+            <span className={styles.send}>{v.toString()}</span>
+            <span>{"}"}</span>
+          </>
+        ) : null}
         <span>(</span>
         {inputs.map((v, i) => (
           <React.Fragment key={i}>
             {!!v.name ? (
               <>
                 <span className={styles.name}>{v.name}</span>
-                <span>: </span>
+                <span className={styles.eq}>=</span>
               </>
             ) : null}
-            <span className={styles.type}>{v.type}</span>
+            <span className={styles.val}>{v.val.toString()}</span>
             {i < inputs.length - 1 ? <span>, </span> : null}
           </React.Fragment>
         ))}
@@ -34,10 +44,10 @@ const FnDef: React.FC<{
                 {!!v.name ? (
                   <>
                     <span className={styles.name}>{v.name}</span>
-                    <span>: </span>
+                    <span className={styles.eq}>=</span>
                   </>
                 ) : null}
-                <span className={styles.type}>{v.type}</span>
+                <span className={styles.val}>{v.val.toString()}</span>
                 {i < outputs.length - 1 ? <span>, </span> : null}
               </React.Fragment>
             ))}
@@ -49,4 +59,4 @@ const FnDef: React.FC<{
   )
 }
 
-export default FnDef
+export default FnCall

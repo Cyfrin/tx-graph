@@ -241,7 +241,7 @@ export const Graph = <A,>({
     }
   }
 
-  const zoom = (next: number) => {
+  const zoom = (next: number, mouse: Point | null) => {
     if (next == zoomIndex || !refs.current) {
       return
     }
@@ -250,11 +250,19 @@ export const Graph = <A,>({
       ? Math.min(next, MAX_ZOOM_INDEX)
       : Math.max(next, MIN_ZOOM_INDEX)
 
+    const oldScale = ZOOMS[zoomIndex]
+    const newScale = ZOOMS[nextZoomIndex]
+
+    // Adjust offset to zoom around mouse position
+    if (mouse) {
+      const canvasX = (mouse.x - refs.current.view.left) / oldScale
+      const canvasY = (mouse.y - refs.current.view.top) / oldScale
+      refs.current.view.left = mouse.x - canvasX * newScale
+      refs.current.view.top = mouse.y - canvasY * newScale
+    }
+
     setZoomIndex(nextZoomIndex)
-
     refs.current.zoomIndex = nextZoomIndex
-
-    // TODO: zoom around current view (not center of graph)
   }
 
   const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -377,12 +385,13 @@ export const Graph = <A,>({
     if (!refs.current) {
       return
     }
+    const mouse = getMouse(refs.current.ui, e)
     if (e.deltaY < 0) {
       // Zoom in
-      zoom(zoomIndex + 1)
+      zoom(zoomIndex + 1, mouse)
     } else {
       // Zoom out
-      zoom(zoomIndex - 1)
+      zoom(zoomIndex - 1, mouse)
     }
   }
 

@@ -21,8 +21,7 @@
   --tracer-func-name-color: rgb(150, 110, 220);
   --tracer-arrow-color: rgb(250, 140, 110);
   --tracer-dot-color: rgb(230, 230, 230);
-  /*--tracer-vm-value-color: rgb(235, 120, 235);*/
-  --tracer-vm-value-color: yellow;
+  --tracer-vm-value-color: rgb(255 130 255);
   --tracer-line-hover-color: rgb(45, 45, 52);
   --tracer-hl-bg-color: rgb(30, 45, 60);
   --tracer-hl-color: rgb(235, 235, 240);

@@ -25,6 +25,7 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // TODO: graph - ETH and token transfers
 // TODO: on click graph -> pin trace
 // TODO: error handling
+// TODO: hover arrow -> render func into in graph
 
 // Canvas doesn't recognize css var colors
 // Don't use opaque colors (rgba) for overlapping objects (it intensifies the colors)

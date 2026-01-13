@@ -14,7 +14,6 @@ import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
 
 // TODO: hover arrow?
-// TODO: fix arrow colors overlap (cannot see pins)
 
 const STYLE: React.CSSProperties = {
   position: "absolute",

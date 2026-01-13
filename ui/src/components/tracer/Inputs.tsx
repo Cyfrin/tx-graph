@@ -9,8 +9,12 @@ const Inputs: React.FC<{ inputs: Input[] }> = ({ inputs }) => {
     <div className={styles.component}>
       {inputs.map((input, i) => (
         <div key={i} className={styles.input}>
-          <span className={styles.name}>{input.name}</span>
-          <span className={styles.eq}>=</span>
+          {!!input.name ? (
+            <>
+              <span className={styles.name}>{input.name}</span>
+              <span className={styles.eq}>=</span>
+            </>
+          ) : null}
           <span className={styles.value}>
             <CopyText text={input.value.toString()} />
           </span>

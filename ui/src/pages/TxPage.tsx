@@ -15,6 +15,7 @@ import Evm from "../components/ctx/evm/tracer/Evm"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"
 import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
 import { Fn } from "../components/tracer/types"
+import FnDef from "../components/tracer/FnDef"
 import CopyText from "../components/CopyText"
 import { Account } from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
@@ -273,53 +274,16 @@ function TxPage() {
                   )
                 }
                 if (obj?.type == "fn") {
-                  // @ts-ignore
-                  const inLen = obj?.val?.inputs?.length || 0
-                  // @ts-ignore
-                  const ins = (obj?.val?.inputs || [])
-                    // @ts-ignore
-                    .map((v, i) => (
-                      <React.Fragment key={i}>
-                        <span>{v.name}</span>
-                        <span>: </span>
-                        <span className={styles.type}>{v.type}</span>
-                        {i < inLen - 1 ? <span>, </span> : null}
-                      </React.Fragment>
-                    ))
-
-                  // @ts-ignore
-                  const outLen = obj?.val?.outputs?.length || 0
-                  // @ts-ignore
-                  const outs = (obj?.val?.outputs || [])
-                    // @ts-ignore
-                    .map((v, i) => (
-                      <React.Fragment key={i}>
-                        <span>{v.name}</span>
-                        <span>: </span>
-                        <span className={styles.type}>{v.type}</span>
-                        {i < outLen - 1 ? <span>, </span> : null}
-                      </React.Fragment>
-                    ))
-
                   const fn = obj?.val?.name || ""
+                  // @ts-ignore
+                  const inputs = obj?.val?.inputs || []
+                  // @ts-ignore
+                  const outputs = obj?.val?.outputs || []
 
                   if (fn) {
                     return (
                       <div className={styles.hoverNode}>
-                        <div>
-                          <span className={styles.fn}>{fn}</span>
-                          <span>(</span>
-                          {ins}
-                          <span>)</span>
-                          {outs.length > 0 ? (
-                            <>
-                              <span> {`->`} </span>
-                              <span>(</span>
-                              {outs}
-                              <span>)</span>
-                            </>
-                          ) : null}
-                        </div>
+                        <FnDef name={fn} inputs={inputs} outputs={outputs} />
                       </div>
                     )
                   }

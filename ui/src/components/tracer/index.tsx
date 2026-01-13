@@ -6,6 +6,8 @@ import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
 
+// TODO: type - opcode
+
 const Padd: React.FC<{ depth: number }> = ({ depth }) => {
   const lines = []
   for (let i = 0; i < depth; i++) {
@@ -119,7 +121,7 @@ function Fn<V>({
           <div>)</div>
           {trace.fn.outputs.length > 0 ? (
             <div className={styles.outputs}>
-              <div className={styles.arrow}>{"=>"}</div>
+              <div className={styles.arrow}>{"→"}</div>
               <div>(</div>
               <Outputs outputs={trace.fn.outputs} />
               <div>)</div>

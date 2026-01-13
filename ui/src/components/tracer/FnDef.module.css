@@ -1,0 +1,12 @@
+.component {
+  display: flex;
+  flex-direction: row;
+}
+.fn {
+  color: var(--tracer-func-name-color);
+}
+.type {
+  color: var(--tracer-val-color)
+}
+.name {
+}

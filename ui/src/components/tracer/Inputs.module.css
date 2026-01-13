@@ -12,7 +12,7 @@
 .name {
 }
 .value {
-  color: var(--tracer-input-value-color);
+  color: var(--tracer-val-color);
 }
 .eq {
   margin-left: 4px;

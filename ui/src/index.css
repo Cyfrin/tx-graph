@@ -10,8 +10,7 @@
   --tracer-fn-color: rgb(230, 230, 230);
   --tracer-index-color: rgb(130, 130, 140);
   --tracer-index-hover-color: rgb(250, 250, 250);
-  --tracer-input-value-color: rgb(250, 200, 130);
-  --tracer-output-value-color: rgb(130, 210, 150);
+  --tracer-val-color: rgb(250, 200, 130);
   --tracer-eq-color: rgb(90, 90, 95);
   --tracer-pin-color: rgb(250, 175, 55);
   --tracer-func-color: rgb(230, 230, 230);

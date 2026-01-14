@@ -11,13 +11,29 @@ type DragRef = {
   split: number
 }
 
+const Overlay: React.FC<{}> = () => (
+  <div
+    style={{
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      zIndex: 999,
+    }}
+  />
+)
+
 const Splits: React.FC<{
-  children: ((rect: {
-    top: number
-    left: number
-    width: number
-    height: number
-  }) => React.ReactNode)[]
+  children: ((
+    rect: {
+      top: number
+      left: number
+      width: number
+      height: number
+    },
+    dragging: boolean,
+  ) => React.ReactNode)[]
 }> = ({ children }) => {
   const windowSize = useWindowSizeContext()
   const splits = useSplits()
@@ -64,6 +80,12 @@ const Splits: React.FC<{
 
   const onPointerUp = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     drag.current = null
+    splits.stop()
+  }
+
+  const onPointerLeave = (_: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    drag.current = null
+    splits.stop()
   }
 
   return (
@@ -71,6 +93,7 @@ const Splits: React.FC<{
       className={styles.component}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onPointerLeave={onPointerLeave}
     >
       <div
         style={{
@@ -81,12 +104,16 @@ const Splits: React.FC<{
           height: splits.state.split - (SPLIT_HEIGHT >> 1),
         }}
       >
-        {children[0]({
-          top: splits.state.root.top,
-          left: splits.state.root.left,
-          width: splits.state.root.width,
-          height: splits.state.split - (SPLIT_HEIGHT >> 1),
-        })}
+        {children[0](
+          {
+            top: splits.state.root.top,
+            left: splits.state.root.left,
+            width: splits.state.root.width,
+            height: splits.state.split - (SPLIT_HEIGHT >> 1),
+          },
+          splits.state.dragging,
+        )}
+        {splits.state.dragging ? <Overlay /> : null}
       </div>
       <div
         className={styles.split}
@@ -108,12 +135,17 @@ const Splits: React.FC<{
           height: splits.state.root.height - splits.state.split,
         }}
       >
-        {children[1]({
-          top: splits.state.root.top + splits.state.split + (SPLIT_HEIGHT >> 1),
-          left: splits.state.root.left,
-          width: splits.state.root.width,
-          height: splits.state.root.height - splits.state.split,
-        })}
+        {children[1](
+          {
+            top:
+              splits.state.root.top + splits.state.split + (SPLIT_HEIGHT >> 1),
+            left: splits.state.root.left,
+            width: splits.state.root.width,
+            height: splits.state.root.height - splits.state.split,
+          },
+          splits.state.dragging,
+        )}
+        {splits.state.dragging ? <Overlay /> : null}
       </div>
     </div>
   )

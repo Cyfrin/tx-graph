@@ -25,9 +25,7 @@ import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
 import { getTrace, Obj, ObjType } from "../tracer"
 
-// TODO: disable graph ui when dragging
 // TODO: graph - ETH and token transfers
-// TODO: on click graph -> pin trace
 // TODO: error handling
 // TODO: hover pin or modal on click
 // 0x53fe7ef190c34d810c50fb66f0fc65a1ceedc10309cf4b4013d64042a0331156
@@ -223,8 +221,9 @@ function TxPage() {
             />
           </div>
         )}
-        {(rect) => (
+        {(rect, dragging) => (
           <CanvasGraph
+            disabled={dragging}
             width={rect.width}
             height={rect.height}
             backgroundColor={STYLES.BG_COLOR}

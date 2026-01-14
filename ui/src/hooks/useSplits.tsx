@@ -9,6 +9,7 @@ export type State = {
     left: number
   }
   split: number
+  dragging: boolean
 }
 
 type Init = {
@@ -29,6 +30,10 @@ type Drag = {
   split: number
 }
 
+type Stop = {
+  type: "stop"
+}
+
 type Resize = {
   type: "resize"
   width: number
@@ -37,7 +42,7 @@ type Resize = {
   left: number
 }
 
-type Action = Init | Reset | Drag | Resize
+type Action = Init | Reset | Drag | Stop | Resize
 
 function reducer(state: State | null = null, action: Action): State | null {
   try {
@@ -54,6 +59,7 @@ function reducer(state: State | null = null, action: Action): State | null {
         return {
           root,
           split: action.split,
+          dragging: false,
         }
       }
       case "drag": {
@@ -68,7 +74,17 @@ function reducer(state: State | null = null, action: Action): State | null {
         return {
           ...state,
           split: action.split,
+          dragging: true,
         }
+      }
+      case "stop": {
+        if (state) {
+          return {
+            ...state,
+            dragging: false,
+          }
+        }
+        return null
       }
       case "resize": {
         return {
@@ -79,6 +95,7 @@ function reducer(state: State | null = null, action: Action): State | null {
             left: action.left,
           },
           split: action.height >> 1,
+          dragging: false,
         }
       }
       case "reset": {
@@ -105,6 +122,7 @@ export type UseSplits = {
   }): void
   reset(): void
   drag(params: { split: number }): void
+  stop(): void
   resize(params: {
     width: number
     height: number
@@ -144,6 +162,10 @@ export default function useSplits(): UseSplits {
     })
   }
 
+  const stop = () => {
+    dispatch({ type: "stop" })
+  }
+
   const resize = (params: {
     width: number
     height: number
@@ -164,6 +186,7 @@ export default function useSplits(): UseSplits {
     init,
     reset,
     drag,
+    stop,
     resize,
   }
 }

@@ -107,6 +107,8 @@ type Refs = {
 }
 
 export type Props<A, F> = {
+  // UI should be disabled
+  disabled: boolean
   width: number
   height: number
   backgroundColor: string
@@ -133,6 +135,7 @@ export type Props<A, F> = {
 }
 
 export const Graph = <A, F>({
+  disabled,
   backgroundColor,
   width,
   height,
@@ -292,6 +295,10 @@ export const Graph = <A, F>({
 
   const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     e.preventDefault()
+
+    if (disabled) {
+      return
+    }
 
     const mouse = getMouse(refs.current?.ui, e)
     if (mouse && refs.current) {

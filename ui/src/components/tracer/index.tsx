@@ -6,8 +6,6 @@ import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
 
-// TODO: type - opcode
-
 const Padd: React.FC<{ depth: number }> = ({ depth }) => {
   const lines = []
   for (let i = 0; i < depth; i++) {
@@ -30,6 +28,7 @@ const Fold: React.FC<{
 
 type FnProps<V> = {
   trace: Trace<V>
+  renderCallType?: (ctx: V) => React.ReactNode
   renderCallCtx?: (ctx: V) => React.ReactNode
   renderModDropDown?: (ctx: V) => React.ReactNode
   renderFnDropDown?: (ctx: V) => React.ReactNode
@@ -39,6 +38,7 @@ type FnProps<V> = {
 
 function Fn<V>({
   trace,
+  renderCallType,
   renderCallCtx,
   renderModDropDown,
   renderFnDropDown,
@@ -73,6 +73,7 @@ function Fn<V>({
         onMouseLeave={onMouseLeave}
       >
         <div className={styles.index} onClick={onClick}>
+          {renderCallType ? renderCallType(trace?.ctx) : null}
           {state.pins.has(trace.i) ? (
             <span className={styles.pin}>x</span>
           ) : (
@@ -134,6 +135,7 @@ function Fn<V>({
             <Fn
               key={t.i}
               trace={t}
+              renderCallType={renderCallType}
               renderCallCtx={renderCallCtx}
               renderModDropDown={renderModDropDown}
               renderFnDropDown={renderFnDropDown}
@@ -148,6 +150,7 @@ function Fn<V>({
 
 type TracerProps<V> = {
   trace: Trace<V>
+  renderCallType?: (ctx: V) => React.ReactNode
   renderCallCtx?: (ctx: V) => React.ReactNode
   renderModDropDown?: (ctx: V) => React.ReactNode
   renderFnDropDown?: (ctx: V) => React.ReactNode
@@ -155,6 +158,7 @@ type TracerProps<V> = {
 
 function Tracer<V>({
   trace,
+  renderCallType,
   renderCallCtx,
   renderModDropDown,
   renderFnDropDown,
@@ -173,6 +177,7 @@ function Tracer<V>({
     <div className={styles.component}>
       <Fn
         trace={trace}
+        renderCallType={renderCallType}
         renderCallCtx={renderCallCtx}
         renderModDropDown={renderModDropDown}
         renderFnDropDown={renderFnDropDown}

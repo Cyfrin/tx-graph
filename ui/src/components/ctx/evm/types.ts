@@ -13,8 +13,7 @@ export type Evm = {
   src: string
   dst: string
   val?: bigint
-  // call, staticcall, delegatecall, event, etc...
-  type: string
+  type: CallType
   raw?: {
     input?: string
     output?: string
@@ -22,3 +21,13 @@ export type Evm = {
   selector?: string
   gas?: bigint
 }
+
+// TODO: more call types?
+export type CallType =
+  | "call"
+  | "staticcall"
+  | "delegatecall"
+  | "event"
+  | "selfdestruct"
+  | "create"
+  | "create2"

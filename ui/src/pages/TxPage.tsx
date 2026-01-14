@@ -12,6 +12,7 @@ import { Graph as CanvasGraph } from "../components/canvas/Graph"
 import { Id, Graph, Node, Arrow, Hover } from "../components/canvas/lib/types"
 import Tracer from "../components/tracer"
 import Evm from "../components/ctx/evm/tracer/Evm"
+import Op from "../components/ctx/evm/tracer/Op"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"
 import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
 import * as TracerTypes from "../components/tracer/types"
@@ -28,6 +29,7 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // TODO: on click graph -> pin trace
 // TODO: error handling
 // TODO: hover pin or modal on click
+// 0x53fe7ef190c34d810c50fb66f0fc65a1ceedc10309cf4b4013d64042a0331156
 
 // Canvas doesn't recognize css var colors
 // Don't use opaque colors (rgba) for overlapping objects (it intensifies the colors)
@@ -213,6 +215,8 @@ function TxPage() {
             <Tracer
               trace={trace}
               renderCallCtx={(ctx) => <Evm ctx={ctx} />}
+              /* @ts-ignore */
+              renderCallType={(ctx) => <Op ctx={ctx} />}
               renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
               renderFnDropDown={(ctx) => <FnDropDown ctx={ctx} />}
             />
@@ -318,22 +322,18 @@ function TxPage() {
                   <div className={styles.hover}>
                     {nodes.map((node) => {
                       return (
-                        <div className={styles.arrow}>
+                        <div key={node.i} className={styles.arrow}>
                           <div className={styles.arrowIndex}>{node.i}</div>
                           <div className={styles.arrowSrc}>{node.src}</div>
                           <div>{`→`}</div>
                           <div className={styles.arrowDst}>{node.dst}</div>
-                          {node.fn ? (
-                            <>
-                              <div>.</div>
-                              <FnCall
-                                name={node.fn}
-                                val={node.val}
-                                inputs={node.inputs}
-                                outputs={node.outputs}
-                              />
-                            </>
-                          ) : null}
+                          <div>.</div>
+                          <FnCall
+                            name={node.fn}
+                            val={node.val}
+                            inputs={node.inputs}
+                            outputs={node.outputs}
+                          />
                         </div>
                       )
                     })}

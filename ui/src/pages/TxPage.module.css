@@ -55,7 +55,6 @@
 .hover {
   display: flex;
   flex-direction: column;
-  flex-wrap: nowrap;
   padding: 8px;
   border-radius: 4px;
   background-color: var(--bg-dim-color);
@@ -70,6 +69,7 @@
   flex-direction: row;
   align-items: center;
   flex-wrap: nowrap;
+  white-space: nowrap;
 }
 .arrowIndex {
   color: var(--tracer-index-color);

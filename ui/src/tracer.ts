@@ -8,7 +8,7 @@ import { Trace, Input, Output, FnCall, FnDef } from "./components/tracer/types"
 import * as graph from "./components/canvas/lib/graph"
 import * as foundry from "./foundry"
 import { zip, assert } from "./utils"
-import { Account, Evm } from "./components/ctx/evm/types"
+import { Account, Evm, CallType } from "./components/ctx/evm/types"
 
 // TODO: move to graph/lib/types?
 export type ObjType = "acc" | "fn"
@@ -154,7 +154,7 @@ export function build(
           src: c.from,
           dst: c.to,
           val: BigInt(c.value || 0),
-          type: c.type.toLowerCase(),
+          type: c.type.toLowerCase() as CallType,
           raw: {
             input: c.input,
             output: c.output,

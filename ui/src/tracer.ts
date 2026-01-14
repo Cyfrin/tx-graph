@@ -253,6 +253,8 @@ export async function getTrace(params: {
     t = await api.getTxTrace(chain, txHash)
   }
 
+  assert(!!t?.result, "TX trace is null")
+
   const txCalls: [number, TxCall][] = []
   graph.dfs<TxCall>(
     // @ts-ignore

@@ -28,7 +28,6 @@ import { getTrace, Obj, ObjType } from "../tracer"
 // TODO: graph - ETH and token transfers
 // TODO: error handling
 // TODO: hover pin or modal on click
-// 0x53fe7ef190c34d810c50fb66f0fc65a1ceedc10309cf4b4013d64042a0331156
 
 // Canvas doesn't recognize css var colors
 // Don't use opaque colors (rgba) for overlapping objects (it intensifies the colors)
@@ -177,8 +176,6 @@ function TxPage() {
   }
 
   const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
-
-  console.log("TRACE", trace)
 
   function onCheck() {
     setChecked(!checked)

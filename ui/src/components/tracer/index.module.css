@@ -25,9 +25,9 @@
 }
 .index {
   /* Prevent element from shrinking when x overflows */
-  min-width: 28px;
-  width: 28px;
-  padding-right: 8px;
+  /* Fixed width for up to 4 digits */
+  min-width: 38px;
+  width: 38px;
   text-align: right;
   color: var(--tracer-index-color);
   transition: background-color 0.2s ease;

@@ -25,6 +25,7 @@ import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
 import { getTrace, Obj, ObjType } from "../tracer"
 
+// TODO: disable graph ui when dragging
 // TODO: graph - ETH and token transfers
 // TODO: on click graph -> pin trace
 // TODO: error handling

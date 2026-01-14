@@ -72,8 +72,8 @@ function Fn<V>({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
+        {renderCallType ? renderCallType(trace?.ctx) : null}
         <div className={styles.index} onClick={onClick}>
-          {renderCallType ? renderCallType(trace?.ctx) : null}
           {state.pins.has(trace.i) ? (
             <span className={styles.pin}>x</span>
           ) : (

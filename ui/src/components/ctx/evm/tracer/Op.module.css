@@ -1,3 +1,8 @@
+.component {
+  /* Fixed width */
+  min-width: 74px;
+  max-width: 74px;
+}
 .label {
   padding: 2px 8px;
   border-radius: 4px;

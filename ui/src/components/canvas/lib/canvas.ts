@@ -7,6 +7,35 @@ const FILL = "translate"
 const STROKE = "black"
 const TEXT_COLOR = "white"
 
+function isRectVisible(
+  rect: { x: number; y: number; width: number; height: number },
+  view: { minX: number; maxX: number; minY: number; maxY: number },
+): boolean {
+  return !(
+    rect.x + rect.width < view.minX ||
+    rect.x > view.maxX ||
+    rect.y + rect.height < view.minY ||
+    rect.y > view.maxY
+  )
+}
+
+function isArrowVisible(
+  arrow: Arrow,
+  view: { minX: number; maxX: number; minY: number; maxY: number },
+): boolean {
+  const minX = Math.min(arrow.p0.x, arrow.p1.x)
+  const maxX = Math.max(arrow.p0.x, arrow.p1.x)
+  const minY = Math.min(arrow.p0.y, arrow.p1.y)
+  const maxY = Math.max(arrow.p0.y, arrow.p1.y)
+
+  return !(
+    maxX < view.minX ||
+    minX > view.maxX ||
+    maxY < view.minY ||
+    minY > view.maxY
+  )
+}
+
 export type Params = {
   width: number
   height: number
@@ -49,8 +78,20 @@ export function draw(ctx: Canvas, params: Params) {
     ctx.graph.translate(offsetX, offsetY)
     ctx.graph.scale(scale, scale)
 
+    // Calculate viewport bounds in graph coordinates
+    const view = {
+      minX: -offsetX / scale,
+      maxX: (-offsetX + width) / scale,
+      minY: -offsetY / scale,
+      maxY: (-offsetY + height) / scale,
+    }
+
     const hovers = []
     for (const arrow of layout.arrows) {
+      if (!isArrowVisible(arrow, view)) {
+        continue
+      }
+
       const { top, style } = getArrowStyle(arrow)
       if (top) {
         hovers.push(arrow)
@@ -65,7 +106,10 @@ export function draw(ctx: Canvas, params: Params) {
       }
     }
 
-    const nodes = [...layout.nodes.values()]
+    const nodes = [...layout.nodes.values()].filter((node) =>
+      isRectVisible(node.rect, view),
+    )
+
     for (const node of nodes) {
       const style = getNodeStyle(node)
       drawRect(ctx.graph, {

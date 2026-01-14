@@ -58,11 +58,17 @@
   justify-content: center;
   padding: 4px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  color: var(--tracer-fold-color);
 }
 .fold:hover {
   color: var(--tracer-fold-hover-color);
+}
+.chevronRight {
+  color: var(--tracer-index-color);
+  transform: rotate(0deg);
+}
+.chevronDown {
+  color: var(--tracer-index-color);
+  transform: rotate(90deg);
 }
 .obj {
   color: var(--tracer-obj-color);

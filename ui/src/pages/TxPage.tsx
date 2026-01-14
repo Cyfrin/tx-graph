@@ -178,6 +178,8 @@ function TxPage() {
 
   const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
 
+  console.log("TRACE", trace)
+
   function onCheck() {
     setChecked(!checked)
 

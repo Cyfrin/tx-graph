@@ -2,16 +2,27 @@ import React, { useState } from "react"
 import styles from "./index.module.css"
 import { Trace } from "./types"
 import { useTracerContext } from "../../contexts/Tracer"
+import Chevron from "../svg/Chevron"
 import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
 
 const Padd: React.FC<{ depth: number }> = ({ depth }) => {
-  const lines = []
-  for (let i = 0; i < depth; i++) {
-    lines.push(<div key={i} className={styles.padd} />)
-  }
-  return lines
+  if (depth === 0) return null
+
+  // Width matches fold symbol (+, -) sizes
+  return (
+    <div
+      style={{
+        width: depth * 18,
+        height: "100%",
+        backgroundImage:
+          "repeating-linear-gradient(to right, transparent 0, transparent 17px, grey 17px, grey 18px)",
+        backgroundSize: "18px 100%",
+        backgroundPosition: "9px 0",
+      }}
+    />
+  )
 }
 
 const Fold: React.FC<{
@@ -20,8 +31,14 @@ const Fold: React.FC<{
   onClick: () => void
 }> = ({ show, hasChildren, onClick }) => {
   return (
-    <div className={styles.fold} onClick={onClick}>
-      {hasChildren ? (show ? "-" : "+") : ""}
+    <div className={styles.fold}>
+      {hasChildren ? (
+        <Chevron
+          size={18}
+          className={show ? styles.chevronDown : styles.chevronRight}
+          onClick={onClick}
+        />
+      ) : null}
     </div>
   )
 }

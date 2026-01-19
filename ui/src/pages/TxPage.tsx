@@ -11,13 +11,13 @@ import {
 import { Graph as CanvasGraph } from "../components/canvas/Graph"
 import { Id, Graph, Node, Arrow, Hover } from "../components/canvas/lib/types"
 import Tracer from "../components/tracer"
+import * as TracerTypes from "../components/tracer/types"
+import FnDef from "../components/tracer/FnDef"
+import FnCall from "../components/tracer/FnCall"
 import Evm from "../components/ctx/evm/tracer/Evm"
 import Op from "../components/ctx/evm/tracer/Op"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"
 import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
-import * as TracerTypes from "../components/tracer/types"
-import FnDef from "../components/tracer/FnDef"
-import FnCall from "../components/tracer/FnCall"
 import CopyText from "../components/CopyText"
 import { Account } from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
@@ -179,7 +179,7 @@ function TxPage() {
     return <div>loading...</div>
   }
 
-  const { trace, graph, calls, groups, objs, arrows } = _getTrace.data
+  const { graph, calls, groups, objs } = _getTrace.data
 
   function onCheck() {
     setChecked(!checked)
@@ -224,7 +224,6 @@ function TxPage() {
                 }
                 calls={calls}
                 renderCallCtx={(ctx) => <Evm ctx={ctx} />}
-                /* @ts-ignore */
                 renderCallType={(ctx) => <Op ctx={ctx} />}
                 renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
                 renderFnDropDown={(ctx) => <FnDropDown ctx={ctx} />}

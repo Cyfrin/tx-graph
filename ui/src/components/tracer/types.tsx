@@ -38,6 +38,7 @@ export type FnDef = {
   outputs: OutputDef[]
 }
 
+// TODO: remove?
 export type Trace<C> = {
   // Call index
   i: number
@@ -48,12 +49,12 @@ export type Trace<C> = {
   ctx: C
 }
 
-export type Call<A> = {
+export type Call<C, F> = {
   // Call index
   i: number
   src: Id
   dst: Id
   depth: number
-  ctx: A
-  fn: FnCall
+  ctx: C
+  fn: F
 }

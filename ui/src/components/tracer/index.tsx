@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import styles from "./index.module.css"
-import { Call } from "./types"
+import { Call, FnCall } from "./types"
 import { useTracerContext } from "../../contexts/Tracer"
 import Chevron from "../svg/Chevron"
 import VirtualList from "./VirtualList"
@@ -58,7 +58,7 @@ const Fold: React.FC<{
 }
 
 type FnProps<A> = {
-  call: Call<A>
+  call: Call<A, FnCall>
   hasChildren: boolean
   renderCallType?: (ctx: A) => React.ReactNode
   renderCallCtx?: (ctx: A) => React.ReactNode
@@ -165,7 +165,7 @@ function Fn<V>({
 
 type TracerProps<C> = {
   height: number
-  calls: Call<C>[]
+  calls: Call<C, FnCall>[]
   renderCallType?: (ctx: C) => React.ReactNode
   renderCallCtx?: (ctx: C) => React.ReactNode
   renderModDropDown?: (ctx: C) => React.ReactNode
@@ -192,7 +192,7 @@ function Tracer<C>({
     }))
   }
 
-  const cs: Call<C>[] = []
+  const cs: Call<C, FnCall>[] = []
   let i = 0
   while (i < calls.length) {
     cs.push(calls[i])

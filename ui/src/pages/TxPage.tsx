@@ -211,15 +211,17 @@ function TxPage() {
                 Pin ETH transfers
               </Checkbox>
             </div>
-            <Tracer
-              height={rect.height}
-              calls={calls}
-              renderCallCtx={(ctx) => <Evm ctx={ctx} />}
-              /* @ts-ignore */
-              renderCallType={(ctx) => <Op ctx={ctx} />}
-              renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
-              renderFnDropDown={(ctx) => <FnDropDown ctx={ctx} />}
-            />
+            <div className={styles.tracerComponent}>
+              <Tracer
+                height={rect.height}
+                calls={calls}
+                renderCallCtx={(ctx) => <Evm ctx={ctx} />}
+                /* @ts-ignore */
+                renderCallType={(ctx) => <Op ctx={ctx} />}
+                renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
+                renderFnDropDown={(ctx) => <FnDropDown ctx={ctx} />}
+              />
+            </div>
           </div>
         )}
         {(rect, dragging) => (

@@ -5,13 +5,19 @@
   height: 100%;
 }
 .tracer {
-  overflow: auto;
   height: 100%;
-  padding: 10px 14px 10px 14px;
 }
 .tracerController {
   display: flex;
   flex-direction: column;
+  padding: 10px 14px 4px 14px;
+  border-bottom: 1px solid grey;
+}
+.tracerComponent {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0px 0px 14px;
+  overflow-y: hidden;
 }
 .tx {
   display: flex;

@@ -49,7 +49,7 @@ const Fold: React.FC<{
     <div className={styles.fold}>
       {hasChildren ? (
         <Chevron
-          size={18}
+          size={19}
           className={show ? styles.chevronDown : styles.chevronRight}
           onClick={onClick}
         />

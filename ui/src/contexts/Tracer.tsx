@@ -3,6 +3,7 @@ import React, { useState, createContext, useContext, useMemo } from "react"
 export type State = {
   hover: number | null
   pins: Set<number>
+  // true = folded
   hidden: Set<number>
 }
 

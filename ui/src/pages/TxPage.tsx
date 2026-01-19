@@ -25,10 +25,15 @@ import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
 import { getTrace, Obj, ObjType } from "../tracer"
 
-// TODO: virtualize tracer
 // TODO: graph - ETH and token transfers
 // TODO: error handling
 // TODO: hover pin or modal on click
+
+// Must match height in .tracerController
+const TRACER_CONTROLLER_HEIGHT = 55
+// Must match paddings in .tracerComponent
+const TRACER_PADDING_TOP = 0
+const TRACER_PADDING_BOTTOM = 0
 
 // Canvas doesn't recognize css var colors
 // Don't use opaque colors (rgba) for overlapping objects (it intensifies the colors)
@@ -213,7 +218,12 @@ function TxPage() {
             </div>
             <div className={styles.tracerComponent}>
               <Tracer
-                height={rect.height}
+                height={
+                  rect.height -
+                  TRACER_CONTROLLER_HEIGHT -
+                  TRACER_PADDING_TOP -
+                  TRACER_PADDING_BOTTOM
+                }
                 calls={calls}
                 renderCallCtx={(ctx) => <Evm ctx={ctx} />}
                 /* @ts-ignore */

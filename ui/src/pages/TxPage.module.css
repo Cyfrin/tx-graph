@@ -10,13 +10,15 @@
 .tracerController {
   display: flex;
   flex-direction: column;
-  padding: 10px 14px 4px 14px;
+  padding: 10px 12px 4px 12px;
   border-bottom: 1px solid grey;
+  box-sizing: border-box;
+  height: 55px;
 }
 .tracerComponent {
   display: flex;
   flex-direction: column;
-  padding: 2px 0px 0px 14px;
+  padding: 0px 0px 0px 12px;
   overflow-y: hidden;
 }
 .tx {

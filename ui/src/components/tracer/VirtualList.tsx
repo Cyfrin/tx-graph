@@ -36,6 +36,7 @@ export default function VirtualList({
         style={{
           position: "absolute",
           top: i * lineHeight,
+          left: 0,
           height: lineHeight,
           width: "100%",
         }}
@@ -50,8 +51,8 @@ export default function VirtualList({
       onScroll={onScroll}
       style={{
         position: "relative",
+        overflow: "auto",
         height,
-        overflowY: "auto",
         willChange: "transform",
       }}
     >
@@ -59,6 +60,7 @@ export default function VirtualList({
         style={{
           position: "relative",
           height: totalHeight,
+          minWidth: "max-content",
         }}
       >
         {items}

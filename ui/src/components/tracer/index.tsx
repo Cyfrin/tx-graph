@@ -1,29 +1,44 @@
 import React, { useState } from "react"
 import styles from "./index.module.css"
-import { Trace } from "./types"
+import { Call } from "./types"
 import { useTracerContext } from "../../contexts/Tracer"
 import Chevron from "../svg/Chevron"
+import VirtualList from "./VirtualList"
 import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
 
+// Fixed line height (must match line height in .line)
+const LINE_HEIGHT = 20
+
+// TODO: use css or svg
+const Padd: React.FC<{ depth: number }> = ({ depth }) => {
+  const lines = []
+  for (let i = 0; i < depth; i++) {
+    lines.push(<div key={i} className={styles.pad} />)
+  }
+  return lines
+}
+
+/*
 const Padd: React.FC<{ depth: number }> = ({ depth }) => {
   if (depth === 0) return null
 
-  // Width matches fold symbol (+, -) sizes
+  // Width matches pad style: 9px padding + 1px border = 10px per depth
   return (
     <div
       style={{
-        width: depth * 18,
+        width: depth * 10,
         height: "100%",
         backgroundImage:
-          "repeating-linear-gradient(to right, transparent 0, transparent 17px, grey 17px, grey 18px)",
-        backgroundSize: "18px 100%",
-        backgroundPosition: "9px 0",
+          "repeating-linear-gradient(to right, transparent 0, transparent 9px, grey 9px, grey 10px)",
+        backgroundSize: "10px 100%",
+        backgroundPosition: "0 0",
       }}
     />
   )
 }
+*/
 
 const Fold: React.FC<{
   show: boolean
@@ -43,18 +58,20 @@ const Fold: React.FC<{
   )
 }
 
-type FnProps<V> = {
-  trace: Trace<V>
-  renderCallType?: (ctx: V) => React.ReactNode
-  renderCallCtx?: (ctx: V) => React.ReactNode
-  renderModDropDown?: (ctx: V) => React.ReactNode
-  renderFnDropDown?: (ctx: V) => React.ReactNode
+type FnProps<A> = {
+  call: Call<A>
+  hasChildren: boolean
+  renderCallType?: (ctx: A) => React.ReactNode
+  renderCallCtx?: (ctx: A) => React.ReactNode
+  renderModDropDown?: (ctx: A) => React.ReactNode
+  renderFnDropDown?: (ctx: A) => React.ReactNode
   highlights: { [key: string]: boolean }
   setHighlight: (key: string | number, on: boolean) => void
 }
 
 function Fn<V>({
-  trace,
+  call,
+  hasChildren,
   renderCallType,
   renderCallCtx,
   renderModDropDown,
@@ -65,22 +82,22 @@ function Fn<V>({
   const { state, fold, setHover, pin } = useTracerContext()
 
   const onClick = () => {
-    pin([trace.i])
+    pin([call.i])
   }
 
   const onClickFold = () => {
-    fold(trace.i)
+    fold(call.i)
   }
 
   const onMouseEnter = () => {
-    setHover(trace.i)
+    setHover(call.i)
   }
 
   const onMouseLeave = () => {
     setHover(null)
   }
 
-  const show = !state.hidden.has(trace.i)
+  const show = !state.hidden.has(call.i)
 
   return (
     <div className={styles.fn}>
@@ -89,97 +106,83 @@ function Fn<V>({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        {renderCallType ? renderCallType(trace?.ctx) : null}
+        {renderCallType ? renderCallType(call?.ctx) : null}
         <div className={styles.index} onClick={onClick}>
-          {state.pins.has(trace.i) ? (
+          {state.pins.has(call.i) ? (
             <span className={styles.pin}>x</span>
           ) : (
-            trace.i
+            call.i
           )}
         </div>
-        <Padd depth={trace.depth} />
+        <Padd depth={call.depth} />
         <div className={styles.call}>
-          <Fold
-            show={show}
-            hasChildren={trace.calls.length > 0}
-            onClick={onClickFold}
-          />
+          <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
           <div className={styles.obj}>
             {renderModDropDown ? (
               <DropDown
-                label={trace.fn.mod}
-                highlight={highlights[trace.fn.mod]}
-                onMouseEnter={() => setHighlight(trace.fn.mod, true)}
-                onMouseLeave={() => setHighlight(trace.fn.mod, false)}
+                label={call.fn.mod}
+                highlight={highlights[call.fn.mod]}
+                onMouseEnter={() => setHighlight(call.fn.mod, true)}
+                onMouseLeave={() => setHighlight(call.fn.mod, false)}
               >
-                {renderModDropDown(trace.ctx)}
+                {renderModDropDown(call.ctx)}
               </DropDown>
             ) : (
-              trace.fn.mod
+              call.fn.mod
             )}
           </div>
           <div className={styles.dot}>.</div>
           <div className={styles.funcName}>
             {renderFnDropDown ? (
               <DropDown
-                label={trace.fn.name}
-                highlight={highlights[trace.fn.name]}
-                onMouseEnter={() => setHighlight(trace.fn.name, true)}
-                onMouseLeave={() => setHighlight(trace.fn.name, false)}
+                label={call.fn.name}
+                highlight={highlights[call.fn.name]}
+                onMouseEnter={() => setHighlight(call.fn.name, true)}
+                onMouseLeave={() => setHighlight(call.fn.name, false)}
               >
-                {renderFnDropDown(trace.ctx)}
+                {renderFnDropDown(call.ctx)}
               </DropDown>
             ) : (
-              trace.fn.name
+              call.fn.name
             )}
           </div>
-          {renderCallCtx ? renderCallCtx(trace.ctx) : null}
+          {renderCallCtx ? renderCallCtx(call.ctx) : null}
           <div>(</div>
-          <Inputs inputs={trace.fn.inputs} />
+          <Inputs inputs={call.fn.inputs} />
           <div>)</div>
-          {trace.fn.outputs.length > 0 ? (
+          {call.fn.outputs.length > 0 ? (
             <div className={styles.outputs}>
               <div className={styles.arrow}>{"→"}</div>
               <div>(</div>
-              <Outputs outputs={trace.fn.outputs} />
+              <Outputs outputs={call.fn.outputs} />
               <div>)</div>
             </div>
           ) : null}
         </div>
       </div>
-      {show
-        ? trace.calls.map((t) => (
-            <Fn
-              key={t.i}
-              trace={t}
-              renderCallType={renderCallType}
-              renderCallCtx={renderCallCtx}
-              renderModDropDown={renderModDropDown}
-              renderFnDropDown={renderFnDropDown}
-              highlights={highlights}
-              setHighlight={setHighlight}
-            />
-          ))
-        : null}
     </div>
   )
 }
 
-type TracerProps<V> = {
-  trace: Trace<V>
-  renderCallType?: (ctx: V) => React.ReactNode
-  renderCallCtx?: (ctx: V) => React.ReactNode
-  renderModDropDown?: (ctx: V) => React.ReactNode
-  renderFnDropDown?: (ctx: V) => React.ReactNode
+type TracerProps<C> = {
+  height: number
+  calls: Call<C>[]
+  renderCallType?: (ctx: C) => React.ReactNode
+  renderCallCtx?: (ctx: C) => React.ReactNode
+  renderModDropDown?: (ctx: C) => React.ReactNode
+  renderFnDropDown?: (ctx: C) => React.ReactNode
 }
 
-function Tracer<V>({
-  trace,
+function Tracer<C>({
+  height,
+  calls,
   renderCallType,
   renderCallCtx,
   renderModDropDown,
   renderFnDropDown,
-}: TracerProps<V>) {
+}: TracerProps<C>) {
+  const tracer = useTracerContext()
+
   // Highlight state of modules and functions
   const [highlights, setHighlights] = useState<{ [key: string]: boolean }>({})
 
@@ -190,16 +193,38 @@ function Tracer<V>({
     }))
   }
 
+  const cs: Call<C>[] = []
+  let i = 0
+  while (i < calls.length) {
+    cs.push(calls[i])
+    if (tracer.state.hidden.has(i)) {
+      // Skip children
+      const d = calls[i].depth
+      while (calls[i + 1]?.depth > d) {
+        i++
+      }
+    }
+    i++
+  }
+
   return (
     <div className={styles.component}>
-      <Fn
-        trace={trace}
-        renderCallType={renderCallType}
-        renderCallCtx={renderCallCtx}
-        renderModDropDown={renderModDropDown}
-        renderFnDropDown={renderFnDropDown}
-        highlights={highlights}
-        setHighlight={setHighlight}
+      <VirtualList
+        len={cs.length}
+        lineHeight={LINE_HEIGHT}
+        height={height}
+        render={(i) => (
+          <Fn
+            call={cs[i]}
+            hasChildren={calls?.[cs?.[i].i + 1]?.depth > cs?.[i]?.depth}
+            renderCallType={renderCallType}
+            renderCallCtx={renderCallCtx}
+            renderModDropDown={renderModDropDown}
+            renderFnDropDown={renderFnDropDown}
+            highlights={highlights}
+            setHighlight={setHighlight}
+          />
+        )}
       />
     </div>
   )

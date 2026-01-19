@@ -215,6 +215,7 @@ export function build(
       // Calls
       // TODO: fix parent
       calls.push({
+        i: calls.length,
         // @ts-ignore
         src: parent?.fn.id || 0,
         // @ts-ignore

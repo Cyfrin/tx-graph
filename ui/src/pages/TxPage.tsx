@@ -25,6 +25,7 @@ import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
 import { getTrace, Obj, ObjType } from "../tracer"
 
+// TODO: virtualize tracer
 // TODO: graph - ETH and token transfers
 // TODO: error handling
 // TODO: hover pin or modal on click
@@ -196,7 +197,7 @@ function TxPage() {
   return (
     <div className={styles.component}>
       <Splits>
-        {() => (
+        {(rect) => (
           <div className={styles.tracer}>
             <div className={styles.tracerController}>
               <div className={styles.tx}>
@@ -211,7 +212,8 @@ function TxPage() {
               </Checkbox>
             </div>
             <Tracer
-              trace={trace}
+              height={rect.height}
+              calls={calls}
               renderCallCtx={(ctx) => <Evm ctx={ctx} />}
               /* @ts-ignore */
               renderCallType={(ctx) => <Op ctx={ctx} />}

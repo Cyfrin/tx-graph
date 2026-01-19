@@ -47,3 +47,13 @@ export type Trace<C> = {
   calls: Trace<C>[]
   ctx: C
 }
+
+export type Call<A> = {
+  // Call index
+  i: number
+  src: Id
+  dst: Id
+  depth: number
+  ctx: A
+  fn: FnCall
+}

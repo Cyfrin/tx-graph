@@ -2,6 +2,8 @@ export type Id = number
 
 // Call graph
 export type Call<A, F> = {
+  // Call index
+  i: number
   src: Id
   dst: Id
   depth: number

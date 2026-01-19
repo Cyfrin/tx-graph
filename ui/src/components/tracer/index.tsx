@@ -11,34 +11,33 @@ import Outputs from "./Outputs"
 // Fixed line height (must match line height in .line)
 const LINE_HEIGHT = 20
 
-// TODO: use css or svg
-const Padd: React.FC<{ depth: number }> = ({ depth }) => {
-  const lines = []
-  for (let i = 0; i < depth; i++) {
-    lines.push(<div key={i} className={styles.pad} />)
+const Pad: React.FC<{ depth: number }> = ({ depth }) => {
+  if (depth > 0) {
+    // 10px per depth: 9px padding + 1px line
+    const width = depth * 10
+
+    return (
+      <div>
+        <svg width={width} height={LINE_HEIGHT} style={{ display: "block" }}>
+          {Array.from({ length: depth }, (_, i) => (
+            <g key={i}>
+              {/* Vertical line offset by 9px to the right */}
+              <line
+                x1={i * 10 + 9}
+                y1={0}
+                x2={i * 10 + 9}
+                y2={LINE_HEIGHT}
+                stroke="grey"
+                strokeWidth={1}
+              />
+            </g>
+          ))}
+        </svg>
+      </div>
+    )
   }
-  return lines
+  return null
 }
-
-/*
-const Padd: React.FC<{ depth: number }> = ({ depth }) => {
-  if (depth === 0) return null
-
-  // Width matches pad style: 9px padding + 1px border = 10px per depth
-  return (
-    <div
-      style={{
-        width: depth * 10,
-        height: "100%",
-        backgroundImage:
-          "repeating-linear-gradient(to right, transparent 0, transparent 9px, grey 9px, grey 10px)",
-        backgroundSize: "10px 100%",
-        backgroundPosition: "0 0",
-      }}
-    />
-  )
-}
-*/
 
 const Fold: React.FC<{
   show: boolean
@@ -114,7 +113,7 @@ function Fn<V>({
             call.i
           )}
         </div>
-        <Padd depth={call.depth} />
+        <Pad depth={call.depth} />
         <div className={styles.call}>
           <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
           <div className={styles.obj}>

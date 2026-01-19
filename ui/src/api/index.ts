@@ -4,6 +4,8 @@ import { EtherscanContractInfo } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
 
+// TODO: client side cache
+
 export async function getTxTrace(
   chain: string,
   txHash: string,

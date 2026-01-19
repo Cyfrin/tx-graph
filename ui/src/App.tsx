@@ -7,7 +7,6 @@ import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
 
 // TODO: graph token transfers
-// TODO: Import trace from Foundry
 function App() {
   const app = useAppContext()
 

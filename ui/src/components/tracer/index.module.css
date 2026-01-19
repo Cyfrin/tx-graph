@@ -15,7 +15,7 @@
   flex-direction: row;
   align-items: center;
   white-space: nowrap;
-  /* Need to specify height for .pad to display a vertical line */
+  /* Need to specify height for Pad to display a vertical line */
   height: 20px;
   transition: background-color 0.2s ease;
   cursor: pointer;
@@ -37,12 +37,6 @@
 }
 .pin {
   color: var(--tracer-pin-color);
-}
-.pad {
-  /* Half of (fold width + padding) */
-  padding-left: 9px;
-  border-right: 1px solid grey;
-  height: 100%;
 }
 .call {
   display: flex;

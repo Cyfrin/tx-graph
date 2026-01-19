@@ -13,8 +13,6 @@ import * as screen from "./lib/screen"
 import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
 
-// TODO: hover arrow?
-
 const STYLE: React.CSSProperties = {
   position: "absolute",
   left: 0,

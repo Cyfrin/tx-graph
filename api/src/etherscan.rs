@@ -9,6 +9,8 @@ struct ContractInfo {
     abi: String,
     #[serde(rename = "ContractName")]
     contract_name: Option<String>,
+    #[serde(rename = "SourceCode")]
+    source_code: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -21,6 +23,7 @@ pub struct Contract {
     pub addr: String,
     pub name: Option<String>,
     pub abi: Option<Value>,
+    pub src: Option<String>,
 }
 
 pub async fn get_contract(
@@ -44,9 +47,12 @@ pub async fn get_contract(
     let abi_raw = first.map(|c| c.abi.clone()).unwrap_or_default();
     let abi = serde_json::from_str(&abi_raw).ok();
 
+    let src = first.and_then(|c| c.source_code.clone());
+
     Ok(Contract {
         addr: addr.to_string(),
         name,
         abi,
+        src,
     })
 }

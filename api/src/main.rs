@@ -91,6 +91,7 @@ struct Contract {
     name: Option<String>,
     abi: Option<Value>,
     label: Option<String>,
+    src: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -107,11 +108,12 @@ async fn post_contracts(
 ) -> Result<Json<Vec<Contract>>, StatusCode> {
     // TODO: validate chain and address
     // TODO: get chain id from chain
+    // TODO: periodically fetch contract from Etherscan if contract name, abi or source is empty
 
     // Fetch contracts stored in db
     let mut contracts = sqlx::query_as!(
         Contract,
-        "SELECT chain, address, name, abi, label FROM contracts WHERE chain = $1 AND address = ANY($2)",
+        "SELECT chain, address, name, abi, label, NULL as src FROM contracts WHERE chain = $1 AND address = ANY($2)",
         req.chain, &req.addrs
     )
     .fetch_all(&pool)
@@ -140,6 +142,7 @@ async fn post_contracts(
                 name: res.name,
                 abi: res.abi,
                 label: None,
+                src: res.src,
             });
         }
     }
@@ -150,16 +153,17 @@ async fn post_contracts(
         let res = sqlx::query_as!(
             Contract,
             r#"
-                INSERT INTO contracts (chain, address, name, abi)
-                VALUES ($1, $2, $3, $4)
+                INSERT INTO contracts (chain, address, name, abi, src)
+                VALUES ($1, $2, $3, $4, $5)
                 ON CONFLICT (chain, address) DO UPDATE
-                SET name = EXCLUDED.name, abi = EXCLUDED.abi
-                RETURNING chain, address, name, abi, label
+                SET name = EXCLUDED.name, abi = EXCLUDED.abi, src = EXCLUDED.src
+                RETURNING chain, address, name, abi, label, src
             "#,
             v.chain,
             v.address,
             v.name,
-            v.abi
+            v.abi,
+            v.src
         )
         .fetch_one(&pool)
         .await;
@@ -197,7 +201,6 @@ async fn get_fn_selectors(
     Ok(Json(selectors))
 }
 
-// TODO: fix reloading page results in 404
 async fn get_contract(
     Extension(pool): Extension<Pool<Postgres>>,
     Path((chain, addr)): Path<(String, String)>,
@@ -206,7 +209,7 @@ async fn get_contract(
     // TODO: return Option<Contract>?
     let contract = sqlx::query_as!(
         Contract,
-        "SELECT chain, address, name, abi, label FROM contracts WHERE chain = $1 AND address = $2",
+        "SELECT chain, address, name, abi, label, src FROM contracts WHERE chain = $1 AND address = $2",
         chain, addr
     )
     .fetch_one(&pool)

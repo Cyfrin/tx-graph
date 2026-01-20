@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n                INSERT INTO contracts (chain, address, name, abi)\n                VALUES ($1, $2, $3, $4)\n                ON CONFLICT (chain, address) DO UPDATE\n                SET name = EXCLUDED.name, abi = EXCLUDED.abi\n                RETURNING chain, address, name, abi, label\n            ",
+  "query": "SELECT chain, address, name, abi, label, NULL as src FROM contracts WHERE chain = $1 AND address = ANY($2)",
   "describe": {
     "columns": [
       {
@@ -27,14 +27,17 @@
         "ordinal": 4,
         "name": "label",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "src",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
         "Text",
-        "Text",
-        "Text",
-        "Jsonb"
+        "TextArray"
       ]
     },
     "nullable": [
@@ -42,8 +45,9 @@
       false,
       true,
       true,
-      true
+      true,
+      null
     ]
   },
-  "hash": "301d1a0f012d1b8a825ce296a416185c083344a2856e202faf074629ef69f4bd"
+  "hash": "49aa4abb8c10d6af94f7d06aaeeff164c955921db71b8eafd1b520d87039d009"
 }

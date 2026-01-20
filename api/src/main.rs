@@ -26,10 +26,8 @@ use tracing_subscriber;
 mod config;
 mod etherscan;
 
-const ETHERSCAN_RATE_LIMIT: u64 = 3; // requests per second
-
-// Job store for polling
-type JobStore = Arc<RwLock<HashMap<String, Job>>>;
+// Job queue for polling
+type Queue = Arc<RwLock<HashMap<String, Job>>>;
 
 #[derive(Clone, Serialize)]
 struct Job {
@@ -75,7 +73,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pool = PgPoolOptions::new().connect_with(db_options).await?;
     info!("Connected to database");
 
-    let jobs: JobStore = Arc::new(RwLock::new(HashMap::new()));
+    let jobs: Queue = Arc::new(RwLock::new(HashMap::new()));
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -85,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/", get(health_check))
         .route("/contracts", post(post_contracts))
-        .route("/contracts/jobs", post(submit_contracts_job))
+        .route("/contracts/jobs", post(post_contracts_job))
         .route("/contracts/jobs/{job_id}", get(poll_contracts_job))
         .route("/contracts/{chain}/{address}", get(get_contract))
         .route("/fn-selectors/{selector}", get(get_fn_selectors))
@@ -170,8 +168,9 @@ async fn post_contracts(
         .filter(|addr| !set.contains(*addr))
         .collect();
 
-    let delay =
-        std::time::Duration::from_millis((1000 / ETHERSCAN_RATE_LIMIT) + 1);
+    let delay = std::time::Duration::from_millis(
+        (1000 / config::ETHERSCAN_RATE_LIMIT) + 1,
+    );
     for addr in addrs_to_fetch {
         match etherscan::get_contract(chain_id, addr).await {
             Ok(res) => {
@@ -234,9 +233,9 @@ struct SubmitJobResponse {
     job_id: String,
 }
 
-async fn submit_contracts_job(
+async fn post_contracts_job(
     Extension(pool): Extension<Pool<Postgres>>,
-    Extension(jobs): Extension<JobStore>,
+    Extension(jobs): Extension<Queue>,
     Json(req): Json<PostContractsRequest>,
 ) -> Result<Json<SubmitJobResponse>, StatusCode> {
     // Validate inputs
@@ -269,13 +268,12 @@ async fn submit_contracts_job(
         .cloned()
         .collect();
 
-    // Generate job ID
     let job_id = uuid::Uuid::new_v4().to_string();
 
     // Initialize job with db contracts
     {
-        let mut jobs_guard = jobs.write().await;
-        jobs_guard.insert(
+        let mut guard = jobs.write().await;
+        guard.insert(
             job_id.clone(),
             Job {
                 status: if addrs_to_fetch.is_empty() {
@@ -290,7 +288,6 @@ async fn submit_contracts_job(
         );
     }
 
-    // Spawn background task to fetch remaining contracts
     if !addrs_to_fetch.is_empty() {
         let jobs = jobs.clone();
         let job_id = job_id.clone();
@@ -299,7 +296,7 @@ async fn submit_contracts_job(
 
         tokio::spawn(async move {
             let delay = std::time::Duration::from_millis(
-                (1000 / ETHERSCAN_RATE_LIMIT) + 1,
+                (1000 / config::ETHERSCAN_RATE_LIMIT) + 1,
             );
 
             for addr in addrs_to_fetch {
@@ -332,8 +329,8 @@ async fn submit_contracts_job(
                     .await;
 
                     // Update job
-                    let mut jobs_guard = jobs.write().await;
-                    if let Some(job) = jobs_guard.get_mut(&job_id) {
+                    let mut guard = jobs.write().await;
+                    if let Some(job) = guard.get_mut(&job_id) {
                         job.contracts.push(contract);
                         job.fetched += 1;
                         if job.fetched == job.total {
@@ -342,8 +339,8 @@ async fn submit_contracts_job(
                     }
                 } else {
                     // Mark as fetched even on error
-                    let mut jobs_guard = jobs.write().await;
-                    if let Some(job) = jobs_guard.get_mut(&job_id) {
+                    let mut guard = jobs.write().await;
+                    if let Some(job) = guard.get_mut(&job_id) {
                         job.fetched += 1;
                         if job.fetched == job.total {
                             job.status = JobStatus::Complete;
@@ -360,12 +357,18 @@ async fn submit_contracts_job(
 }
 
 async fn poll_contracts_job(
-    Extension(jobs): Extension<JobStore>,
+    Extension(jobs): Extension<Queue>,
     Path(job_id): Path<String>,
 ) -> Result<Json<Job>, StatusCode> {
-    let jobs_guard = jobs.read().await;
-    let job = jobs_guard.get(&job_id).ok_or(StatusCode::NOT_FOUND)?;
-    Ok(Json(job.clone()))
+    let mut guard = jobs.write().await;
+    let job = guard.get(&job_id).ok_or(StatusCode::NOT_FOUND)?;
+    let job = job.clone();
+
+    if job.status == JobStatus::Complete {
+        guard.remove(&job_id);
+    }
+
+    Ok(Json(job))
 }
 
 #[derive(Serialize, Deserialize)]

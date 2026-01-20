@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 use std::sync::LazyLock;
 
+// requests per second
+pub const ETHERSCAN_RATE_LIMIT: u64 = 3;
+
 static CHAIN_IDS: LazyLock<HashMap<&'static str, u32>> = LazyLock::new(|| {
     HashMap::from([
         ("eth-mainnet", 1),

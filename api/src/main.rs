@@ -24,6 +24,8 @@ use tracing_subscriber;
 mod config;
 mod etherscan;
 
+const ETHERSCAN_RATE_LIMIT: u64 = 3; // requests per second
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
@@ -135,28 +137,35 @@ async fn post_contracts(
     let set: HashSet<String> =
         contracts.iter().map(|c| c.address.to_string()).collect();
 
-    // Fetch contracts not stored in db from external source
-    let mut futs: FuturesUnordered<_> = req
+    // Fetch contracts not stored in db from external source with rate limiting
+    let mut vals: Vec<Contract> = vec![];
+    let addrs_to_fetch: Vec<_> = req
         .addrs
         .iter()
-        .filter(|p| !set.contains(*p))
-        .map(|p| etherscan::get_contract(chain_id, p))
+        .filter(|addr| !set.contains(*addr))
         .collect();
 
-    let mut vals: Vec<Contract> = vec![];
-
-    // FIX: need to request several times for all the contracts to show up
-    while let Some(v) = futs.next().await {
-        if let Ok(res) = v {
-            vals.push(Contract {
-                chain: req.chain.to_string(),
-                address: res.addr,
-                name: res.name,
-                abi: res.abi,
-                label: None,
-                src: res.src,
-            });
+    let delay =
+        std::time::Duration::from_millis((1000 / ETHERSCAN_RATE_LIMIT) + 1);
+    println!("LEN {:#?}", addrs_to_fetch.len());
+    for addr in addrs_to_fetch {
+        println!("GO {:#?}", addr);
+        match etherscan::get_contract(chain_id, addr).await {
+            Ok(res) => {
+                vals.push(Contract {
+                    chain: req.chain.to_string(),
+                    address: res.addr,
+                    name: res.name,
+                    abi: res.abi,
+                    label: None,
+                    src: res.src,
+                });
+            }
+            Err(e) => {
+                info!("Failed to fetch contract {addr}: {e}");
+            }
         }
+        tokio::time::sleep(delay).await;
     }
 
     // Store contracts from external source into db (batch insert)

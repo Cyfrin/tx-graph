@@ -2,7 +2,6 @@ use reqwest::Client;
 use serde::Deserialize;
 use serde_json::Value;
 use std::env;
-use tracing::info;
 
 #[derive(Debug, Deserialize)]
 struct ContractInfo {
@@ -54,7 +53,6 @@ pub async fn get_contract(
     let body = res.text().await?;
 
     if !status.is_success() {
-        info!("HTTP {status} for {addr}: {body}");
         return Err(format!("HTTP {status}").into());
     }
 
@@ -63,8 +61,7 @@ pub async fn get_contract(
     let contracts = match res.result {
         ResponseResult::Contracts(c) => c,
         ResponseResult::Error(e) => {
-            info!("Etherscan error for {addr}: {e}");
-            return Err(e.into());
+            return Err(format!("Etherscan error for {addr}: {e}").into());
         }
     };
 

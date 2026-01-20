@@ -4,11 +4,15 @@ import { CacheEntry, EtherscanContractInfo } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
 
+const DISABLE_CACHE = true
 const CACHE_TTL = 5 * 60 * 1000
 const CACHE_PREFIX = "txgraph_cache_"
 
 // TODO: store somewhere else?
 function getCached<T>(key: string): T | null {
+  if (DISABLE_CACHE) {
+    return null
+  }
   try {
     const cacheKey = CACHE_PREFIX + key
     const item = localStorage.getItem(cacheKey)
@@ -30,6 +34,9 @@ function getCached<T>(key: string): T | null {
 }
 
 function setCache<T>(key: string, data: T): void {
+  if (DISABLE_CACHE) {
+    return
+  }
   try {
     const cacheKey = CACHE_PREFIX + key
     const entry: CacheEntry<T> = {

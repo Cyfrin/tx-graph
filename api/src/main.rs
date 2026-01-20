@@ -20,6 +20,7 @@ use tower_http::cors::{Any, CorsLayer};
 use tracing::{Level, info};
 use tracing_subscriber;
 
+mod config;
 mod etherscan;
 
 #[tokio::main]
@@ -97,7 +98,6 @@ struct Contract {
 #[derive(Debug, Serialize, Deserialize)]
 struct PostContractsRequest {
     chain: String,
-    chain_id: u32,
     addrs: Vec<String>,
 }
 
@@ -114,7 +114,10 @@ async fn post_contracts(
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    // TODO: get chain id from chain
+    // Get chain id, return error if invalid chain
+    let chain_id =
+        config::get_chain_id(&req.chain).ok_or(StatusCode::BAD_REQUEST)?;
+
     // TODO: periodically fetch contract from Etherscan if contract name, abi or source is empty
 
     // Fetch contracts stored in db
@@ -135,7 +138,7 @@ async fn post_contracts(
         .addrs
         .iter()
         .filter(|p| !set.contains(*p))
-        .map(|p| etherscan::get_contract(req.chain_id, p))
+        .map(|p| etherscan::get_contract(chain_id, p))
         .collect();
 
     let mut vals: Vec<Contract> = vec![];

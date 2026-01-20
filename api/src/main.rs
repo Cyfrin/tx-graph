@@ -157,30 +157,34 @@ async fn post_contracts(
         }
     }
 
-    // Store contracts from external source into db
-    //TODO: batch
-    for v in vals {
-        let res = sqlx::query_as!(
+    // Store contracts from external source into db (batch insert)
+    if !vals.is_empty() {
+        let chains: Vec<&str> = vals.iter().map(|v| v.chain.as_str()).collect();
+        let addresses: Vec<&str> = vals.iter().map(|v| v.address.as_str()).collect();
+        let names: Vec<Option<&str>> = vals.iter().map(|v| v.name.as_deref()).collect();
+        let abis: Vec<Option<&Value>> = vals.iter().map(|v| v.abi.as_ref()).collect();
+        let srcs: Vec<Option<&str>> = vals.iter().map(|v| v.src.as_deref()).collect();
+
+        let inserted = sqlx::query_as!(
             Contract,
             r#"
                 INSERT INTO contracts (chain, address, name, abi, src)
-                VALUES ($1, $2, $3, $4, $5)
+                SELECT * FROM UNNEST($1::text[], $2::text[], $3::text[], $4::jsonb[], $5::text[])
                 ON CONFLICT (chain, address) DO UPDATE
                 SET name = EXCLUDED.name, abi = EXCLUDED.abi, src = EXCLUDED.src
                 RETURNING chain, address, name, abi, label, src
             "#,
-            v.chain,
-            v.address,
-            v.name,
-            v.abi,
-            v.src
+            &chains as &[&str],
+            &addresses as &[&str],
+            &names as &[Option<&str>],
+            &abis as &[Option<&Value>],
+            &srcs as &[Option<&str>]
         )
-        .fetch_one(&pool)
-        .await;
+        .fetch_all(&pool)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-        if let Ok(contract) = res {
-            contracts.push(contract);
-        }
+        contracts.extend(inserted);
     }
 
     Ok(Json(contracts))

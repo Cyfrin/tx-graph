@@ -15,7 +15,9 @@ use sqlx::{
     Pool, Postgres,
     postgres::{PgConnectOptions, PgPoolOptions},
 };
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
+use tokio::sync::RwLock;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing::{Level, info};
@@ -25,6 +27,24 @@ mod config;
 mod etherscan;
 
 const ETHERSCAN_RATE_LIMIT: u64 = 3; // requests per second
+
+// Job store for polling
+type JobStore = Arc<RwLock<HashMap<String, Job>>>;
+
+#[derive(Clone, Serialize)]
+struct Job {
+    status: JobStatus,
+    contracts: Vec<Contract>,
+    total: usize,
+    fetched: usize,
+}
+
+#[derive(Clone, Serialize, PartialEq)]
+#[serde(rename_all = "lowercase")]
+enum JobStatus {
+    Pending,
+    Complete,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -55,6 +75,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pool = PgPoolOptions::new().connect_with(db_options).await?;
     info!("Connected to database");
 
+    let jobs: JobStore = Arc::new(RwLock::new(HashMap::new()));
+
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods([Method::GET, Method::POST])
@@ -63,11 +85,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .route("/", get(health_check))
         .route("/contracts", post(post_contracts))
+        .route("/contracts/jobs", post(submit_contracts_job))
+        .route("/contracts/jobs/{job_id}", get(poll_contracts_job))
         .route("/contracts/{chain}/{address}", get(get_contract))
         .route("/fn-selectors/{selector}", get(get_fn_selectors))
         .layer(TraceLayer::new_for_http())
         .layer(cors)
-        .layer(Extension(pool));
+        .layer(Extension(pool))
+        .layer(Extension(jobs));
 
     let listener = tokio::net::TcpListener::bind(format!("{host}:{port}"))
         .await
@@ -89,7 +114,7 @@ async fn health_check() -> Result<Json<Health>, StatusCode> {
     Ok(Json(Health { status: "ok" }))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 struct Contract {
     chain: String,
     address: String,
@@ -147,9 +172,7 @@ async fn post_contracts(
 
     let delay =
         std::time::Duration::from_millis((1000 / ETHERSCAN_RATE_LIMIT) + 1);
-    println!("LEN {:#?}", addrs_to_fetch.len());
     for addr in addrs_to_fetch {
-        println!("GO {:#?}", addr);
         match etherscan::get_contract(chain_id, addr).await {
             Ok(res) => {
                 vals.push(Contract {
@@ -203,6 +226,146 @@ async fn post_contracts(
     }
 
     Ok(Json(contracts))
+}
+
+// TODO: use - switch from using post_contracts to queue + query
+#[derive(Serialize)]
+struct SubmitJobResponse {
+    job_id: String,
+}
+
+async fn submit_contracts_job(
+    Extension(pool): Extension<Pool<Postgres>>,
+    Extension(jobs): Extension<JobStore>,
+    Json(req): Json<PostContractsRequest>,
+) -> Result<Json<SubmitJobResponse>, StatusCode> {
+    // Validate inputs
+    if req.chain.trim().is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    if req.addrs.is_empty() || req.addrs.iter().any(|a| a.trim().is_empty()) {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
+    let chain_id =
+        config::get_chain_id(&req.chain).ok_or(StatusCode::BAD_REQUEST)?;
+
+    // Fetch contracts already in db
+    let db_contracts: Vec<Contract> = sqlx::query_as!(
+        Contract,
+        "SELECT chain, address, name, abi, label, NULL as src FROM contracts WHERE chain = $1 AND address = ANY($2)",
+        req.chain, &req.addrs
+    )
+    .fetch_all(&pool)
+    .await
+    .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let set: HashSet<String> =
+        db_contracts.iter().map(|c| c.address.clone()).collect();
+    let addrs_to_fetch: Vec<String> = req
+        .addrs
+        .iter()
+        .filter(|addr| !set.contains(*addr))
+        .cloned()
+        .collect();
+
+    // Generate job ID
+    let job_id = uuid::Uuid::new_v4().to_string();
+
+    // Initialize job with db contracts
+    {
+        let mut jobs_guard = jobs.write().await;
+        jobs_guard.insert(
+            job_id.clone(),
+            Job {
+                status: if addrs_to_fetch.is_empty() {
+                    JobStatus::Complete
+                } else {
+                    JobStatus::Pending
+                },
+                contracts: db_contracts,
+                total: addrs_to_fetch.len(),
+                fetched: 0,
+            },
+        );
+    }
+
+    // Spawn background task to fetch remaining contracts
+    if !addrs_to_fetch.is_empty() {
+        let jobs = jobs.clone();
+        let job_id = job_id.clone();
+        let chain = req.chain.clone();
+        let pool = pool.clone();
+
+        tokio::spawn(async move {
+            let delay = std::time::Duration::from_millis(
+                (1000 / ETHERSCAN_RATE_LIMIT) + 1,
+            );
+
+            for addr in addrs_to_fetch {
+                if let Ok(res) = etherscan::get_contract(chain_id, &addr).await
+                {
+                    let contract = Contract {
+                        chain: chain.clone(),
+                        address: res.addr.clone(),
+                        name: res.name.clone(),
+                        abi: res.abi.clone(),
+                        label: None,
+                        src: res.src.clone(),
+                    };
+
+                    // Insert into db
+                    let _ = sqlx::query!(
+                        r#"
+                            INSERT INTO contracts (chain, address, name, abi, src)
+                            VALUES ($1, $2, $3, $4, $5)
+                            ON CONFLICT (chain, address) DO UPDATE
+                            SET name = EXCLUDED.name, abi = EXCLUDED.abi, src = EXCLUDED.src
+                        "#,
+                        contract.chain,
+                        contract.address,
+                        contract.name,
+                        contract.abi,
+                        contract.src
+                    )
+                    .execute(&pool)
+                    .await;
+
+                    // Update job
+                    let mut jobs_guard = jobs.write().await;
+                    if let Some(job) = jobs_guard.get_mut(&job_id) {
+                        job.contracts.push(contract);
+                        job.fetched += 1;
+                        if job.fetched == job.total {
+                            job.status = JobStatus::Complete;
+                        }
+                    }
+                } else {
+                    // Mark as fetched even on error
+                    let mut jobs_guard = jobs.write().await;
+                    if let Some(job) = jobs_guard.get_mut(&job_id) {
+                        job.fetched += 1;
+                        if job.fetched == job.total {
+                            job.status = JobStatus::Complete;
+                        }
+                    }
+                }
+
+                tokio::time::sleep(delay).await;
+            }
+        });
+    }
+
+    Ok(Json(SubmitJobResponse { job_id }))
+}
+
+async fn poll_contracts_job(
+    Extension(jobs): Extension<JobStore>,
+    Path(job_id): Path<String>,
+) -> Result<Json<Job>, StatusCode> {
+    let jobs_guard = jobs.read().await;
+    let job = jobs_guard.get(&job_id).ok_or(StatusCode::NOT_FOUND)?;
+    Ok(Json(job.clone()))
 }
 
 #[derive(Serialize, Deserialize)]

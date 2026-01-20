@@ -38,7 +38,7 @@ pub struct Contract {
 pub async fn get_contract(
     chain_id: u32,
     addr: &str,
-) -> Result<Contract, Box<dyn std::error::Error>> {
+) -> Result<Contract, Box<dyn std::error::Error + Send + Sync>> {
     let api_key = env::var("ETHERSCAN_API_KEY")?;
 
     let url = format!(

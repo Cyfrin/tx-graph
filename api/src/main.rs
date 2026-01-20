@@ -35,6 +35,8 @@ struct Job {
     contracts: Vec<Contract>,
     total: usize,
     fetched: usize,
+    #[serde(skip)]
+    created_at: std::time::Instant,
 }
 
 #[derive(Clone, Serialize, PartialEq)]
@@ -74,6 +76,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Connected to database");
 
     let jobs: Queue = Arc::new(RwLock::new(HashMap::new()));
+
+    // Cleanup stale jobs every 60 seconds
+    let jobs_cleanup = jobs.clone();
+    tokio::spawn(async move {
+        let ttl = std::time::Duration::from_secs(300);
+        loop {
+            tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+            let mut guard = jobs_cleanup.write().await;
+            let before = guard.len();
+            guard.retain(|_, job| job.created_at.elapsed() < ttl);
+            let removed = before - guard.len();
+            if removed > 0 {
+                info!("Cleaned up {removed} stale jobs");
+            }
+        }
+    });
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
@@ -229,7 +247,7 @@ async fn post_contracts(
 
 // TODO: use - switch from using post_contracts to queue + query
 #[derive(Serialize)]
-struct SubmitJobResponse {
+struct PostJobResponse {
     job_id: String,
 }
 
@@ -237,7 +255,7 @@ async fn post_contracts_job(
     Extension(pool): Extension<Pool<Postgres>>,
     Extension(jobs): Extension<Queue>,
     Json(req): Json<PostContractsRequest>,
-) -> Result<Json<SubmitJobResponse>, StatusCode> {
+) -> Result<Json<PostJobResponse>, StatusCode> {
     // Validate inputs
     if req.chain.trim().is_empty() {
         return Err(StatusCode::BAD_REQUEST);
@@ -284,6 +302,7 @@ async fn post_contracts_job(
                 contracts: db_contracts,
                 total: addrs_to_fetch.len(),
                 fetched: 0,
+                created_at: std::time::Instant::now(),
             },
         );
     }
@@ -353,22 +372,16 @@ async fn post_contracts_job(
         });
     }
 
-    Ok(Json(SubmitJobResponse { job_id }))
+    Ok(Json(PostJobResponse { job_id }))
 }
 
 async fn poll_contracts_job(
     Extension(jobs): Extension<Queue>,
     Path(job_id): Path<String>,
 ) -> Result<Json<Job>, StatusCode> {
-    let mut guard = jobs.write().await;
+    let mut guard = jobs.read().await;
     let job = guard.get(&job_id).ok_or(StatusCode::NOT_FOUND)?;
-    let job = job.clone();
-
-    if job.status == JobStatus::Complete {
-        guard.remove(&job_id);
-    }
-
-    Ok(Json(job))
+    Ok(Json(job.clone()))
 }
 
 #[derive(Serialize, Deserialize)]

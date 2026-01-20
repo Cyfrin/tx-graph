@@ -2,6 +2,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use serde_json::Value;
 use std::env;
+use tracing::info;
 
 #[derive(Debug, Deserialize)]
 struct ContractInfo {
@@ -14,8 +15,17 @@ struct ContractInfo {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum ResponseResult {
+    Contracts(Vec<ContractInfo>),
+    Error(String),
+}
+
+#[derive(Debug, Deserialize)]
 struct Response {
-    result: Vec<ContractInfo>,
+    status: Option<String>,
+    message: Option<String>,
+    result: ResponseResult,
 }
 
 #[derive(Debug)]
@@ -38,9 +48,27 @@ pub async fn get_contract(
     );
 
     let client = Client::new();
-    let res: Response = client.get(&url).send().await?.json().await?;
+    let res = client.get(&url).send().await?;
 
-    let first = res.result.get(0);
+    let status = res.status();
+    let body = res.text().await?;
+
+    if !status.is_success() {
+        info!("HTTP {status} for {addr}: {body}");
+        return Err(format!("HTTP {status}").into());
+    }
+
+    let res: Response = serde_json::from_str(&body)?;
+
+    let contracts = match res.result {
+        ResponseResult::Contracts(c) => c,
+        ResponseResult::Error(e) => {
+            info!("Etherscan error for {addr}: {e}");
+            return Err(e.into());
+        }
+    };
+
+    let first = contracts.first();
 
     let name = first.and_then(|c| c.contract_name.clone());
 

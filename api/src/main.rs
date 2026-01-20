@@ -106,7 +106,14 @@ async fn post_contracts(
     Extension(pool): Extension<Pool<Postgres>>,
     Json(req): Json<PostContractsRequest>,
 ) -> Result<Json<Vec<Contract>>, StatusCode> {
-    // TODO: validate chain and address
+    // Validate inputs are not empty
+    if req.chain.trim().is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+    if req.addrs.is_empty() || req.addrs.iter().any(|a| a.trim().is_empty()) {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
     // TODO: get chain id from chain
     // TODO: periodically fetch contract from Etherscan if contract name, abi or source is empty
 
@@ -188,7 +195,11 @@ async fn get_fn_selectors(
     Extension(pool): Extension<Pool<Postgres>>,
     Path(selector): Path<String>,
 ) -> Result<Json<Vec<FnSelector>>, StatusCode> {
-    // TODO: validate selector
+    // Validate selector is not empty
+    if selector.trim().is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
     let selectors = sqlx::query_as!(
         FnSelector,
         "SELECT selector, name, inputs, outputs FROM fn_selectors WHERE selector = $1",
@@ -205,7 +216,11 @@ async fn get_contract(
     Extension(pool): Extension<Pool<Postgres>>,
     Path((chain, addr)): Path<(String, String)>,
 ) -> Result<Json<Contract>, StatusCode> {
-    // TODO: validate chain and addr
+    // Validate inputs are not empty
+    if chain.trim().is_empty() || addr.trim().is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
     // TODO: return Option<Contract>?
     let contract = sqlx::query_as!(
         Contract,

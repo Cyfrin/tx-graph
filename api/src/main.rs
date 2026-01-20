@@ -17,6 +17,7 @@ use sqlx::{
 };
 use std::collections::HashSet;
 use tower_http::cors::{Any, CorsLayer};
+use tower_http::trace::TraceLayer;
 use tracing::{Level, info};
 use tracing_subscriber;
 
@@ -27,8 +28,11 @@ mod etherscan;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
+    // Switch to Level::DEBUG for dev
+    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
+
     let host = std::env::var("HOST")?;
-    // TODO: clean up - 8080 is default port for Cloud Run
+    // 8080 is default port for Cloud Run
     let port = std::env::var("PORT").unwrap_or("8080".to_string());
 
     let db_host = std::env::var("DB_HOST")?;
@@ -49,19 +53,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pool = PgPoolOptions::new().connect_with(db_options).await?;
     info!("Connected to database");
 
-    tracing_subscriber::fmt().with_max_level(Level::INFO).init();
-
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods([Method::GET, Method::POST])
         .allow_headers([http::header::CONTENT_TYPE]);
 
-    // TODO: request logs
     let app = Router::new()
         .route("/", get(health_check))
         .route("/contracts", post(post_contracts))
         .route("/contracts/{chain}/{address}", get(get_contract))
         .route("/fn-selectors/{selector}", get(get_fn_selectors))
+        .layer(TraceLayer::new_for_http())
         .layer(cors)
         .layer(Extension(pool));
 
@@ -160,10 +162,14 @@ async fn post_contracts(
     // Store contracts from external source into db (batch insert)
     if !vals.is_empty() {
         let chains: Vec<&str> = vals.iter().map(|v| v.chain.as_str()).collect();
-        let addresses: Vec<&str> = vals.iter().map(|v| v.address.as_str()).collect();
-        let names: Vec<Option<&str>> = vals.iter().map(|v| v.name.as_deref()).collect();
-        let abis: Vec<Option<&Value>> = vals.iter().map(|v| v.abi.as_ref()).collect();
-        let srcs: Vec<Option<&str>> = vals.iter().map(|v| v.src.as_deref()).collect();
+        let addresses: Vec<&str> =
+            vals.iter().map(|v| v.address.as_str()).collect();
+        let names: Vec<Option<&str>> =
+            vals.iter().map(|v| v.name.as_deref()).collect();
+        let abis: Vec<Option<&Value>> =
+            vals.iter().map(|v| v.abi.as_ref()).collect();
+        let srcs: Vec<Option<&str>> =
+            vals.iter().map(|v| v.src.as_deref()).collect();
 
         let inserted = sqlx::query_as!(
             Contract,

@@ -1,5 +1,6 @@
-import { TxCall, ContractInfo } from "./types/tx"
-import { File } from "./types/file"
+import * as TxTypes from "./types/tx"
+import * as FileTypes from "./types/file"
+import * as FileStorage from "./files"
 
 type Trace = {
   depth: number
@@ -66,27 +67,27 @@ function dfs<A>(
 //  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
 
 // Build TxCall
-export function build(get: (key: string) => File[] | null): TxCall | null {
+export function getTrace(): TxTypes.TxCall | null {
   // @ts-ignore
-  const tests: Tests = get("trace")?.[0]?.data
+  const tests: Tests = FileStorage.get("trace")?.[0]?.data
   if (!tests) {
     return null
   }
 
-  const txCalls: TxCall[] = []
+  const txCalls: TxTypes.TxCall[] = []
 
   for (const [testContractName, { test_results }] of Object.entries(tests)) {
     for (const [testName, test] of Object.entries(test_results)) {
       for (const [step, { arena }] of test.traces) {
         if (step == "Setup" || step == "Execution") {
-          const stack: TxCall[] = []
+          const stack: TxTypes.TxCall[] = []
           // Create a nested TxCall
           dfs(
             arena[0].idx,
             (a) => arena[a].children,
             (i, d, a) => {
               const { trace } = arena[a]
-              const call: TxCall = {
+              const call: TxTypes.TxCall = {
                 from: trace.caller,
                 to: trace.address,
                 type: trace.kind,
@@ -114,7 +115,7 @@ export function build(get: (key: string) => File[] | null): TxCall | null {
     }
   }
 
-  const txCall: TxCall = {
+  const txCall: TxTypes.TxCall = {
     from: "foundry test",
     to: txCalls[0]?.from || "",
     type: "CALL",
@@ -129,17 +130,14 @@ export function build(get: (key: string) => File[] | null): TxCall | null {
   return txCall
 }
 
-export function getContracts(
-  addrs: string[],
-  get: (key: string) => File[] | null,
-): ContractInfo[] {
+export function getContracts(addrs: string[]): TxTypes.ContractInfo[] {
   // @ts-ignore
-  const tests: Tests = get("trace")?.[0]?.data
+  const tests: Tests = FileStorage.get("trace")?.[0]?.data
   if (!tests) {
     return []
   }
 
-  const abis = get("abi") || []
+  const abis = FileStorage.get("abi") || []
   // contract name => ABI
   const files = new Map(abis.map((f) => [f.name, f.data]))
   const addrToAbi = new Map()

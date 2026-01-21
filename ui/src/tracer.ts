@@ -249,7 +249,7 @@ export async function getTrace(params: { txHash: string; chain: string }) {
 
   let t: { result: TxTypes.TxCall } | null = null
   if (chain == "foundry-test") {
-    const res = foundry.build(FileStorage.get)
+    const res = foundry.getTrace()
     assert(res != null, "Foundry trace is null")
     // @ts-ignore
     t = { result: res }
@@ -277,7 +277,7 @@ export async function getTrace(params: { txHash: string; chain: string }) {
 
   const contracts: TxTypes.ContractInfo[] =
     chain == "foundry-test"
-      ? foundry.getContracts([...addrs.values()], FileStorage.get)
+      ? foundry.getContracts([...addrs.values()])
       : await api.getContracts({
           chain,
           // @ts-ignore

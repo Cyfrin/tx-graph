@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { useWindowSizeContext } from "../contexts/WindowSize"
-import { useFileStorageContext } from "../contexts/FileStorage"
 import Splits from "../components/Splits"
 import {
   Provider as TracerProvider,
@@ -156,7 +155,6 @@ function TxPage() {
   const chain = q.get("chain")
 
   const windowSize = useWindowSizeContext()
-  const fileStorage = useFileStorageContext()
   const tracer = useTracerContext()
   const _getTrace = useAsync(getTrace)
   const [checked, setChecked] = useState(false)
@@ -170,7 +168,7 @@ function TxPage() {
       //     submit -> job id
       //     poll (job id) -> incremental update to graph
       const f = async () => {
-        await _getTrace.exec({ txHash, chain, get: fileStorage.get })
+        await _getTrace.exec({ txHash, chain })
       }
       f()
     }

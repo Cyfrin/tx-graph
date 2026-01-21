@@ -2,9 +2,9 @@ import { useEffect } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { Provider as AppProvider, useAppContext } from "./contexts/App"
 import { Provider as WindowSizeProvider } from "./contexts/WindowSize"
-import { Provider as FileStorageProvider } from "./contexts/FileStorage"
 import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
+import "./files"
 
 // TODO: graph token transfers
 function App() {
@@ -28,9 +28,7 @@ export default () => {
   return (
     <WindowSizeProvider>
       <AppProvider>
-        <FileStorageProvider>
-          <App />
-        </FileStorageProvider>
+        <App />
       </AppProvider>
     </WindowSizeProvider>
   )

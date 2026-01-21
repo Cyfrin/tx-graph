@@ -1,16 +1,16 @@
-import { File } from "../types/file"
+import * as FileTypes from "../types/file"
 import styles from "./FoundryForm.module.css"
 
 const FoundryForm: React.FC<{
-  setTraceFile: (file: File) => void
-  setABIFiles: (files: File[]) => void
-  abis: File[]
+  setTraceFile: (file: FileTypes.File) => void
+  setABIFiles: (files: FileTypes.File[]) => void
+  abis: FileTypes.File[]
 }> = ({ setTraceFile, setABIFiles, abis }) => {
   const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = e.target
 
     if (files) {
-      const vals: File[] = []
+      const vals: FileTypes.File[] = []
       for (const file of files) {
         try {
           const text = await file.text()

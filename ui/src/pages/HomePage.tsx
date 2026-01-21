@@ -1,20 +1,32 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { RPC_CONFIG, RpcConfig } from "../config"
-import { useFileStorageContext } from "../contexts/FileStorage"
+import * as FileStorage from "../files"
 import FoundryForm from "../components/FoundryForm"
-import { File } from "../types/file"
+import * as FileTypes from "../types/file"
 import styles from "./HomePage.module.css"
 
 export function HomePage() {
   const navigate = useNavigate()
-  const fileStorage = useFileStorageContext()
 
   const [inputs, setInputs] = useState({
     chain: "eth-mainnet",
     // chain: "foundry-test",
     txHash: "",
   })
+  const [fs, setFiles] = useState<Record<string, FileTypes.File[]>>({})
+
+  const set = (key: string, files: FileTypes.File[]) => {
+    setFiles({
+      ...fs,
+      [key]: files,
+    })
+    FileStorage.set(key, files)
+  }
+
+  const get = (key: string) => {
+    return fs[key] || null
+  }
 
   const setChain = (chain: string) => {
     setInputs({
@@ -30,19 +42,19 @@ export function HomePage() {
     })
   }
 
-  const setTraceFile = (file: File) => {
-    fileStorage.set("trace", [file])
+  const setTraceFile = (file: FileTypes.File) => {
+    set("trace", [file])
   }
 
-  const setABIFiles = (files: File[]) => {
-    fileStorage.set("abi", files)
+  const setABIFiles = (files: FileTypes.File[]) => {
+    set("abi", files)
   }
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (inputs.chain == "foundry-test") {
-      const trace = fileStorage.get("trace")?.[0] || null
+      const trace = get("trace")?.[0] || null
       if (trace != null) {
         // Need none empty tx hash for /tx to render
         navigate(`/tx/0x00?chain=foundry-test`)
@@ -74,7 +86,7 @@ export function HomePage() {
             <FoundryForm
               setTraceFile={setTraceFile}
               setABIFiles={setABIFiles}
-              abis={fileStorage.get("abi") || []}
+              abis={get("abi") || []}
             />
             <button type="submit">Go</button>
           </div>

@@ -4,6 +4,7 @@ import * as TxTypes from "./types/tx"
 import * as FileTypes from "./types/file"
 import * as ApiTypes from "./api/types"
 import * as api from "./api"
+import * as FileStorage from "./files"
 import * as TracerTypes from "./components/tracer/types"
 import * as CanvasTypes from "./components/canvas/lib/types"
 import * as graph from "./components/canvas/lib/graph"
@@ -243,17 +244,12 @@ export function build(
   }
 }
 
-export async function getTrace(params: {
-  txHash: string
-  chain: string
-  // Get file saved to React context
-  get: (key: string) => FileTypes.File[] | null
-}) {
+export async function getTrace(params: { txHash: string; chain: string }) {
   const { txHash, chain } = params
 
   let t: { result: TxTypes.TxCall } | null = null
   if (chain == "foundry-test") {
-    const res = foundry.build(params.get)
+    const res = foundry.build(FileStorage.get)
     assert(res != null, "Foundry trace is null")
     // @ts-ignore
     t = { result: res }
@@ -281,7 +277,7 @@ export async function getTrace(params: {
 
   const contracts: TxTypes.ContractInfo[] =
     chain == "foundry-test"
-      ? foundry.getContracts([...addrs.values()], params.get)
+      ? foundry.getContracts([...addrs.values()], FileStorage.get)
       : await api.getContracts({
           chain,
           // @ts-ignore

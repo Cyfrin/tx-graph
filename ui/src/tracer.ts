@@ -282,18 +282,15 @@ export async function getTrace(params: {
   const contracts: TxTypes.ContractInfo[] =
     chain == "foundry-test"
       ? foundry.getContracts([...addrs.values()], params.get)
-      : []
-  /*
-     TODO: remove
       : await api.getContracts({
           chain,
           // @ts-ignore
           chain_id: RPC_CONFIG[chain]?.chainId,
           addrs: [...addrs.values()],
         })
-        */
 
   let jobId: string | null = null
+  /*
   if (chain != "foundry-test") {
     const { job_id } = await api.postContractsJob({
       chain,
@@ -301,6 +298,7 @@ export async function getTrace(params: {
     })
     jobId = job_id
   }
+  */
 
   // @ts-ignore
   const { calls, groups, objs, arrows, trace } = build(t.result, contracts)

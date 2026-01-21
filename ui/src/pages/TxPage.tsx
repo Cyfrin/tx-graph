@@ -163,6 +163,12 @@ function TxPage() {
 
   useEffect(() => {
     if (txHash && chain) {
+      // Get trace
+      // Get contract infos
+      // - Foundry -> memory
+      // - RPC -> submit + poll
+      //     submit -> job id
+      //     poll (job id) -> incremental update to graph
       const f = async () => {
         await _getTrace.exec({ txHash, chain, get: fileStorage.get })
       }

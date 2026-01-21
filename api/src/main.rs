@@ -314,6 +314,7 @@ async fn post_contracts_job(
         let pool = pool.clone();
 
         tokio::spawn(async move {
+            // TODO: FIX multiple tasks running concurrently may hit rate limit
             let delay = std::time::Duration::from_millis(
                 (1000 / config::ETHERSCAN_RATE_LIMIT) + 1,
             );

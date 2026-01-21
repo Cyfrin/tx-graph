@@ -1,6 +1,6 @@
 import { assert } from "../utils"
 import { TxCall, ContractInfo } from "../types/tx"
-import { CacheEntry, EtherscanContractInfo } from "./types"
+import { CacheEntry, EtherscanContractInfo, Job } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
 
@@ -87,6 +87,26 @@ export async function getContracts(params: {
   return post<any, ContractInfo[]>(
     `${import.meta.env.VITE_API_URL}/contracts`,
     params,
+  )
+}
+
+export async function postContractsJob(params: {
+  chain: string
+  addrs: string[]
+}): Promise<{ job_id: string }> {
+  // No caching for now
+  return post<any, { job_id: string }>(
+    `${import.meta.env.VITE_API_URL}/contracts/jobs`,
+    params,
+  )
+}
+
+export async function pollContractsJob(params: {
+  jobId: string
+}): Promise<Job> {
+  // No caching for now
+  return get<Job>(
+    `${import.meta.env.VITE_API_URL}/contracts/jobs/${params.jobId}`,
   )
 }
 

@@ -1,39 +1,40 @@
 import { ethers } from "ethers"
 import { RPC_CONFIG } from "./config"
-import { TxCall, ContractInfo, AbiEntry } from "./types/tx"
-import { File } from "./types/file"
+import * as TxTypes from "./types/tx"
+import * as FileTypes from "./types/file"
+import * as ApiTypes from "./api/types"
 import * as api from "./api"
-import { Id, Call, Groups } from "./components/canvas/lib/types"
-import { Trace, Input, Output, FnCall, FnDef } from "./components/tracer/types"
+import * as TracerTypes from "./components/tracer/types"
+import * as CanvasTypes from "./components/canvas/lib/types"
 import * as graph from "./components/canvas/lib/graph"
 import * as foundry from "./foundry"
 import { zip, assert } from "./utils"
-import { Account, Evm, CallType } from "./components/ctx/evm/types"
+import * as EvmTypes from "./components/ctx/evm/types"
 
 // TODO: move to graph/lib/types?
 export type ObjType = "acc" | "fn"
 export type Obj<T, V> = {
-  id: Id
+  id: CanvasTypes.Id
   type: T
   val: V
 }
 
 // TODO: store into objects?
 export type Arrow<V> = {
-  src: Id
-  dst: Id
+  src: CanvasTypes.Id
+  dst: CanvasTypes.Id
   val: V
 }
 
 function parse(
-  abi: AbiEntry[] | null,
+  abi: TxTypes.AbiEntry[] | null,
   input: string,
   output?: string,
 ): {
   name?: string
   selector?: string
-  inputs?: Input[]
-  outputs?: Output[]
+  inputs?: TracerTypes.Input[]
+  outputs?: TracerTypes.Output[]
 } | null {
   if (!abi) {
     return null
@@ -80,33 +81,39 @@ function parse(
 }
 
 export function build(
-  root: TxCall,
-  contracts: ContractInfo[],
+  root: TxTypes.TxCall,
+  contracts: TxTypes.ContractInfo[],
 ): {
-  objs: Map<Id, Obj<ObjType, Account | FnDef>>
-  arrows: Arrow<FnCall>[]
-  groups: Groups
-  calls: Call<Evm, FnCall>[]
-  trace: Trace<Evm>
+  objs: Map<CanvasTypes.Id, Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>>
+  arrows: Arrow<TracerTypes.FnCall>[]
+  groups: CanvasTypes.Groups
+  calls: CanvasTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
+  trace: TracerTypes.Trace<EvmTypes.Evm>
 } {
-  const cons: { [key: string]: ContractInfo[] } = contracts.reduce((z, c) => {
-    // @ts-ignore
-    z[c.address] = c
-    return z
-  }, {})
+  const cons: { [key: string]: TxTypes.ContractInfo[] } = contracts.reduce(
+    (z, c) => {
+      // @ts-ignore
+      z[c.address] = c
+      return z
+    },
+    {},
+  )
 
   // Account or function to Id
-  const ids: Map<string, Id> = new Map()
-  const objs: Map<Id, Obj<ObjType, Account | FnDef>> = new Map()
-  const arrows: Arrow<FnCall>[] = []
-  const groups: Groups = new Map()
-  const calls: Call<Evm, FnCall>[] = []
-  const stack: Trace<Evm>[] = []
+  const ids: Map<string, CanvasTypes.Id> = new Map()
+  const objs: Map<
+    CanvasTypes.Id,
+    Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
+  > = new Map()
+  const arrows: Arrow<TracerTypes.FnCall>[] = []
+  const groups: CanvasTypes.Groups = new Map()
+  const calls: CanvasTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[] = []
+  const stack: TracerTypes.Trace<EvmTypes.Evm>[] = []
 
   // Put initial caller into it's own group
   groups.set(0, new Set())
 
-  graph.dfs<TxCall>(
+  graph.dfs<TxTypes.TxCall>(
     root,
     (c) => c?.calls || [],
     (i, d, c) => {
@@ -114,7 +121,7 @@ export function build(
         const key = `addr:${addr}`
         if (!ids.has(key)) {
           ids.set(key, ids.size)
-          const id = ids.get(key) as Id
+          const id = ids.get(key) as CanvasTypes.Id
           objs.set(id, {
             id: id,
             type: "acc",
@@ -135,9 +142,9 @@ export function build(
       if (!ids.has(fnKey)) {
         ids.set(fnKey, ids.size)
       }
-      const fnId = ids.get(fnKey) as Id
+      const fnId = ids.get(fnKey) as CanvasTypes.Id
 
-      const trace: Trace<Evm> = {
+      const trace: TracerTypes.Trace<EvmTypes.Evm> = {
         i,
         depth: d,
         fn: {
@@ -154,7 +161,7 @@ export function build(
           src: c.from,
           dst: c.to,
           val: BigInt(c.value || 0),
-          type: c.type.toLowerCase() as CallType,
+          type: c.type.toLowerCase() as EvmTypes.CallType,
           raw: {
             input: c.input,
             output: c.output,
@@ -198,7 +205,7 @@ export function build(
         })
       }
 
-      const toId = ids.get(`addr:${c.to}`) as Id
+      const toId = ids.get(`addr:${c.to}`) as CanvasTypes.Id
       // @ts-ignore
       const acc = objs.get(toId).val as Account
       if (!acc.fns.has(trace.fn.id)) {
@@ -240,11 +247,11 @@ export async function getTrace(params: {
   txHash: string
   chain: string
   // Get file saved to React context
-  get: (key: string) => File[] | null
+  get: (key: string) => FileTypes.File[] | null
 }) {
   const { txHash, chain } = params
 
-  let t: { result: TxCall } | null = null
+  let t: { result: TxTypes.TxCall } | null = null
   if (chain == "foundry-test") {
     const res = foundry.build(params.get)
     assert(res != null, "Foundry trace is null")
@@ -256,8 +263,8 @@ export async function getTrace(params: {
 
   assert(!!t?.result, "TX trace is null")
 
-  const txCalls: [number, TxCall][] = []
-  graph.dfs<TxCall>(
+  const txCalls: [number, TxTypes.TxCall][] = []
+  graph.dfs<TxTypes.TxCall>(
     // @ts-ignore
     t.result,
     (c) => c?.calls || [],
@@ -272,15 +279,28 @@ export async function getTrace(params: {
     addrs.add(c.to)
   }
 
-  const contracts: ContractInfo[] =
+  const contracts: TxTypes.ContractInfo[] =
     chain == "foundry-test"
       ? foundry.getContracts([...addrs.values()], params.get)
+      : []
+  /*
+     TODO: remove
       : await api.getContracts({
           chain,
           // @ts-ignore
           chain_id: RPC_CONFIG[chain]?.chainId,
           addrs: [...addrs.values()],
         })
+        */
+
+  let jobId: string | null = null
+  if (chain != "foundry-test") {
+    const { job_id } = await api.postContractsJob({
+      chain,
+      addrs: [...addrs.values()],
+    })
+    jobId = job_id
+  }
 
   // @ts-ignore
   const { calls, groups, objs, arrows, trace } = build(t.result, contracts)
@@ -292,5 +312,6 @@ export async function getTrace(params: {
     arrows,
     trace,
     graph: graph.build(calls),
+    jobId,
   }
 }

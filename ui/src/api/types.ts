@@ -1,3 +1,5 @@
+import { ContractInfo } from "../types/tx"
+
 export type EtherscanContractInfo = {
   ABI: string
   ContractName: string
@@ -6,4 +8,11 @@ export type EtherscanContractInfo = {
 export type CacheEntry<T> = {
   data: T
   timestamp: number
+}
+
+export type Job = {
+  status: "pending" | "complete"
+  total: number
+  fetched: number
+  contracts: ContractInfo[]
 }

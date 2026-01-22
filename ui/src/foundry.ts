@@ -1,5 +1,4 @@
 import * as TxTypes from "./types/tx"
-import * as FileTypes from "./types/file"
 import * as FileStorage from "./files"
 
 type Trace = {

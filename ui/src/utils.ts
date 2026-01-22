@@ -29,3 +29,7 @@ export function clip(s: string, max: number, half: number = 10): string {
 export function fmt(addr: string): string {
   return `${addr.slice(0, 5)}...${addr.slice(-3)}`
 }
+
+export function sleep(ms: number = 1000) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}

@@ -21,8 +21,8 @@ import CopyText from "../components/CopyText"
 import * as EvmTypes from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
 import useAsync from "../hooks/useAsync"
+import { useGetTrace, ObjType } from "../hooks/useGetTrace"
 import styles from "./TxPage.module.css"
-import { getTrace, ObjType } from "../tracer"
 
 // TODO: graph - ETH and token transfers
 // TODO: error handling
@@ -158,38 +158,25 @@ function getArrowColor(t: ArrowType): string {
 function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
-  const chain = q.get("chain")
+  const chain = q.get("chain") || ""
 
   const windowSize = useWindowSizeContext()
   const tracer = useTracerContext()
-  const _getTrace = useAsync(getTrace)
+  const getTrace = useGetTrace({
+    txHash,
+    chain,
+  })
   const [checked, setChecked] = useState(false)
 
-  useEffect(() => {
-    if (txHash && chain) {
-      // Get trace
-      // Get contract infos
-      // - Foundry -> memory
-      // - RPC -> submit + poll
-      //     submit -> job id
-      //     poll (job id) -> incremental update to graph
-      const f = async () => {
-        await _getTrace.exec({ txHash, chain })
-      }
-      f()
-    }
-  }, [txHash, chain])
-
-  if (_getTrace.error) {
-    console.log("ERROR", _getTrace.error)
+  if (getTrace.state.trace.error) {
     return <div>error :(</div>
   }
 
-  if (!windowSize || !_getTrace.data) {
+  if (!windowSize || !getTrace.state.data) {
     return <div>loading...</div>
   }
 
-  const { graph, calls, groups, objs } = _getTrace.data
+  const { graph, calls, groups, objs } = getTrace.state.data
 
   function onCheck() {
     setChecked(!checked)
@@ -219,6 +206,10 @@ function TxPage() {
                   <CopyText text={txHash} />
                 </div>
                 <div>{calls.length} calls</div>
+                <div className={styles.contractCount}>
+                  {getTrace.state.objs.fetched} / {getTrace.state.objs.total}{" "}
+                  contracts
+                </div>
               </div>
               <Checkbox checked={checked} onChange={onCheck}>
                 Pin ETH transfers

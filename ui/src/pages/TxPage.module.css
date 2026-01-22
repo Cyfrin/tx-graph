@@ -33,6 +33,10 @@
   flex-direction: row;
   color: var(--text-2-color);
 }
+.contractCount {
+  margin-left: auto;
+  color: var(--secondary-text-color);
+}
 /* Graph */
 .accNode {
   display: flex;

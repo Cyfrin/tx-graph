@@ -11,6 +11,12 @@ export type Call<C, F> = {
   fn: F
 }
 
+export type Obj<T, V> = {
+  id: Id
+  type: T
+  val: V
+}
+
 // Group id => ids
 export type Groups = Map<Id, Set<Id>>
 

@@ -14,13 +14,7 @@ import * as EvmTypes from "./components/ctx/evm/types"
 
 // TODO: move to graph/lib/types?
 export type ObjType = "acc" | "fn"
-export type Obj<T, V> = {
-  id: GraphTypes.Id
-  type: T
-  val: V
-}
 
-// TODO: store into objects?
 export type Arrow<V> = {
   src: GraphTypes.Id
   dst: GraphTypes.Id
@@ -85,7 +79,10 @@ export function build(
   root: TxTypes.TxCall,
   contracts: TxTypes.ContractInfo[],
 ): {
-  objs: Map<GraphTypes.Id, Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>>
+  objs: Map<
+    GraphTypes.Id,
+    GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
+  >
   arrows: Arrow<TracerTypes.FnCall>[]
   groups: GraphTypes.Groups
   calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
@@ -104,7 +101,7 @@ export function build(
   const ids: Map<string, GraphTypes.Id> = new Map()
   const objs: Map<
     GraphTypes.Id,
-    Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
+    GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
   > = new Map()
   const arrows: Arrow<TracerTypes.FnCall>[] = []
   const groups: GraphTypes.Groups = new Map()

@@ -22,7 +22,7 @@ import * as EvmTypes from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
 import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
-import { getTrace, Obj, ObjType } from "../tracer"
+import { getTrace, ObjType } from "../tracer"
 
 // TODO: graph - ETH and token transfers
 // TODO: error handling
@@ -90,13 +90,16 @@ function getArrowType(
 }
 
 function getNodeFillColor(
-  objs: Map<GraphTypes.Id, Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>>,
+  objs: Map<
+    GraphTypes.Id,
+    GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
+  >,
   hover: GraphTypes.Hover | null,
   node: GraphTypes.Node,
   graph: GraphTypes.Graph,
   tracer: TracerState,
 ): string {
-  const obj = objs.get(node.id) as Obj<
+  const obj = objs.get(node.id) as GraphTypes.Obj<
     ObjType,
     EvmTypes.Account | TracerTypes.FnDef
   >
@@ -256,7 +259,7 @@ function TxPage() {
             getNodeText={(hover, node) => {
               // TODO: fix
               // @ts-ignore
-              const obj = objs.get(node.id) as Obj<ObjType, Account>
+              const obj = objs.get(node.id) as GraphTypes.Obj<ObjType, Account>
               return {
                 txt: `${obj?.val.name || obj?.val?.addr || node.id || ""}`,
                 top: obj?.type == "acc",

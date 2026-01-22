@@ -1,10 +1,7 @@
 import { ethers } from "ethers"
 import { RPC_CONFIG } from "./config"
 import * as TxTypes from "./types/tx"
-import * as FileTypes from "./types/file"
-import * as ApiTypes from "./api/types"
 import * as api from "./api"
-import * as FileStorage from "./files"
 import * as TracerTypes from "./components/tracer/types"
 import * as GraphTypes from "./components/graph/lib/types"
 import * as graph from "./components/graph/lib/graph"
@@ -12,14 +9,7 @@ import * as foundry from "./foundry"
 import { zip, assert } from "./utils"
 import * as EvmTypes from "./components/ctx/evm/types"
 
-// TODO: move to graph/lib/types?
 export type ObjType = "acc" | "fn"
-
-export type Arrow<V> = {
-  src: GraphTypes.Id
-  dst: GraphTypes.Id
-  val: V
-}
 
 function parse(
   abi: TxTypes.AbiEntry[] | null,
@@ -83,7 +73,6 @@ export function build(
     GraphTypes.Id,
     GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
   >
-  arrows: Arrow<TracerTypes.FnCall>[]
   groups: GraphTypes.Groups
   calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
   trace: TracerTypes.Trace<EvmTypes.Evm>
@@ -103,7 +92,6 @@ export function build(
     GraphTypes.Id,
     GraphTypes.Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
   > = new Map()
-  const arrows: Arrow<TracerTypes.FnCall>[] = []
   const groups: GraphTypes.Groups = new Map()
   const calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[] = []
   const stack: TracerTypes.Trace<EvmTypes.Evm>[] = []
@@ -195,14 +183,6 @@ export function build(
       }
       stack.push(trace)
 
-      if (parent) {
-        arrows.push({
-          src: parent.fn.id,
-          dst: trace.fn.id,
-          val: trace.fn,
-        })
-      }
-
       const toId = ids.get(`addr:${c.to}`) as GraphTypes.Id
       // @ts-ignore
       const acc = objs.get(toId).val as Account
@@ -234,7 +214,6 @@ export function build(
 
   return {
     objs,
-    arrows,
     trace: stack[0],
     groups,
     calls,
@@ -272,8 +251,6 @@ export async function getTrace(params: { txHash: string; chain: string }) {
     addrs.add(c.to)
   }
 
-  // TODO: here
-
   const contracts: TxTypes.ContractInfo[] =
     chain == "foundry-test"
       ? foundry.getContracts([...addrs.values()])
@@ -296,13 +273,12 @@ export async function getTrace(params: { txHash: string; chain: string }) {
   */
 
   // @ts-ignore
-  const { calls, groups, objs, arrows, trace } = build(t.result, contracts)
+  const { calls, groups, objs, trace } = build(t.result, contracts)
 
   return {
     calls,
     groups,
     objs,
-    arrows,
     trace,
     graph: graph.build(calls),
     jobId,

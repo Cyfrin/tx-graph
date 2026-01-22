@@ -6,8 +6,8 @@ import * as ApiTypes from "./api/types"
 import * as api from "./api"
 import * as FileStorage from "./files"
 import * as TracerTypes from "./components/tracer/types"
-import * as CanvasTypes from "./components/canvas/lib/types"
-import * as graph from "./components/canvas/lib/graph"
+import * as GraphTypes from "./components/graph/lib/types"
+import * as graph from "./components/graph/lib/graph"
 import * as foundry from "./foundry"
 import { zip, assert } from "./utils"
 import * as EvmTypes from "./components/ctx/evm/types"
@@ -15,15 +15,15 @@ import * as EvmTypes from "./components/ctx/evm/types"
 // TODO: move to graph/lib/types?
 export type ObjType = "acc" | "fn"
 export type Obj<T, V> = {
-  id: CanvasTypes.Id
+  id: GraphTypes.Id
   type: T
   val: V
 }
 
 // TODO: store into objects?
 export type Arrow<V> = {
-  src: CanvasTypes.Id
-  dst: CanvasTypes.Id
+  src: GraphTypes.Id
+  dst: GraphTypes.Id
   val: V
 }
 
@@ -85,10 +85,10 @@ export function build(
   root: TxTypes.TxCall,
   contracts: TxTypes.ContractInfo[],
 ): {
-  objs: Map<CanvasTypes.Id, Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>>
+  objs: Map<GraphTypes.Id, Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>>
   arrows: Arrow<TracerTypes.FnCall>[]
-  groups: CanvasTypes.Groups
-  calls: CanvasTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
+  groups: GraphTypes.Groups
+  calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
   trace: TracerTypes.Trace<EvmTypes.Evm>
 } {
   const cons: { [key: string]: TxTypes.ContractInfo[] } = contracts.reduce(
@@ -101,14 +101,14 @@ export function build(
   )
 
   // Account or function to Id
-  const ids: Map<string, CanvasTypes.Id> = new Map()
+  const ids: Map<string, GraphTypes.Id> = new Map()
   const objs: Map<
-    CanvasTypes.Id,
+    GraphTypes.Id,
     Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>
   > = new Map()
   const arrows: Arrow<TracerTypes.FnCall>[] = []
-  const groups: CanvasTypes.Groups = new Map()
-  const calls: CanvasTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[] = []
+  const groups: GraphTypes.Groups = new Map()
+  const calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[] = []
   const stack: TracerTypes.Trace<EvmTypes.Evm>[] = []
 
   // Put initial caller into it's own group
@@ -122,7 +122,7 @@ export function build(
         const key = `addr:${addr}`
         if (!ids.has(key)) {
           ids.set(key, ids.size)
-          const id = ids.get(key) as CanvasTypes.Id
+          const id = ids.get(key) as GraphTypes.Id
           objs.set(id, {
             id: id,
             type: "acc",
@@ -143,7 +143,7 @@ export function build(
       if (!ids.has(fnKey)) {
         ids.set(fnKey, ids.size)
       }
-      const fnId = ids.get(fnKey) as CanvasTypes.Id
+      const fnId = ids.get(fnKey) as GraphTypes.Id
 
       const trace: TracerTypes.Trace<EvmTypes.Evm> = {
         i,
@@ -206,7 +206,7 @@ export function build(
         })
       }
 
-      const toId = ids.get(`addr:${c.to}`) as CanvasTypes.Id
+      const toId = ids.get(`addr:${c.to}`) as GraphTypes.Id
       // @ts-ignore
       const acc = objs.get(toId).val as Account
       if (!acc.fns.has(trace.fn.id)) {
@@ -274,6 +274,8 @@ export async function getTrace(params: { txHash: string; chain: string }) {
     addrs.add(c.from)
     addrs.add(c.to)
   }
+
+  // TODO: here
 
   const contracts: TxTypes.ContractInfo[] =
     chain == "foundry-test"

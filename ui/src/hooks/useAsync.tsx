@@ -19,13 +19,13 @@ interface UseAsync<P, T> extends State<T> {
 export default function useAsync<P, T>(
   req: (params: P) => Promise<T>,
 ): UseAsync<P, T> {
-  const INITIAL_STATE: State<T> = {
+  const STATE: State<T> = {
     running: false,
     error: null,
     data: null,
   }
 
-  const [state, setState] = useState<State<T>>(INITIAL_STATE)
+  const [state, setState] = useState<State<T>>(STATE)
 
   const exec = async (params: P): Promise<Response<T>> => {
     setState({
@@ -56,7 +56,7 @@ export default function useAsync<P, T>(
   }
 
   const reset = () => {
-    setState(INITIAL_STATE)
+    setState(STATE)
   }
 
   return {

@@ -7,8 +7,8 @@ import {
   useTracerContext,
   State as TracerState,
 } from "../contexts/Tracer"
-import { Graph as CanvasGraph } from "../components/canvas/Graph"
-import { Id, Graph, Node, Arrow, Hover } from "../components/canvas/lib/types"
+import { Graph as CanvasGraph } from "../components/graph/Graph"
+import * as GraphTypes from "../components/graph/lib/types"
 import Tracer from "../components/tracer"
 import * as TracerTypes from "../components/tracer/types"
 import FnDef from "../components/tracer/FnDef"
@@ -18,7 +18,7 @@ import Op from "../components/ctx/evm/tracer/Op"
 import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"
 import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
 import CopyText from "../components/CopyText"
-import { Account } from "../components/ctx/evm/types"
+import * as EvmTypes from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
 import useAsync from "../hooks/useAsync"
 import styles from "./TxPage.module.css"
@@ -57,8 +57,8 @@ const STYLES = {
 type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | ""
 
 function getArrowType(
-  hover: Hover | null,
-  arrow: Arrow,
+  hover: GraphTypes.Hover | null,
+  arrow: GraphTypes.Arrow,
   tracer: TracerState,
 ): ArrowType {
   if (tracer.pins.has(arrow.i)) {
@@ -90,13 +90,16 @@ function getArrowType(
 }
 
 function getNodeFillColor(
-  objs: Map<Id, Obj<ObjType, Account | TracerTypes.FnDef>>,
-  hover: Hover | null,
-  node: Node,
-  graph: Graph,
+  objs: Map<GraphTypes.Id, Obj<ObjType, EvmTypes.Account | TracerTypes.FnDef>>,
+  hover: GraphTypes.Hover | null,
+  node: GraphTypes.Node,
+  graph: GraphTypes.Graph,
   tracer: TracerState,
 ): string {
-  const obj = objs.get(node.id) as Obj<ObjType, Account | TracerTypes.FnDef>
+  const obj = objs.get(node.id) as Obj<
+    ObjType,
+    EvmTypes.Account | TracerTypes.FnDef
+  >
   // Arrows are hovered
   if (hover?.arrows && hover?.arrows?.size > 0) {
     if (obj?.type == "acc") {

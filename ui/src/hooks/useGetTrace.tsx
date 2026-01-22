@@ -259,6 +259,57 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
   useEffect(() => {
     let stop = false
 
+    // Get trace
+    const get = async () => {
+      setState((state) => ({
+        ...state,
+        trace: {
+          running: true,
+          data: null,
+          error: null,
+        },
+      }))
+
+      try {
+        if (params.chain == "foundry-test") {
+          const res = foundry.getTrace()
+          assert(!!res, "Foundry trace is null")
+          setState((state) => ({
+            ...state,
+            trace: {
+              running: false,
+              data: res,
+              error: null,
+            },
+          }))
+          return { data: res }
+        } else {
+          const res = await api.getTxTrace(params.chain, params.txHash)
+          assert(!!res?.result, "Get trace returned null")
+          setState((state) => ({
+            ...state,
+            trace: {
+              running: false,
+              data: res?.result,
+              error: null,
+            },
+          }))
+          return { data: res?.result }
+        }
+      } catch (error) {
+        setState((state) => ({
+          ...state,
+          trace: {
+            running: false,
+            error,
+            data: null,
+          },
+        }))
+        return { error }
+      }
+    }
+
+    // Get trace, contract info, combine results
     const f = async () => {
       const { data } = await get()
       if (!data) {
@@ -351,62 +402,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
     }
   }, [params.txHash, params.chain])
 
-  // Get trace
-  const get = async () => {
-    setState({
-      ...state,
-      trace: {
-        running: true,
-        data: null,
-        error: null,
-      },
-    })
-
-    try {
-      if (params.chain == "foundry-test") {
-        const res = foundry.getTrace()
-        assert(!!res, "Foundry trace is null")
-        setState((state) => ({
-          ...state,
-          trace: {
-            running: false,
-            data: res,
-            error: null,
-          },
-        }))
-        return { data: res }
-      } else {
-        const res = await api.getTxTrace(params.chain, params.txHash)
-        assert(!!res?.result, "Get trace returned null")
-        setState((state) => ({
-          ...state,
-          trace: {
-            running: false,
-            data: res?.result,
-            error: null,
-          },
-        }))
-        return { data: res?.result }
-      }
-    } catch (error) {
-      setState((state) => ({
-        ...state,
-        trace: {
-          running: false,
-          error,
-          data: null,
-        },
-      }))
-      return { error }
-    }
-  }
-
-  const reset = () => {
-    setState(STATE)
-  }
-
   return {
     state,
-    reset,
   }
 }

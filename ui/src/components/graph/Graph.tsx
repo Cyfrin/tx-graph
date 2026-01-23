@@ -1,14 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react"
-import {
-  Canvas,
-  Groups,
-  Call,
-  Point,
-  Node,
-  Arrow,
-  Hover,
-  Tracer,
-} from "./lib/types"
+import * as Types from "./lib/types"
 import * as screen from "./lib/screen"
 import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
@@ -33,9 +24,10 @@ const R = 25
 const BOX_X_PADD = 10
 const BOX_Y_PADD = 10
 
-export type ArrowType = "arrow" | "zigzag" | "callback"
-
-export function getArrowType(p0: Point, p1: Point): ArrowType {
+export function getArrowType(
+  p0: Types.Point,
+  p1: Types.Point,
+): Types.ArrowType {
   if (p0.y == p1.y) {
     return "arrow"
   }
@@ -46,11 +38,11 @@ export function getArrowType(p0: Point, p1: Point): ArrowType {
 }
 
 function poly(
-  p0: Point,
-  p1: Point,
+  p0: Types.Point,
+  p1: Types.Point,
   xPad: number = 0,
   yPad: number = 0,
-): Point[] {
+): Types.Point[] {
   const type = getArrowType(p0, p1)
   switch (type) {
     case "zigzag": {
@@ -71,7 +63,11 @@ function poly(
   }
 }
 
-function sample(a: Arrow, xPad: number = 0, yPad: number = 0): Point[] {
+function sample(
+  a: Types.Arrow,
+  xPad: number = 0,
+  yPad: number = 0,
+): Types.Point[] {
   const ps = poly(a.p0, a.p1, xPad, yPad)
   const [len] = math.len(ps)
 
@@ -100,8 +96,8 @@ type Refs = {
     startViewX: number
     startViewY: number
   } | null
-  mouse: Point | null
-  hover: Hover | null
+  mouse: Types.Point | null
+  hover: Types.Hover | null
 }
 
 export type Props<A, F> = {
@@ -110,26 +106,29 @@ export type Props<A, F> = {
   width: number
   height: number
   backgroundColor: string
-  groups: Groups
-  calls: Call<A, F>[]
-  tracer: Tracer
+  groups: Types.Groups
+  calls: Types.Call<A, F>[]
+  tracer: Types.Tracer
   getNodeStyle: (
-    hover: Hover | null,
-    node: Node,
+    hover: Types.Hover | null,
+    node: Types.Node,
   ) => { fill?: string; stroke?: string }
   getNodeText: (
-    hover: Hover | null,
-    node: Node,
+    hover: Types.Hover | null,
+    node: Types.Node,
   ) => { txt: string; top: boolean }
   getArrowStyle: (
-    hover: Hover | null,
-    arrow: Arrow,
+    hover: Types.Hover | null,
+    arrow: Types.Arrow,
   ) => { top: boolean; style: { stroke?: string } }
   nodeWidth?: number
   nodeHeight?: number
   nodeXGap?: number
   nodeYGap?: number
-  renderHover?: (hover: Hover, mouse: Point | null) => React.ReactNode
+  renderHover?: (
+    hover: Types.Hover,
+    mouse: Types.Point | null,
+  ) => React.ReactNode
 }
 
 export const Graph = <A, F>({
@@ -185,10 +184,10 @@ export const Graph = <A, F>({
     hover: null,
   })
 
-  const ctx = useRef<Canvas>({ graph: null, ui: null })
+  const ctx = useRef<Types.Canvas>({ graph: null, ui: null })
 
   const [mouse, setMouse] = useState<{ x: number; y: number } | null>(null)
-  const [hover, setHover] = useState<Hover | null>(null)
+  const [hover, setHover] = useState<Types.Hover | null>(null)
   const [zoomIndex, setZoomIndex] = useState<number>(9)
 
   useEffect(() => {
@@ -230,7 +229,7 @@ export const Graph = <A, F>({
   const getMouse = (
     ref: HTMLCanvasElement | null,
     e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
-  ): Point | null => {
+  ): Types.Point | null => {
     if (!ref) {
       return null
     }
@@ -242,7 +241,7 @@ export const Graph = <A, F>({
     }
   }
 
-  const zoom = (next: number, mouse: Point | null) => {
+  const zoom = (next: number, mouse: Types.Point | null) => {
     if (next == zoomIndex || !refs.current) {
       return
     }
@@ -315,7 +314,7 @@ export const Graph = <A, F>({
 
       const dragging = !!refs.current?.drag
 
-      const hover: Hover = { node: null, arrows: null }
+      const hover: Types.Hover = { node: null, arrows: null }
       if (!dragging && mouse) {
         const view = refs.current
           ? refs.current.view

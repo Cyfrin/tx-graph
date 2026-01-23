@@ -74,6 +74,8 @@ export type Screen = {
   }
 }
 
+export type ArrowType = "arrow" | "zigzag" | "callback"
+
 export type Arrow = {
   // Call index
   i: number

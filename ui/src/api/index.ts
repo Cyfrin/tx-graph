@@ -77,19 +77,6 @@ export async function getTxTrace(
   return res
 }
 
-// TODO: remove chain_id, get chain id from chain
-export async function getContracts(params: {
-  chain: string
-  chain_id: number
-  addrs: string[]
-}): Promise<ContractInfo[]> {
-  // No caching for now
-  return post<any, ContractInfo[]>(
-    `${import.meta.env.VITE_API_URL}/contracts`,
-    params,
-  )
-}
-
 export async function postContractsJob(params: {
   chain: string
   addrs: string[]

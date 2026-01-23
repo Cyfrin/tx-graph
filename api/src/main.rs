@@ -7,8 +7,6 @@ use axum::{
 };
 use axum_macros::debug_handler;
 use dotenv::dotenv;
-use futures::stream::{FuturesUnordered, StreamExt};
-use http::HeaderValue;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use sqlx::{
@@ -304,7 +302,7 @@ async fn poll_contracts_job(
     Extension(jobs): Extension<Queue>,
     Path(job_id): Path<String>,
 ) -> Result<Json<Job>, StatusCode> {
-    let mut guard = jobs.read().await;
+    let guard = jobs.read().await;
     let job = guard.get(&job_id).ok_or(StatusCode::NOT_FOUND)?;
     Ok(Json(job.clone()))
 }
@@ -341,13 +339,12 @@ async fn get_fn_selectors(
 async fn get_contract(
     Extension(pool): Extension<Pool<Postgres>>,
     Path((chain, addr)): Path<(String, String)>,
-) -> Result<Json<Contract>, StatusCode> {
+) -> Result<Json<Option<Contract>>, StatusCode> {
     // Validate inputs are not empty
     if chain.trim().is_empty() || addr.trim().is_empty() {
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    // TODO: return Option<Contract>?
     let contract = sqlx::query_as!(
         Contract,
         "SELECT chain, address, name, abi, label, src FROM contracts WHERE chain = $1 AND address = $2",
@@ -355,7 +352,7 @@ async fn get_contract(
     )
     .fetch_one(&pool)
     .await
-    .map_err(|_| StatusCode::NOT_FOUND)?;
+    .ok();
 
     Ok(Json(contract))
 }

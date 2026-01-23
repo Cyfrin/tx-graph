@@ -38,7 +38,6 @@ export type FnDef = {
   outputs: OutputDef[]
 }
 
-// TODO: remove?
 export type Trace<C> = {
   // Call index
   i: number

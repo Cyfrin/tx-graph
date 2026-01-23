@@ -20,7 +20,6 @@ import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
 import CopyText from "../components/CopyText"
 import * as EvmTypes from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
-import useAsync from "../hooks/useAsync"
 import { useGetTrace, ObjType } from "../hooks/useGetTrace"
 import styles from "./TxPage.module.css"
 

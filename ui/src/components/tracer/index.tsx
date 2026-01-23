@@ -1,12 +1,12 @@
 import React, { useState } from "react"
-import styles from "./index.module.css"
-import * as Types from "./types"
 import { useTracerContext } from "../../contexts/Tracer"
 import Chevron from "../svg/Chevron"
+import * as Types from "./types"
 import VirtualList from "./VirtualList"
 import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
+import styles from "./index.module.css"
 
 // Fixed line height (must match line height in .line)
 const LINE_HEIGHT = 20

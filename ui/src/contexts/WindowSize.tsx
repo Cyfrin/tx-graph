@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from "react"
 
-type State = {
+export type State = {
   width: number
   height: number
 }

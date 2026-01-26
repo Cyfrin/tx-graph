@@ -202,7 +202,7 @@ function TxPage() {
               <div className={styles.tx}>
                 <div className={styles.txHashLabel}>TX hash:</div>
                 <div className={styles.txHash}>
-                  <CopyText text={txHash} />
+                  <CopyText text={txHash} val={txHash} />
                 </div>
                 <div>{calls.length} calls</div>
                 <div className={styles.contractCount}>

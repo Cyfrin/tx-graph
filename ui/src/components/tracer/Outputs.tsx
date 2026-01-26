@@ -16,7 +16,10 @@ const Outputs: React.FC<{ outputs: Output[] }> = ({ outputs }) => {
             </>
           ) : null}
           <span className={styles.val}>
-            <CopyText text={output.val.toString()} />
+            <CopyText
+              text={output.val.toString()}
+              val={output.val.toString()}
+            />
           </span>
           {i < len - 1 ? <span className={styles.comma}>,</span> : null}
         </div>

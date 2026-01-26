@@ -7,7 +7,7 @@ const ContractDropDown: React.FC<{ ctx: { dst: string } }> = ({ ctx }) => {
     <div className={styles.ctx}>
       <div className={styles.label}>address: </div>
       <div className={styles.val}>
-        <CopyText text={ctx.dst} />
+        <CopyText text={ctx.dst} val={ctx.dst} />
       </div>
     </div>
   )

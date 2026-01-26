@@ -22,7 +22,7 @@ const FnDropDown: React.FC<{
         <div className={styles.row}>
           <div className={styles.label}>selector: </div>
           <div className={styles.val}>
-            <CopyText text={ctx.selector} />
+            <CopyText text={ctx.selector} val={ctx.selector} />
           </div>
         </div>
       ) : null}
@@ -30,7 +30,7 @@ const FnDropDown: React.FC<{
         <div className={styles.row}>
           <div className={styles.label}>input: </div>
           <div className={styles.val}>
-            <CopyText text={clip(ctx.raw.input, 100)} />
+            <CopyText text={ctx.raw.input} max={100} val={ctx.raw.input} />
           </div>
         </div>
       ) : null}
@@ -38,7 +38,7 @@ const FnDropDown: React.FC<{
         <div className={styles.row}>
           <div className={styles.label}>output: </div>
           <div className={styles.val}>
-            <CopyText text={clip(ctx.raw.output, 100)} />
+            <CopyText text={ctx.raw.output} max={100} val={ctx.raw.output} />
           </div>
         </div>
       ) : null}

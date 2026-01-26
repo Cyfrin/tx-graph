@@ -5,10 +5,11 @@ import styles from "./CopyText.module.css"
 
 const CopyText: React.FC<{
   text: string
+  val: string
   max?: number
-}> = ({ text, max }) => {
+}> = ({ text, val, max }) => {
   const copy = () => {
-    navigator.clipboard.writeText(text)
+    navigator.clipboard.writeText(val)
   }
 
   return (

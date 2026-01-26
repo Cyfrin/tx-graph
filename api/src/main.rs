@@ -24,8 +24,8 @@ use tracing_subscriber;
 mod config;
 mod etherscan;
 
-// Job queue for polling
-type Queue = Arc<RwLock<HashMap<String, Job>>>;
+// Job state for polling
+type Jobs = Arc<RwLock<HashMap<String, Job>>>;
 
 // Etherscan fetch request
 struct EtherscanReq {
@@ -84,7 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pool = PgPoolOptions::new().connect_with(db_options).await?;
     info!("Connected to database");
 
-    let jobs: Queue = Arc::new(RwLock::new(HashMap::new()));
+    let jobs: Jobs = Arc::new(RwLock::new(HashMap::new()));
 
     // Create Etherscan fetch queue
     let (etherscan_tx, mut etherscan_rx) =
@@ -228,7 +228,7 @@ struct PostJobResponse {
 
 async fn post_contracts_job(
     Extension(pool): Extension<Pool<Postgres>>,
-    Extension(jobs): Extension<Queue>,
+    Extension(jobs): Extension<Jobs>,
     Extension(etherscan_queue): Extension<EtherscanQueue>,
     Json(req): Json<PostContractsRequest>,
 ) -> Result<Json<PostJobResponse>, StatusCode> {
@@ -299,7 +299,7 @@ async fn post_contracts_job(
 }
 
 async fn poll_contracts_job(
-    Extension(jobs): Extension<Queue>,
+    Extension(jobs): Extension<Jobs>,
     Path(job_id): Path<String>,
 ) -> Result<Json<Job>, StatusCode> {
     let guard = jobs.read().await;

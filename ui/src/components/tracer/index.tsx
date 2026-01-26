@@ -66,6 +66,8 @@ type FnProps<A> = {
   renderFnDropDown?: (ctx: A) => React.ReactNode
   highlights: { [key: string]: boolean }
   setHighlight: (key: string | number, on: boolean) => void
+  getInputLabel?: (val: string) => string | null
+  getOutputLabel?: (val: string) => string | null
 }
 
 function Fn<V>({
@@ -77,6 +79,8 @@ function Fn<V>({
   renderFnDropDown,
   highlights,
   setHighlight,
+  getInputLabel,
+  getOutputLabel,
 }: FnProps<V>) {
   const { state, fold, setHover, pin } = useTracerContext()
 
@@ -147,13 +151,13 @@ function Fn<V>({
           </div>
           {renderCallCtx ? renderCallCtx(call.ctx) : null}
           <div>(</div>
-          <Inputs inputs={call.fn.inputs} />
+          <Inputs inputs={call.fn.inputs} getLabel={getInputLabel} />
           <div>)</div>
           {call.fn.outputs.length > 0 ? (
             <div className={styles.outputs}>
               <div className={styles.arrow}>{"→"}</div>
               <div>(</div>
-              <Outputs outputs={call.fn.outputs} />
+              <Outputs outputs={call.fn.outputs} getLabel={getOutputLabel} />
               <div>)</div>
             </div>
           ) : null}
@@ -170,6 +174,8 @@ type TracerProps<C> = {
   renderCallCtx?: (ctx: C) => React.ReactNode
   renderModDropDown?: (ctx: C) => React.ReactNode
   renderFnDropDown?: (ctx: C) => React.ReactNode
+  getInputLabel?: (val: string) => string | null
+  getOutputLabel?: (val: string) => string | null
 }
 
 function Tracer<C>({
@@ -179,6 +185,8 @@ function Tracer<C>({
   renderCallCtx,
   renderModDropDown,
   renderFnDropDown,
+  getInputLabel,
+  getOutputLabel,
 }: TracerProps<C>) {
   const tracer = useTracerContext()
 
@@ -222,6 +230,8 @@ function Tracer<C>({
             renderFnDropDown={renderFnDropDown}
             highlights={highlights}
             setHighlight={setHighlight}
+            getInputLabel={getInputLabel}
+            getOutputLabel={getOutputLabel}
           />
         )}
       />

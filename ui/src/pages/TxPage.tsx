@@ -175,7 +175,7 @@ function TxPage() {
     return <div>loading...</div>
   }
 
-  const { graph, calls, groups, objs } = getTrace.state.data
+  const { graph, calls, groups, objs, labels } = getTrace.state.data
 
   function onCheck() {
     setChecked(!checked)
@@ -227,6 +227,8 @@ function TxPage() {
                 renderCallType={(ctx) => <Op ctx={ctx} />}
                 renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
                 renderFnDropDown={(ctx) => <FnDropDown ctx={ctx} />}
+                getInputLabel={(val) => labels[val?.toLowerCase()] || null}
+                getOutputLabel={(val) => labels[val?.toLowerCase()] || null}
               />
             </div>
           </div>

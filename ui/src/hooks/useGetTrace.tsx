@@ -21,6 +21,7 @@ export type Data = {
   calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[]
   trace: TracerTypes.Trace<EvmTypes.Evm>
   graph: GraphTypes.Graph
+  labels: Record<string, string>
 }
 
 function parse(
@@ -218,12 +219,34 @@ function build(root: TxTypes.TxCall, contracts: TxTypes.ContractInfo[]): Data {
     },
   )
 
+  // Count duplicates
+  const count: Record<string, number> = {}
+  for (const c of contracts) {
+    if (c.name) {
+      const name = c.name.toLowerCase()
+      if (!count[name]) {
+        count[name] = 0
+      }
+      count[name] += 1
+    }
+  }
+
+  const labels: Record<string, string> = {}
+  for (const c of contracts) {
+    if (c.name) {
+      if (count[c.name.toLowerCase()] == 1) {
+        labels[c.address] = c.name
+      }
+    }
+  }
+
   return {
     objs,
     trace: stack[0],
     groups,
     calls,
     graph: graph.build(calls),
+    labels,
   }
 }
 

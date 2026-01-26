@@ -10,20 +10,24 @@ const Inputs: React.FC<{
   const len = inputs.length
   return (
     <div className={styles.component}>
-      {inputs.map((input, i) => (
-        <div key={i} className={styles.input}>
-          {!!input.name ? (
-            <>
-              <span className={styles.name}>{input.name}</span>
-              <span className={styles.eq}>=</span>
-            </>
-          ) : null}
-          <span className={styles.val}>
-            <CopyText text={input.val.toString()} val={input.val.toString()} />
-          </span>
-          {i < len - 1 ? <span className={styles.comma}>,</span> : null}
-        </div>
-      ))}
+      {inputs.map((input, i) => {
+        const val = input.val.toString()
+        const label = getLabel ? getLabel(val) || val : val
+        return (
+          <div key={i} className={styles.input}>
+            {!!input.name ? (
+              <>
+                <span className={styles.name}>{input.name}</span>
+                <span className={styles.eq}>=</span>
+              </>
+            ) : null}
+            <span className={styles.val}>
+              <CopyText text={label} val={val} />
+            </span>
+            {i < len - 1 ? <span className={styles.comma}>,</span> : null}
+          </div>
+        )
+      })}
     </div>
   )
 }

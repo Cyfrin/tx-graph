@@ -12,7 +12,5 @@ export type CacheEntry<T> = {
 
 export type Job = {
   status: "pending" | "complete"
-  total: number
-  fetched: number
-  contracts: ContractInfo[]
+  contract: ContractInfo | null
 }

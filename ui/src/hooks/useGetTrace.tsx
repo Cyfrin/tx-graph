@@ -256,9 +256,10 @@ export type State = {
     error: any
     data: TxTypes.TxCall | null
   }
-  objs: {
+  q: {
     total: number
     fetched: number
+    contracts: TxTypes.ContractInfo[]
   }
   data: Data | null
 }
@@ -270,9 +271,10 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
       error: null,
       data: null,
     },
-    objs: {
+    q: {
       total: 0,
       fetched: 0,
+      contracts: [],
     },
     data: null,
   }
@@ -363,53 +365,87 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
 
           setState((state) => ({
             ...state,
-            objs: {
+            q: {
               total: contracts.length,
               fetched: contracts.length,
+              contracts,
             },
             data: build(data, contracts),
           }))
         } else {
           setState((state) => ({
             ...state,
-            objs: {
+            q: {
               total: addrs.size,
               fetched: 0,
+              contracts: [],
             },
             data: build(data, []),
           }))
 
-          const { job_id } = await api.postContractsJob({
+          const { job_ids, contracts } = await api.postJobs({
             chain: params.chain,
             addrs: [...addrs.values()],
           })
 
-          const poll = async () => {
-            while (!stop) {
-              try {
-                const res = await api.pollContractsJob({ jobId: job_id })
-                stop = res.status == "complete"
+          const b = build(data, contracts)
 
-                const b = build(data, res.contracts)
+          setState((state) => ({
+            ...state,
+            q: {
+              total: addrs.size,
+              fetched: contracts.length,
+              contracts,
+            },
+            data: b,
+          }))
 
-                setState((state) => ({
-                  ...state,
-                  objs: {
-                    total: addrs.size,
-                    fetched: res.contracts.length,
-                  },
-                  data: b,
-                }))
-              } catch (error) {
-                console.log("Polling error", error)
-              }
-              if (!stop) {
-                await sleep(1000)
+          if (job_ids.length == 0) {
+            stop = true
+          } else {
+            const poll = async () => {
+              while (!stop) {
+                try {
+                  const res = await api.getJobs({ job_ids })
+
+                  stop =
+                    Object.values(res).filter((v) => v?.status == "complete")
+                      .length == job_ids.length
+
+                  const newContracts: TxTypes.ContractInfo[] = Object.values(
+                    res,
+                  )
+                    .map((v) => v?.contract)
+                    .filter((c) => !!c)
+
+                  const set: Record<string, TxTypes.ContractInfo> = {}
+                  for (const c of [...contracts, ...newContracts]) {
+                    set[c.address] = c
+                  }
+                  const all = Object.values(set)
+
+                  const b = build(data, all)
+
+                  setState((state) => ({
+                    ...state,
+                    q: {
+                      total: addrs.size,
+                      fetched: all.length,
+                      contracts: all,
+                    },
+                    data: b,
+                  }))
+                } catch (error) {
+                  console.log("Polling error", error)
+                }
+                if (!stop) {
+                  await sleep(1000)
+                }
               }
             }
-          }
 
-          poll()
+            poll()
+          }
         }
       } catch (error) {
         console.log("Build trace error:", error)

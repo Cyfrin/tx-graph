@@ -1,5 +1,5 @@
 import { assert } from "../utils"
-import { TxCall, ContractInfo } from "../types/tx"
+import * as TxTypes from "../types/tx"
 import { CacheEntry, EtherscanContractInfo, Job } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
@@ -52,9 +52,9 @@ function setCache<T>(key: string, data: T): void {
 export async function getTxTrace(
   chain: string,
   txHash: string,
-): Promise<{ result: TxCall }> {
+): Promise<{ result: TxTypes.TxCall }> {
   const cacheKey = `tx:${chain}:${txHash}`
-  const cached = getCached<{ result: TxCall }>(cacheKey)
+  const cached = getCached<{ result: TxTypes.TxCall }>(cacheKey)
   if (cached) {
     return cached
   }
@@ -63,7 +63,7 @@ export async function getTxTrace(
   const cfg = RPC_CONFIG[chain]
   assert(cfg, `Config for ${chain} is empty`)
 
-  const res = await post<any, { result: TxCall }>(cfg.url, {
+  const res = await post<any, { result: TxTypes.TxCall }>(cfg.url, {
     jsonrpc: "2.0",
     method: "debug_traceTransaction",
     params: [txHash, { tracer: "callTracer" }],
@@ -77,23 +77,22 @@ export async function getTxTrace(
   return res
 }
 
-export async function postContractsJob(params: {
+export async function postJobs(params: {
   chain: string
   addrs: string[]
-}): Promise<{ job_id: string }> {
-  // No caching for now
-  return post<any, { job_id: string }>(
-    `${import.meta.env.VITE_API_URL}/contracts/jobs`,
+}): Promise<{ job_ids: string[]; contracts: TxTypes.ContractInfo[] }> {
+  return post<any, { job_ids: string[]; contracts: TxTypes.ContractInfo[] }>(
+    `${import.meta.env.VITE_API_URL}/contracts`,
     params,
   )
 }
 
-export async function pollContractsJob(params: {
-  jobId: string
-}): Promise<Job> {
-  // No caching for now
-  return get<Job>(
-    `${import.meta.env.VITE_API_URL}/contracts/jobs/${params.jobId}`,
+export async function getJobs(params: {
+  job_ids: string[]
+}): Promise<Record<string, Job>> {
+  return post<any, Record<string, Job>>(
+    `${import.meta.env.VITE_API_URL}/contracts/q`,
+    params,
   )
 }
 

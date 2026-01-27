@@ -206,7 +206,7 @@ function TxPage() {
                 </div>
                 <div>{calls.length} calls</div>
                 <div className={styles.contractCount}>
-                  {getTrace.state.objs.fetched} / {getTrace.state.objs.total}{" "}
+                  {getTrace.state.q.fetched} / {getTrace.state.q.total}{" "}
                   contracts
                 </div>
               </div>

@@ -24,11 +24,7 @@ use tracing_subscriber;
 mod config;
 mod etherscan;
 
-// Job state for polling
-type Jobs = Arc<RwLock<HashMap<String, Job>>>;
-
-// Etherscan fetch request
-struct EtherscanReq {
+struct EtherscanRequest {
     job_id: String,
     chain: String,
     chain_id: u32,
@@ -36,14 +32,23 @@ struct EtherscanReq {
 }
 
 // Channel sender for Etherscan fetch queue
-type EtherscanQueue = mpsc::UnboundedSender<EtherscanReq>;
+type EtherscanQueue = mpsc::UnboundedSender<EtherscanRequest>;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct Contract {
+    chain: String,
+    address: String,
+    name: Option<String>,
+    abi: Option<Value>,
+    label: Option<String>,
+    src: Option<String>,
+}
 
 #[derive(Clone, Serialize)]
 struct Job {
     status: JobStatus,
-    contracts: Vec<Contract>,
-    total: usize,
-    fetched: usize,
+    address: String,
+    contract: Option<Contract>,
     #[serde(skip)]
     created_at: std::time::Instant,
 }
@@ -54,6 +59,9 @@ enum JobStatus {
     Pending,
     Complete,
 }
+
+// Job state for polling
+type Jobs = Arc<RwLock<HashMap<String, Job>>>;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -88,7 +96,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create Etherscan fetch queue
     let (etherscan_tx, mut etherscan_rx) =
-        mpsc::unbounded_channel::<EtherscanReq>();
+        mpsc::unbounded_channel::<EtherscanRequest>();
 
     // Spawn task to process Etherscan fetch queue sequentially
     let jobs_clone = jobs.clone();
@@ -126,24 +134,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .execute(&pool_clone)
                     .await;
 
-                    // Update job
                     let mut guard = jobs_clone.write().await;
                     if let Some(job) = guard.get_mut(&req.job_id) {
-                        job.contracts.push(contract);
-                        job.fetched += 1;
-                        if job.fetched == job.total {
-                            job.status = JobStatus::Complete;
-                        }
+                        job.contract = Some(contract);
+                        job.status = JobStatus::Complete;
                     }
                 }
                 Err(e) => {
                     info!("Failed to fetch contract {}: {e}", req.address);
                     let mut guard = jobs_clone.write().await;
                     if let Some(job) = guard.get_mut(&req.job_id) {
-                        job.fetched += 1;
-                        if job.fetched == job.total {
-                            job.status = JobStatus::Complete;
-                        }
+                        job.status = JobStatus::Complete;
                     }
                 }
             }
@@ -205,32 +206,23 @@ async fn health_check() -> Result<Json<Health>, StatusCode> {
     Ok(Json(Health { status: "ok" }))
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
-struct Contract {
-    chain: String,
-    address: String,
-    name: Option<String>,
-    abi: Option<Value>,
-    label: Option<String>,
-    src: Option<String>,
-}
-
 #[derive(Debug, Serialize, Deserialize)]
-struct PostContractsRequest {
+struct PostJobRequest {
     chain: String,
     addrs: Vec<String>,
 }
 
 #[derive(Serialize)]
 struct PostJobResponse {
-    job_id: String,
+    job_ids: Vec<String>,
+    contracts: Vec<Contract>,
 }
 
 async fn post_contracts_job(
     Extension(pool): Extension<Pool<Postgres>>,
     Extension(jobs): Extension<Jobs>,
     Extension(etherscan_queue): Extension<EtherscanQueue>,
-    Json(req): Json<PostContractsRequest>,
+    Json(req): Json<PostJobRequest>,
 ) -> Result<Json<PostJobResponse>, StatusCode> {
     // Validate inputs
     if req.chain.trim().is_empty() {
@@ -243,8 +235,7 @@ async fn post_contracts_job(
     let chain_id =
         config::get_chain_id(&req.chain).ok_or(StatusCode::BAD_REQUEST)?;
 
-    // Fetch contracts already in db
-    let db_contracts: Vec<Contract> = sqlx::query_as!(
+    let contracts: Vec<Contract> = sqlx::query_as!(
         Contract,
         "SELECT chain, address, name, abi, label, NULL as src FROM contracts WHERE chain = $1 AND address = ANY($2)",
         req.chain, &req.addrs
@@ -254,7 +245,7 @@ async fn post_contracts_job(
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
     let set: HashSet<String> =
-        db_contracts.iter().map(|c| c.address.clone()).collect();
+        contracts.iter().map(|c| c.address.clone()).collect();
     let addrs_to_fetch: Vec<String> = req
         .addrs
         .iter()
@@ -262,42 +253,43 @@ async fn post_contracts_job(
         .cloned()
         .collect();
 
-    let job_id = uuid::Uuid::new_v4().to_string();
-
-    // Initialize job with db contracts
-    {
-        let mut guard = jobs.write().await;
-        guard.insert(
-            job_id.clone(),
-            Job {
-                status: if addrs_to_fetch.is_empty() {
-                    JobStatus::Complete
-                } else {
-                    JobStatus::Pending
-                },
-                contracts: db_contracts,
-                total: addrs_to_fetch.len(),
-                fetched: 0,
-                created_at: std::time::Instant::now(),
-            },
-        );
-    }
-
     // Send fetch requests to the queue
+    let mut job_ids = Vec::new();
     if !addrs_to_fetch.is_empty() {
+        let mut guard = jobs.write().await;
+
         for addr in addrs_to_fetch {
-            let _ = etherscan_queue.send(EtherscanReq {
+            let job_id = format!("{}:{}", req.chain, addr);
+
+            if let Some(job) = guard.get(&job_id) {
+                job_ids.push(job_id);
+                continue;
+            }
+
+            if let Ok(_) = etherscan_queue.send(EtherscanRequest {
                 job_id: job_id.clone(),
                 chain: req.chain.clone(),
                 chain_id,
-                address: addr,
-            });
+                address: addr.clone(),
+            }) {
+                guard.insert(
+                    job_id.clone(),
+                    Job {
+                        status: JobStatus::Pending,
+                        contract: None,
+                        address: addr,
+                        created_at: std::time::Instant::now(),
+                    },
+                );
+                job_ids.push(job_id);
+            }
         }
     }
 
-    Ok(Json(PostJobResponse { job_id }))
+    Ok(Json(PostJobResponse { contracts, job_ids }))
 }
 
+// TODO: request and return multiple job states
 async fn poll_contracts_job(
     Extension(jobs): Extension<Jobs>,
     Path(job_id): Path<String>,

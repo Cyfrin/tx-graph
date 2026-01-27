@@ -178,8 +178,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/", get(health_check))
-        .route("/contracts/q", post(post_jobs))
-        .route("/contracts/q", get(get_jobs))
+        .route("/contracts", post(post_jobs))
+        // Use post to encode query parameters
+        .route("/contracts/q", post(get_jobs))
         .route("/contracts/{chain}/{address}", get(get_contract))
         .route("/fn-selectors/{selector}", get(get_fn_selectors))
         .layer(TraceLayer::new_for_http())
@@ -294,20 +295,20 @@ async fn post_jobs(
     Ok(Json(PostJobsResponse { contracts, job_ids }))
 }
 
-#[derive(Deserialize)]
-struct GetJobsQuery {
+#[derive(Debug, Serialize, Deserialize)]
+struct GetJobsRequest {
     job_ids: Vec<String>,
 }
 
 async fn get_jobs(
     Extension(jobs): Extension<Jobs>,
-    Query(query): Query<GetJobsQuery>,
+    Json(req): Json<GetJobsRequest>,
 ) -> Result<Json<HashMap<String, Job>>, StatusCode> {
-    if query.job_ids.len() > MAX_JOBS_PER_REQUEST {
+    if req.job_ids.len() > MAX_JOBS_PER_REQUEST {
         return Err(StatusCode::PAYLOAD_TOO_LARGE);
     }
 
-    let job_ids: HashSet<String> = query.job_ids.into_iter().collect();
+    let job_ids: HashSet<String> = req.job_ids.into_iter().collect();
     if job_ids.is_empty() {
         return Err(StatusCode::BAD_REQUEST);
     }

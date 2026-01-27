@@ -24,6 +24,8 @@ use tracing_subscriber;
 mod config;
 mod etherscan;
 
+const MAX_JOBS_PER_REQUEST: usize = 1000;
+
 struct EtherscanRequest {
     job_id: String,
     chain: String,
@@ -224,13 +226,17 @@ async fn post_jobs(
     Extension(etherscan_queue): Extension<EtherscanQueue>,
     Json(req): Json<PostJobsRequest>,
 ) -> Result<Json<PostJobsResponse>, StatusCode> {
-    // Validate inputs
     if req.chain.trim().is_empty() {
         return Err(StatusCode::BAD_REQUEST);
     }
     if req.addrs.is_empty() || req.addrs.iter().any(|a| a.trim().is_empty()) {
         return Err(StatusCode::BAD_REQUEST);
     }
+    if req.addrs.len() > MAX_JOBS_PER_REQUEST {
+        return Err(StatusCode::PAYLOAD_TOO_LARGE);
+    }
+
+    let addrs: HashSet<String> = req.addrs.into_iter().collect();
 
     let chain_id =
         config::get_chain_id(&req.chain).ok_or(StatusCode::BAD_REQUEST)?;
@@ -238,7 +244,7 @@ async fn post_jobs(
     let contracts: Vec<Contract> = sqlx::query_as!(
         Contract,
         "SELECT chain, address, name, abi, label, NULL as src FROM contracts WHERE chain = $1 AND address = ANY($2)",
-        req.chain, &req.addrs
+        req.chain, &addrs.iter().cloned().collect::<Vec<String>>()
     )
     .fetch_all(&pool)
     .await
@@ -246,8 +252,7 @@ async fn post_jobs(
 
     let set: HashSet<String> =
         contracts.iter().map(|c| c.address.clone()).collect();
-    let addrs_to_fetch: Vec<String> = req
-        .addrs
+    let addrs_to_fetch: Vec<String> = addrs
         .iter()
         .filter(|addr| !set.contains(*addr))
         .cloned()
@@ -298,14 +303,19 @@ async fn get_jobs(
     Extension(jobs): Extension<Jobs>,
     Query(query): Query<GetJobsQuery>,
 ) -> Result<Json<HashMap<String, Job>>, StatusCode> {
-    if query.job_ids.is_empty() {
+    if query.job_ids.len() > MAX_JOBS_PER_REQUEST {
+        return Err(StatusCode::PAYLOAD_TOO_LARGE);
+    }
+
+    let job_ids: HashSet<String> = query.job_ids.into_iter().collect();
+    if job_ids.is_empty() {
         return Err(StatusCode::BAD_REQUEST);
     }
 
     let guard = jobs.read().await;
 
     let mut res = HashMap::new();
-    for job_id in query.job_ids {
+    for job_id in job_ids {
         if let Some(job) = guard.get(&job_id) {
             res.insert(job_id, job.clone());
         }

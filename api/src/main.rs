@@ -1,6 +1,6 @@
 use axum::{
     Extension, Json, Router,
-    extract::Path,
+    extract::{Path, Query},
     http::Method,
     http::StatusCode,
     routing::{get, post},
@@ -176,8 +176,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/", get(health_check))
-        .route("/contracts/jobs", post(post_contracts_job))
-        .route("/contracts/jobs/{job_id}", get(poll_contracts_job))
+        .route("/contracts/q", post(post_jobs))
+        .route("/contracts/q", get(get_jobs))
         .route("/contracts/{chain}/{address}", get(get_contract))
         .route("/fn-selectors/{selector}", get(get_fn_selectors))
         .layer(TraceLayer::new_for_http())
@@ -207,23 +207,23 @@ async fn health_check() -> Result<Json<Health>, StatusCode> {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct PostJobRequest {
+struct PostJobsRequest {
     chain: String,
     addrs: Vec<String>,
 }
 
 #[derive(Serialize)]
-struct PostJobResponse {
+struct PostJobsResponse {
     job_ids: Vec<String>,
     contracts: Vec<Contract>,
 }
 
-async fn post_contracts_job(
+async fn post_jobs(
     Extension(pool): Extension<Pool<Postgres>>,
     Extension(jobs): Extension<Jobs>,
     Extension(etherscan_queue): Extension<EtherscanQueue>,
-    Json(req): Json<PostJobRequest>,
-) -> Result<Json<PostJobResponse>, StatusCode> {
+    Json(req): Json<PostJobsRequest>,
+) -> Result<Json<PostJobsResponse>, StatusCode> {
     // Validate inputs
     if req.chain.trim().is_empty() {
         return Err(StatusCode::BAD_REQUEST);
@@ -286,17 +286,32 @@ async fn post_contracts_job(
         }
     }
 
-    Ok(Json(PostJobResponse { contracts, job_ids }))
+    Ok(Json(PostJobsResponse { contracts, job_ids }))
 }
 
-// TODO: request and return multiple job states
-async fn poll_contracts_job(
+#[derive(Deserialize)]
+struct GetJobsQuery {
+    job_ids: Vec<String>,
+}
+
+async fn get_jobs(
     Extension(jobs): Extension<Jobs>,
-    Path(job_id): Path<String>,
-) -> Result<Json<Job>, StatusCode> {
+    Query(query): Query<GetJobsQuery>,
+) -> Result<Json<HashMap<String, Job>>, StatusCode> {
+    if query.job_ids.is_empty() {
+        return Err(StatusCode::BAD_REQUEST);
+    }
+
     let guard = jobs.read().await;
-    let job = guard.get(&job_id).ok_or(StatusCode::NOT_FOUND)?;
-    Ok(Json(job.clone()))
+
+    let mut res = HashMap::new();
+    for job_id in query.job_ids {
+        if let Some(job) = guard.get(&job_id) {
+            res.insert(job_id, job.clone());
+        }
+    }
+
+    Ok(Json(res))
 }
 
 #[derive(Serialize, Deserialize)]

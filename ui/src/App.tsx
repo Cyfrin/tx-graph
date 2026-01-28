@@ -6,7 +6,6 @@ import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
 import "./files"
 
-// TODO: graph token transfers
 function App() {
   const app = useAppContext()
 

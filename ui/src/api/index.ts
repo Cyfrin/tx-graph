@@ -4,11 +4,10 @@ import { CacheEntry, EtherscanContractInfo, Job } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
 
-const DISABLE_CACHE = true
+const DISABLE_CACHE = !import.meta.env.PROD
 const CACHE_TTL = 5 * 60 * 1000
 const CACHE_PREFIX = "txgraph_cache_"
 
-// TODO: store somewhere else?
 function getCached<T>(key: string): T | null {
   if (DISABLE_CACHE) {
     return null

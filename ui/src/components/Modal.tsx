@@ -53,16 +53,18 @@ const Modal: React.FC<{
     }
   }, [onClose])
 
-  // NOTE - hack to fix ResetCodeModal when outside clicked
   if (!open) {
     return null
   }
 
   return (
-    <dialog ref={dialogRef} id={id} className={styles.dialog}>
-      <div className={styles.overlay}>
-        <div className={styles.container}>
-          <div className={styles.content} ref={contentRef}>
+    <dialog ref={dialogRef} id={id} className="group">
+      <div className="fixed inset-0 z-50 bg-[color:var(--bg-modal-overlay)] p-4 opacity-0 transition-all group-data-open:opacity-100">
+        <div className="flex min-h-full flex-col items-center justify-center p-4 sm:p-0 scale-75 transition-all group-data-open:scale-100">
+          <div
+            className="flex flex-col overflow-hidden rounded-lg bg-[color:var(--bg-modal)] px-4 pb-4 pt-5 text-[color:var(--color-1)] shadow-xl sm:w-full sm:max-w-lg"
+            ref={contentRef}
+          >
             {children}
           </div>
         </div>

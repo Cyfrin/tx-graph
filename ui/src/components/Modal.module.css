@@ -1,0 +1,55 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: rgba(0, 0, 0, 0.65);
+  padding: 1rem;
+  opacity: 0;
+  transition: all 0.2s ease-in-out;
+}
+
+.dialog[data-open] .overlay {
+  opacity: 1;
+}
+
+.container {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  scale: 0.75;
+  transition: all 0.2s ease-in-out;
+}
+
+.dialog[data-open] .container {
+  scale: 1;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding: 0;
+  }
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background-color: #1e1e1e;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  padding-top: 1.25rem;
+  color: #e0e0e0;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+@media (min-width: 640px) {
+  .content {
+    width: 100%;
+    max-width: 32rem;
+  }
+}

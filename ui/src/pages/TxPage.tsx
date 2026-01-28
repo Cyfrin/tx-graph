@@ -20,6 +20,7 @@ import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
 import CopyText from "../components/CopyText"
 import * as EvmTypes from "../components/ctx/evm/types"
 import Checkbox from "../components/Checkbox"
+import Modal from "../components/Modal"
 import { useGetTrace, ObjType } from "../hooks/useGetTrace"
 import styles from "./TxPage.module.css"
 
@@ -357,6 +358,11 @@ function TxPage() {
           />
         )}
       </Splits>
+      {/*
+      <Modal id="graph" open={true} onClose={() => console.log("TODO: close")}>
+        <div>modal content here</div>
+      </Modal>
+      */}
     </div>
   )
 }

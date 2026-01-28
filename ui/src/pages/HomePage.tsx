@@ -69,38 +69,57 @@ export function HomePage() {
 
   return (
     <div className={styles.component}>
-      <form onSubmit={onSubmit} className={styles.form}>
-        <select
-          className={styles.select}
-          value={inputs.chain}
-          onChange={(e) => setChain(e.target.value)}
-        >
-          {Object.entries(RPC_CONFIG).map(([key, cfg]: [string, RpcConfig]) => (
-            <option key={key} value={key}>
-              {cfg.text}
-            </option>
-          ))}
-        </select>
-        {inputs.chain == "foundry-test" ? (
-          <div>
-            <FoundryForm
-              setTraceFile={setTraceFile}
-              setABIFiles={setABIFiles}
-              abis={get("abi") || []}
-            />
-            <button type="submit">Go</button>
+      <div className={styles.container}>
+        <form onSubmit={onSubmit} className={styles.form}>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>network</label>
+            <select
+              className={styles.select}
+              value={inputs.chain}
+              onChange={(e) => setChain(e.target.value)}
+            >
+              {Object.entries(RPC_CONFIG).map(
+                ([key, cfg]: [string, RpcConfig]) => (
+                  <option key={key} value={key}>
+                    {cfg.text}
+                  </option>
+                ),
+              )}
+            </select>
           </div>
-        ) : (
-          <input
-            className={styles.input}
-            type="text"
-            value={inputs.txHash}
-            onChange={(e) => setTxHash(e.target.value)}
-            placeholder="tx hash"
-            autoFocus
-          />
-        )}
-      </form>
+
+          {inputs.chain == "foundry-test" ? (
+            <div className={styles.foundrySection}>
+              <FoundryForm
+                setTraceFile={setTraceFile}
+                setABIFiles={setABIFiles}
+                abis={get("abi") || []}
+              />
+              <button type="submit" className={styles.button}>
+                Explore Transaction
+              </button>
+            </div>
+          ) : (
+            <div className={styles.formGroup}>
+              <label className={styles.label}>transaction hash</label>
+              <div className={styles.inputWrapper}>
+                <input
+                  className={styles.input}
+                  type="text"
+                  value={inputs.txHash}
+                  onChange={(e) => setTxHash(e.target.value)}
+                  placeholder="0x..."
+                  autoFocus
+                />
+                <button type="submit" className={styles.button}>
+                  explore
+                </button>
+              </div>
+            </div>
+          )}
+        </form>
+      </div>
+
       <a
         className={styles.footer}
         href="https://github.com/Cyfrin/tx-graph"

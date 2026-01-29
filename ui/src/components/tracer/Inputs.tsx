@@ -22,7 +22,7 @@ const Inputs: React.FC<{
               </>
             ) : null}
             <span className={styles.val}>
-              <CopyText text={label} val={val} />
+              <CopyText text={label} val={val} max={100} />
             </span>
             {i < len - 1 ? <span className={styles.comma}>,</span> : null}
           </div>

@@ -8,6 +8,7 @@ const STYLE: React.CSSProperties = {
   position: "absolute",
   left: 0,
   top: 0,
+  touchAction: "none",
 }
 
 const ZOOMS: number[] = [
@@ -287,6 +288,7 @@ export const Graph = <A, F>({
 
   const onPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
+
     if (refs.current) {
       refs.current.drag = null
     }
@@ -378,6 +380,7 @@ export const Graph = <A, F>({
 
   const onPointerLeave = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
+
     if (refs.current) {
       refs.current.drag = null
       refs.current.pointer = null
@@ -409,6 +412,7 @@ export const Graph = <A, F>({
         width,
         height,
         backgroundColor,
+        touchAction: "none",
       }}
     >
       <canvas
@@ -430,6 +434,7 @@ export const Graph = <A, F>({
         onPointerDown={onPointerDown}
         onPointerUp={onPointerUp}
         onPointerLeave={onPointerLeave}
+        onPointerCancel={onPointerLeave}
         onWheel={onWheel}
       ></canvas>
       {hover && pointer && renderHover ? (

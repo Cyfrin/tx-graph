@@ -1,12 +1,13 @@
 .component {
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 2rem;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+  box-sizing: border-box;
 }
 
 .container {
@@ -17,6 +18,7 @@
   padding: 3rem 2.5rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   border: 1px solid #2d2d2d;
+  box-sizing: border-box;
 }
 
 .form {
@@ -119,8 +121,7 @@
 }
 
 .footer {
-  position: absolute;
-  bottom: 2rem;
+  margin-top: 2rem;
   color: #7a7a7a;
   text-decoration: none;
   font-size: 0.875rem;
@@ -132,28 +133,102 @@
   color: #b0b0b0;
 }
 
-@media (max-width: 640px) {
+/* Tablet and small desktop */
+@media (max-width: 768px) {
   .component {
-    padding: 1rem;
+    padding: 1.5rem;
   }
 
   .container {
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 2rem;
   }
 
-  .title {
-    font-size: 1.5rem;
+  .select {
+    font-size: 1rem;
   }
 
-  .subtitle {
-    font-size: 0.875rem;
+  .input {
+    font-size: 1rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .component {
+    padding: 0.75rem;
+    padding-top: 2rem;
+    min-height: 100vh;
+  }
+
+  .container {
+    padding: 1.5rem 1.25rem;
+    max-width: 100%;
+    width: calc(100% - 1.5rem);
+    margin: 0 auto;
+  }
+
+  .form {
+    gap: 1.25rem;
+  }
+
+  .label {
+    font-size: 0.8125rem;
+  }
+
+  .select {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9375rem;
   }
 
   .inputWrapper {
     flex-direction: column;
   }
 
+  .input {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9375rem;
+  }
+
   .button {
     width: 100%;
+    padding: 0.875rem 1.25rem;
+  }
+
+  .footer {
+    margin-top: 1.5rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 375px) {
+  .component {
+    padding: 0.5rem;
+    padding-top: 1.5rem;
+  }
+
+  .container {
+    padding: 1.25rem 1rem;
+    border-radius: 0.75rem;
+    width: calc(100% - 1rem);
+  }
+
+  .form {
+    gap: 1rem;
+  }
+
+  .select {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .input {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
   }
 }

@@ -1,12 +1,94 @@
 .wrap {
-  margin: 10px 0 10px 0;
+  margin: 0.625rem 0;
 }
+
 .shell {
-  background-color: black;
-  padding: 10px;
-  border-radius: 2px;
-  border: 1px solid grey;
+  background-color: #0a0a0a;
+  padding: 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid #3d3d3d;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.5;
 }
+
 .input {
-  margin: 10px 0 10px 0;
+  margin: 1rem 0;
+  color: #e0e0e0;
+}
+
+.input > div:first-child {
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  color: #b0b0b0;
+}
+
+.input input[type="file"] {
+  padding: 0.625rem;
+  border-radius: 0.5rem;
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+  border: 1px solid #3d3d3d;
+  width: 100%;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.input input[type="file"]::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: 0.75rem;
+}
+
+.input input[type="file"]::-webkit-file-upload-button:hover {
+  opacity: 0.9;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .shell {
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    word-break: break-word;
+  }
+
+  .input {
+    margin: 0.875rem 0;
+  }
+
+  .input > div:first-child {
+    font-size: 0.875rem;
+  }
+
+  .input input[type="file"] {
+    padding: 0.5rem;
+    font-size: 0.8125rem;
+  }
+
+  .input input[type="file"]::-webkit-file-upload-button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+    margin-right: 0.5rem;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 375px) {
+  .shell {
+    padding: 0.625rem;
+    font-size: 0.6875rem;
+  }
+
+  .input input[type="file"]::-webkit-file-upload-button {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
 }

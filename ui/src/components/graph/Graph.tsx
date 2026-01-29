@@ -99,6 +99,9 @@ type Refs = {
   } | null
   pointer: Types.Point | null
   hover: Types.Hover | null
+  // For pinch zoom
+  lastPinchDistance: number | null
+  pinchCenter: Types.Point | null
 }
 
 export type Props<A, F> = {
@@ -183,6 +186,8 @@ export const Graph = <A, F>({
     drag: null,
     pointer: null,
     hover: null,
+    lastPinchDistance: null,
+    pinchCenter: null,
   })
 
   const ctx = useRef<Types.Canvas>({ graph: null, ui: null })
@@ -385,6 +390,8 @@ export const Graph = <A, F>({
       refs.current.drag = null
       refs.current.pointer = null
       refs.current.hover = null
+      refs.current.lastPinchDistance = null
+      refs.current.pinchCenter = null
     }
     setPointer(null)
     setHover(null)
@@ -401,6 +408,89 @@ export const Graph = <A, F>({
     } else {
       // Zoom out
       zoom(zoomIndex - 1, pointer)
+    }
+  }
+
+  const getTouchDistance = (
+    e: React.TouchEvent<HTMLCanvasElement>,
+  ): number | null => {
+    if (e.touches.length < 2) return null
+
+    const touch1 = e.touches[0]
+    const touch2 = e.touches[1]
+
+    const dx = touch2.clientX - touch1.clientX
+    const dy = touch2.clientY - touch1.clientY
+
+    return Math.sqrt(dx * dx + dy * dy)
+  }
+
+  const getTouchCenter = (
+    ref: HTMLCanvasElement | null,
+    e: React.TouchEvent<HTMLCanvasElement>,
+  ): Types.Point | null => {
+    if (!ref || e.touches.length < 2) return null
+
+    const rect = ref.getBoundingClientRect()
+    const touch1 = e.touches[0]
+    const touch2 = e.touches[1]
+
+    const centerX = (touch1.clientX + touch2.clientX) / 2
+    const centerY = (touch1.clientY + touch2.clientY) / 2
+
+    return {
+      x: centerX - rect.left,
+      y: centerY - rect.top,
+    }
+  }
+
+  const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 2) {
+      // Pinch gesture started
+      e.preventDefault()
+
+      const distance = getTouchDistance(e)
+      const center = getTouchCenter(refs.current?.ui, e)
+
+      if (refs.current && distance !== null && center !== null) {
+        refs.current.lastPinchDistance = distance
+        refs.current.pinchCenter = center
+        // Clear drag state when pinch starts
+        refs.current.drag = null
+      }
+    }
+  }
+
+  const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length === 2 && refs.current) {
+      // Pinch zoom
+      e.preventDefault()
+
+      const distance = getTouchDistance(e)
+      const center = getTouchCenter(refs.current?.ui, e)
+
+      if (
+        distance !== null &&
+        center !== null &&
+        refs.current.lastPinchDistance !== null
+      ) {
+        const distanceChange = distance - refs.current.lastPinchDistance
+        const threshold = 10 // Minimum distance change to trigger zoom
+
+        if (Math.abs(distanceChange) > threshold) {
+          const zoomDirection = distanceChange > 0 ? 1 : -1
+          zoom(zoomIndex + zoomDirection, center)
+          refs.current.lastPinchDistance = distance
+        }
+      }
+    }
+  }
+
+  const onTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (e.touches.length < 2 && refs.current) {
+      // Pinch gesture ended
+      refs.current.lastPinchDistance = null
+      refs.current.pinchCenter = null
     }
   }
 
@@ -436,6 +526,9 @@ export const Graph = <A, F>({
         onPointerLeave={onPointerLeave}
         onPointerCancel={onPointerLeave}
         onWheel={onWheel}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
       ></canvas>
       {hover && pointer && renderHover ? (
         <div style={{ position: "relative" }}>

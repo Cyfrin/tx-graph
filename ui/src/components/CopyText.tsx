@@ -15,7 +15,7 @@ const CopyText: React.FC<{
   return (
     <div className={styles.component}>
       <div className={styles.copy}>{max ? clip(text, max) : text}</div>
-      <Copy size={16} className={styles.icon} onClick={copy} />
+      <Copy size={24} className={styles.icon} onClick={copy} />
     </div>
   )
 }

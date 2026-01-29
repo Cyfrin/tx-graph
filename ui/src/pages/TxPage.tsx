@@ -29,7 +29,7 @@ import styles from "./TxPage.module.css"
 // TODO: hover pin or modal on click
 
 // Must match height in .tracerController
-const TRACER_CONTROLLER_HEIGHT = 55
+const TRACER_CONTROLLER_HEIGHT = 60
 // Must match paddings in .tracerComponent
 const TRACER_PADDING_TOP = 0
 const TRACER_PADDING_BOTTOM = 0

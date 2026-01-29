@@ -13,8 +13,10 @@
   padding: 10px 12px 4px 12px;
   border-bottom: 1px solid #4b4949;
   box-sizing: border-box;
-  height: 55px;
+  height: 60px;
   white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .tracerComponent {
   display: flex;
@@ -25,6 +27,7 @@
 .tx {
   display: flex;
   flex-direction: row;
+  align-items: center;
 }
 .txHashLabel {
   white-space: nowrap;
@@ -37,7 +40,7 @@
 }
 .callsCount {
   white-space: nowrap;
-  margin-left: 10px;
+  margin-right: 10px;
 }
 .contractCount {
   white-space: nowrap;

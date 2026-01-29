@@ -46,7 +46,7 @@ export type Params = {
   arrowXPad: number
   arrowYPad: number
   // window coordinates
-  mouse: Point | null
+  pointer: Point | null
   scale: number
   // window coordinates
   offsetX: number
@@ -63,7 +63,7 @@ export function draw(ctx: Canvas, params: Params) {
     getArrowStyle,
     arrowXPad,
     arrowYPad,
-    mouse,
+    pointer,
     scale,
     offsetX,
     offsetY,
@@ -161,10 +161,10 @@ export function draw(ctx: Canvas, params: Params) {
   }
 
   if (ctx.ui) {
-    if (DEBUG && mouse) {
+    if (DEBUG && pointer) {
       drawDot(ctx.ui, {
-        x: mouse.x,
-        y: mouse.y,
+        x: pointer.x,
+        y: pointer.y,
         radius: 5,
         fill: "rgba(0, 255, 0, 0.5)",
       })

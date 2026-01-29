@@ -19,7 +19,7 @@ const MAX_ZOOM_INDEX = ZOOMS.length - 1
 
 const STEP = 50
 const MIN_STEPS = 4
-// Radius around mouse
+// Radius around pointer
 const R = 25
 const BOX_X_PADD = 10
 const BOX_Y_PADD = 10
@@ -96,7 +96,7 @@ type Refs = {
     startViewX: number
     startViewY: number
   } | null
-  mouse: Types.Point | null
+  pointer: Types.Point | null
   hover: Types.Hover | null
 }
 
@@ -127,7 +127,7 @@ export type Props<A, F> = {
   nodeYGap?: number
   renderHover?: (
     hover: Types.Hover,
-    mouse: Types.Point | null,
+    pointer: Types.Point | null,
   ) => React.ReactNode
 }
 
@@ -180,13 +180,13 @@ export const Graph = <A, F>({
       top: 0,
     },
     drag: null,
-    mouse: null,
+    pointer: null,
     hover: null,
   })
 
   const ctx = useRef<Types.Canvas>({ graph: null, ui: null })
 
-  const [mouse, setMouse] = useState<{ x: number; y: number } | null>(null)
+  const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null)
   const [hover, setHover] = useState<Types.Hover | null>(null)
   const [zoomIndex, setZoomIndex] = useState<number>(9)
 
@@ -218,7 +218,7 @@ export const Graph = <A, F>({
         getArrowStyle: (arrow) => getArrowStyle(refs.current.hover, arrow),
         arrowXPad,
         arrowYPad,
-        mouse: refs.current.mouse,
+        pointer: refs.current.pointer,
         scale: ZOOMS[refs.current.zoomIndex],
         offsetX: refs.current.view.left,
         offsetY: refs.current.view.top,
@@ -226,9 +226,11 @@ export const Graph = <A, F>({
     }
   }
 
-  const getMouse = (
+  const getPointer = (
     ref: HTMLCanvasElement | null,
-    e: React.MouseEvent<HTMLCanvasElement, MouseEvent>,
+    e:
+      | React.PointerEvent<HTMLCanvasElement>
+      | React.WheelEvent<HTMLCanvasElement>,
   ): Types.Point | null => {
     if (!ref) {
       return null
@@ -241,7 +243,7 @@ export const Graph = <A, F>({
     }
   }
 
-  const zoom = (next: number, mouse: Types.Point | null) => {
+  const zoom = (next: number, pointer: Types.Point | null) => {
     if (next == zoomIndex || !refs.current) {
       return
     }
@@ -253,58 +255,58 @@ export const Graph = <A, F>({
     const oldScale = ZOOMS[zoomIndex]
     const newScale = ZOOMS[nextZoomIndex]
 
-    // Adjust offset to zoom around mouse position
-    if (mouse) {
-      const canvasX = (mouse.x - refs.current.view.left) / oldScale
-      const canvasY = (mouse.y - refs.current.view.top) / oldScale
-      refs.current.view.left = mouse.x - canvasX * newScale
-      refs.current.view.top = mouse.y - canvasY * newScale
+    // Adjust offset to zoom around pointer position
+    if (pointer) {
+      const canvasX = (pointer.x - refs.current.view.left) / oldScale
+      const canvasY = (pointer.y - refs.current.view.top) / oldScale
+      refs.current.view.left = pointer.x - canvasX * newScale
+      refs.current.view.top = pointer.y - canvasY * newScale
     }
 
     setZoomIndex(nextZoomIndex)
     refs.current.zoomIndex = nextZoomIndex
   }
 
-  const onMouseDown = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+  const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
 
     if (!refs.current) {
       return
     }
 
-    const mouse = getMouse(refs.current?.ui, e)
-    if (mouse) {
+    const point = getPointer(refs.current?.ui, e)
+    if (point) {
       refs.current.drag = {
-        startMouseX: mouse.x,
-        startMouseY: mouse.y,
+        startMouseX: point.x,
+        startMouseY: point.y,
         startViewX: refs.current.view.left,
         startViewY: refs.current.view.top,
       }
     }
   }
 
-  const onMouseUp = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+  const onPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
     if (refs.current) {
       refs.current.drag = null
     }
   }
 
-  const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+  const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
 
     if (disabled) {
       return
     }
 
-    const mouse = getMouse(refs.current?.ui, e)
-    if (mouse && refs.current) {
-      refs.current.mouse = mouse
-      setMouse(mouse)
+    const pointer = getPointer(refs.current?.ui, e)
+    if (pointer && refs.current) {
+      refs.current.pointer = pointer
+      setPointer(pointer)
 
       if (refs.current.drag) {
-        const dx = mouse.x - refs.current.drag.startMouseX
-        const dy = mouse.y - refs.current.drag.startMouseY
+        const dx = pointer.x - refs.current.drag.startMouseX
+        const dy = pointer.y - refs.current.drag.startMouseY
         refs.current.view = {
           ...refs.current.view,
           left: refs.current.drag.startViewX + dx,
@@ -315,7 +317,7 @@ export const Graph = <A, F>({
       const dragging = !!refs.current?.drag
 
       const hover: Types.Hover = { node: null, arrows: null }
-      if (!dragging && mouse) {
+      if (!dragging && pointer) {
         const view = refs.current
           ? refs.current.view
           : {
@@ -325,13 +327,13 @@ export const Graph = <A, F>({
         const scale = ZOOMS[refs.current.zoomIndex]
         // Canvas coordinates
         const xy = {
-          x: (mouse.x - view.left) / scale,
-          y: (mouse.y - view.top) / scale,
+          x: (pointer.x - view.left) / scale,
+          y: (pointer.y - view.top) / scale,
         }
 
         for (const node of layout.nodes.values()) {
           if (screen.isInside(xy, node.rect)) {
-            // Assign to the last node that the mouse is hovering
+            // Assign to the last node that the pointer is hovering
             hover.node = node.id
           }
         }
@@ -374,14 +376,14 @@ export const Graph = <A, F>({
     }
   }
 
-  const onMouseOut = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
+  const onPointerLeave = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
     if (refs.current) {
       refs.current.drag = null
-      refs.current.mouse = null
+      refs.current.pointer = null
       refs.current.hover = null
     }
-    setMouse(null)
+    setPointer(null)
     setHover(null)
   }
 
@@ -389,13 +391,13 @@ export const Graph = <A, F>({
     if (!refs.current) {
       return
     }
-    const mouse = getMouse(refs.current.ui, e)
+    const pointer = getPointer(refs.current.ui, e)
     if (e.deltaY < 0) {
       // Zoom in
-      zoom(zoomIndex + 1, mouse)
+      zoom(zoomIndex + 1, pointer)
     } else {
       // Zoom out
-      zoom(zoomIndex - 1, mouse)
+      zoom(zoomIndex - 1, pointer)
     }
   }
 
@@ -424,22 +426,22 @@ export const Graph = <A, F>({
         style={STYLE}
         width={width}
         height={height}
-        onMouseMove={onMouseMove}
-        onMouseDown={onMouseDown}
-        onMouseUp={onMouseUp}
-        onMouseOut={onMouseOut}
+        onPointerMove={onPointerMove}
+        onPointerDown={onPointerDown}
+        onPointerUp={onPointerUp}
+        onPointerLeave={onPointerLeave}
         onWheel={onWheel}
       ></canvas>
-      {hover && mouse && renderHover ? (
+      {hover && pointer && renderHover ? (
         <div style={{ position: "relative" }}>
           <div
             style={{
               position: "absolute",
-              top: mouse.y + 12,
-              left: mouse.x + 12,
+              top: pointer.y + 12,
+              left: pointer.x + 12,
             }}
           >
-            {renderHover(hover, mouse)}
+            {renderHover(hover, pointer)}
           </div>
         </div>
       ) : null}

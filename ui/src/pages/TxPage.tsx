@@ -208,13 +208,19 @@ function TxPage() {
       // TODO: clean, recycle
       if (obj?.type == "acc") {
         // @ts-ignore
-        const label = obj?.val?.name || obj?.val?.addr || "?"
+        const label = obj?.val?.name
         // @ts-ignore
         const addr = obj?.val?.addr || ""
+        // @ts-ignore
+        const fns = ([...obj?.val?.fns?.values()] || []).map((v, i) => (
+          <FnDef key={i} name={v.name} inputs={v.inputs} outputs={v.outputs} />
+        ))
+
         return (
           <div className={styles.hover}>
-            <div>{label}</div>
+            {label ? <div className={styles.objLabel}>{label}</div> : null}
             {addr ? <CopyText text={addr} val={addr} /> : null}
+            {fns}
           </div>
         )
       }

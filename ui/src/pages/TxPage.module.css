@@ -47,6 +47,9 @@
   margin-left: auto;
   color: var(--secondary-text-color);
 }
+.objLabel {
+  color: var(--tracer-obj-color);
+}
 /* Graph */
 .accNode {
   display: flex;

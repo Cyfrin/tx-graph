@@ -1,6 +1,7 @@
 .component {
   display: flex;
   flex-direction: row;
+  white-space: nowrap;
 }
 .fn {
   color: var(--tracer-func-name-color);

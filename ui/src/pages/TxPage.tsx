@@ -167,6 +167,7 @@ function TxPage() {
     chain,
   })
   const [checked, setChecked] = useState(false)
+  const [modal, setModal] = useState<GraphTypes.Hover | null>(null)
 
   if (getTrace.state.trace.error) {
     return <div>error :(</div>
@@ -191,6 +192,94 @@ function TxPage() {
 
     if (idxs.length > 0) {
       tracer.pin(idxs)
+    }
+  }
+
+  function onPointerDown(hover: GraphTypes.Hover | null) {
+    setModal(hover)
+  }
+
+  function renderModal() {
+    if (!modal) {
+      return null
+    }
+    if (modal.node != null) {
+      const obj = objs.get(modal.node)
+      // TODO: clean, recycle
+      if (obj?.type == "acc") {
+        // @ts-ignore
+        const label = obj?.val?.name || obj?.val?.addr || "?"
+        // @ts-ignore
+        const addr = obj?.val?.addr || ""
+        return (
+          <div className={styles.hover}>
+            <div>{label}</div>
+            {addr ? <CopyText text={addr} val={addr} /> : null}
+          </div>
+        )
+      }
+      if (obj?.type == "fn") {
+        const fn = obj?.val?.name || ""
+        // @ts-ignore
+        const inputs = obj?.val?.inputs || []
+        // @ts-ignore
+        const outputs = obj?.val?.outputs || []
+
+        if (fn) {
+          return (
+            <div className={styles.hover}>
+              <FnDef name={fn} inputs={inputs} outputs={outputs} />
+            </div>
+          )
+        }
+        return (
+          <div className={styles.hover}>
+            <div>?</div>
+          </div>
+        )
+      }
+    }
+    if (modal.arrows != null && modal.arrows.size > 0) {
+      const nodes = []
+      for (const i of modal.arrows) {
+        const call = calls[i]
+        const src = objs.get(call.src)
+        const dst = objs.get(call.dst)
+        nodes.push({
+          i,
+          // @ts-ignore
+          src: src?.val?.mod || call?.ctx?.src || "?",
+          // @ts-ignore
+          dst: dst?.val?.mod || call?.ctx?.dst || "?",
+          val: call?.ctx?.val || 0,
+          type: call?.ctx?.type || "",
+          fn: dst?.val?.name || "",
+          inputs: call?.fn?.inputs || [],
+          outputs: call?.fn?.outputs || [],
+        })
+      }
+
+      return (
+        <div className={styles.hover}>
+          {nodes.map((node) => {
+            return (
+              <div key={node.i} className={styles.arrow}>
+                <div className={styles.arrowIndex}>{node.i}</div>
+                <div className={styles.arrowSrc}>{node.src}</div>
+                <div>{`→`}</div>
+                <div className={styles.arrowDst}>{node.dst}</div>
+                <div>.</div>
+                <FnCall
+                  name={node.fn}
+                  val={node.val}
+                  inputs={node.inputs}
+                  outputs={node.outputs}
+                />
+              </div>
+            )
+          })}
+        </div>
+      )
     }
   }
 
@@ -243,6 +332,7 @@ function TxPage() {
             groups={groups}
             calls={calls}
             tracer={tracer.state}
+            onPointerDown={onPointerDown}
             getNodeStyle={(hover, node) => {
               return {
                 fill: getNodeFillColor(objs, hover, node, graph, tracer.state),
@@ -277,6 +367,7 @@ function TxPage() {
                 return null
               }
               if (hover.node != null) {
+                // TODO: clean / recycle
                 const obj = objs.get(hover.node)
                 if (obj?.type == "acc") {
                   // @ts-ignore
@@ -358,11 +449,9 @@ function TxPage() {
           />
         )}
       </Splits>
-      {/*
-      <Modal id="graph" open={true} onClose={() => console.log("TODO: close")}>
-        <div>modal content here</div>
+      <Modal id="graph" open={!!modal} onClose={() => setModal(null)}>
+        {renderModal()}
       </Modal>
-      */}
     </div>
   )
 }

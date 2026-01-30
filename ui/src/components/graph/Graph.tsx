@@ -113,6 +113,7 @@ export type Props<A, F> = {
   groups: Types.Groups
   calls: Types.Call<A, F>[]
   tracer: Types.Tracer
+  onPointerDown?: (hover: Types.Hover | null) => void
   getNodeStyle: (
     hover: Types.Hover | null,
     node: Types.Node,
@@ -143,6 +144,7 @@ export const Graph = <A, F>({
   groups,
   calls,
   tracer,
+  onPointerDown,
   getNodeStyle,
   getNodeText,
   getArrowStyle,
@@ -273,25 +275,31 @@ export const Graph = <A, F>({
     refs.current.zoomIndex = nextZoomIndex
   }
 
-  const onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const _onPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
 
-    if (!refs.current) {
-      return
-    }
-
-    const point = getPointer(refs.current?.ui, e)
-    if (point) {
-      refs.current.drag = {
-        startMouseX: point.x,
-        startMouseY: point.y,
-        startViewX: refs.current.view.left,
-        startViewY: refs.current.view.top,
+    if (refs.current) {
+      const point = getPointer(refs.current?.ui, e)
+      if (point) {
+        const hover: Types.Hover = getHover(pointer)
+        if (
+          onPointerDown &&
+          (hover?.node != null || (hover?.arrows && hover?.arrows?.size > 0))
+        ) {
+          onPointerDown(hover)
+        } else {
+          refs.current.drag = {
+            startMouseX: point.x,
+            startMouseY: point.y,
+            startViewX: refs.current.view.left,
+            startViewY: refs.current.view.top,
+          }
+        }
       }
     }
   }
 
-  const onPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const _onPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
 
     if (refs.current) {
@@ -299,8 +307,69 @@ export const Graph = <A, F>({
     }
   }
 
+  const getHover = (pointer: Types.Point | null): Types.Hover => {
+    const dragging = !!refs.current?.drag
+
+    const hover: Types.Hover = { node: null, arrows: null }
+    if (!dragging && pointer) {
+      const view = refs.current
+        ? refs.current.view
+        : {
+            left: 0,
+            top: 0,
+          }
+      const scale = ZOOMS[refs.current.zoomIndex]
+      // Canvas coordinates
+      const xy = {
+        x: (pointer.x - view.left) / scale,
+        y: (pointer.y - view.top) / scale,
+      }
+
+      for (const node of layout.nodes.values()) {
+        if (screen.isInside(xy, node.rect)) {
+          // Assign to the last node that the pointer is hovering
+          hover.node = node.id
+        }
+      }
+
+      if (hover.node == null) {
+        hover.arrows = new Set()
+
+        for (let i = 0; i < layout.arrows.length; i++) {
+          const a = layout.arrows[i]
+          let yPad = -arrowYPad
+          if (getArrowType(a.p0, a.p1) == "callback") {
+            const g = layout.rev.get(a.e)
+            if (g != undefined) {
+              const group = layout.nodes.get(g)
+              if (group) {
+                yPad -= a.p1.y - group.rect.y
+              }
+            }
+          }
+          const b = screen.box(
+            poly(a.p0, a.p1, arrowXPad, yPad),
+            BOX_X_PADD,
+            BOX_Y_PADD,
+          )
+          if (screen.isInside(xy, b)) {
+            // TODO: cache?
+            const points = sample(a, arrowXPad, yPad)
+            for (let i = 0; i < points.length; i++) {
+              if (math.dist(points[i], xy) < R) {
+                hover.arrows.add(a.i)
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return hover
+  }
+
   // TODO: trigger hover on touch
-  const onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const _onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
 
     if (disabled) {
@@ -322,69 +391,13 @@ export const Graph = <A, F>({
         }
       }
 
-      const dragging = !!refs.current?.drag
-
-      const hover: Types.Hover = { node: null, arrows: null }
-      if (!dragging && pointer) {
-        const view = refs.current
-          ? refs.current.view
-          : {
-              left: 0,
-              top: 0,
-            }
-        const scale = ZOOMS[refs.current.zoomIndex]
-        // Canvas coordinates
-        const xy = {
-          x: (pointer.x - view.left) / scale,
-          y: (pointer.y - view.top) / scale,
-        }
-
-        for (const node of layout.nodes.values()) {
-          if (screen.isInside(xy, node.rect)) {
-            // Assign to the last node that the pointer is hovering
-            hover.node = node.id
-          }
-        }
-
-        if (hover.node == null) {
-          hover.arrows = new Set()
-
-          for (let i = 0; i < layout.arrows.length; i++) {
-            const a = layout.arrows[i]
-            let yPad = -arrowYPad
-            if (getArrowType(a.p0, a.p1) == "callback") {
-              const g = layout.rev.get(a.e)
-              if (g != undefined) {
-                const group = layout.nodes.get(g)
-                if (group) {
-                  yPad -= a.p1.y - group.rect.y
-                }
-              }
-            }
-            const b = screen.box(
-              poly(a.p0, a.p1, arrowXPad, yPad),
-              BOX_X_PADD,
-              BOX_Y_PADD,
-            )
-            if (screen.isInside(xy, b)) {
-              // TODO: cache?
-              const points = sample(a, arrowXPad, yPad)
-              for (let i = 0; i < points.length; i++) {
-                if (math.dist(points[i], xy) < R) {
-                  hover.arrows.add(a.i)
-                }
-              }
-            }
-          }
-        }
-      }
-
+      const hover = getHover(pointer)
       refs.current.hover = hover
       setHover(hover)
     }
   }
 
-  const onPointerLeave = (e: React.PointerEvent<HTMLCanvasElement>) => {
+  const _onPointerLeave = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
 
     if (refs.current) {
@@ -398,7 +411,7 @@ export const Graph = <A, F>({
     setHover(null)
   }
 
-  const onWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+  const _onWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
     if (!refs.current) {
       return
     }
@@ -445,16 +458,16 @@ export const Graph = <A, F>({
     }
   }
 
-  const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+  const _onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
     if (e.touches.length === 2) {
       // Pinch gesture started
       e.preventDefault()
 
-      const distance = getTouchDistance(e)
+      const dist = getTouchDistance(e)
       const center = getTouchCenter(refs.current?.ui, e)
 
-      if (refs.current && distance !== null && center !== null) {
-        refs.current.lastPinchDistance = distance
+      if (refs.current && dist !== null && center !== null) {
+        refs.current.lastPinchDistance = dist
         refs.current.pinchCenter = center
         // Clear drag state when pinch starts
         refs.current.drag = null
@@ -462,32 +475,32 @@ export const Graph = <A, F>({
     }
   }
 
-  const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+  const _onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
     if (e.touches.length === 2 && refs.current) {
       // Pinch zoom
       e.preventDefault()
 
-      const distance = getTouchDistance(e)
+      const dist = getTouchDistance(e)
       const center = getTouchCenter(refs.current?.ui, e)
 
       if (
-        distance !== null &&
+        dist !== null &&
         center !== null &&
         refs.current.lastPinchDistance !== null
       ) {
-        const distanceChange = distance - refs.current.lastPinchDistance
-        const threshold = 10 // Minimum distance change to trigger zoom
+        const distanceChange = dist - refs.current.lastPinchDistance
+        const threshold = 10 // Minimum dist change to trigger zoom
 
         if (Math.abs(distanceChange) > threshold) {
           const zoomDirection = distanceChange > 0 ? 1 : -1
           zoom(zoomIndex + zoomDirection, center)
-          refs.current.lastPinchDistance = distance
+          refs.current.lastPinchDistance = dist
         }
       }
     }
   }
 
-  const onTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+  const _onTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
     if (e.touches.length < 2 && refs.current) {
       // Pinch gesture ended
       refs.current.lastPinchDistance = null
@@ -521,15 +534,15 @@ export const Graph = <A, F>({
         style={STYLE}
         width={width}
         height={height}
-        onPointerMove={onPointerMove}
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerLeave={onPointerLeave}
-        onPointerCancel={onPointerLeave}
-        onWheel={onWheel}
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
+        onPointerMove={_onPointerMove}
+        onPointerDown={_onPointerDown}
+        onPointerUp={_onPointerUp}
+        onPointerLeave={_onPointerLeave}
+        onPointerCancel={_onPointerLeave}
+        onWheel={_onWheel}
+        onTouchStart={_onTouchStart}
+        onTouchMove={_onTouchMove}
+        onTouchEnd={_onTouchEnd}
       ></canvas>
       {hover && pointer && renderHover ? (
         <div style={{ position: "relative" }}>

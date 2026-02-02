@@ -6,6 +6,8 @@ import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
 import "./files"
 
+// TODO: color call type
+
 function App() {
   const app = useAppContext()
 

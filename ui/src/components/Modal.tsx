@@ -62,7 +62,7 @@ const Modal: React.FC<{
       <div className={styles.overlay}>
         <div className={styles.container}>
           <div className={styles.content} ref={contentRef}>
-            {children}
+            <div className={styles.children}>{children}</div>
           </div>
         </div>
       </div>

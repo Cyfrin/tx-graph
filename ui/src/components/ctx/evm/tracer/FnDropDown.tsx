@@ -1,13 +1,14 @@
 import React from "react"
 import CopyText from "../../../CopyText"
-import { clip } from "../../../../utils"
+import { CallType } from "../types"
+import Op from "./Op"
 import styles from "./FnDropDown.module.css"
 
 // TODO: fix highlights
 
 const FnDropDown: React.FC<{
   ctx: {
-    type: string
+    type: CallType
     selector?: string
     raw?: { input?: string; output?: string }
   }
@@ -16,7 +17,9 @@ const FnDropDown: React.FC<{
     <div className={styles.component}>
       <div className={styles.row}>
         <div className={styles.label}>type: </div>
-        <div className={styles.val}>{ctx.type}</div>
+        <div className={styles.val}>
+          <Op ctx={ctx} />
+        </div>
       </div>
       {ctx.selector ? (
         <div className={styles.row}>

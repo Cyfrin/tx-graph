@@ -368,7 +368,6 @@ export const Graph = <A, F>({
     return hover
   }
 
-  // TODO: trigger hover on touch
   const _onPointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault()
 

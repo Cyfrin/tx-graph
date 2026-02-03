@@ -388,7 +388,6 @@ function TxPage() {
                 return null
               }
               if (hover.node != null) {
-                // TODO: clean / recycle
                 const obj = objs.get(hover.node)
                 if (obj?.type == "acc") {
                   return renderNode(hover.node, false)

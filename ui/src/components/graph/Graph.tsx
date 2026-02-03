@@ -251,7 +251,7 @@ export const Graph = <A, F>({
     }
   }
 
-  const zoom = (next: number, pointer: Types.Point | null) => {
+  const zoom = (next: number, point: Types.Point | null) => {
     if (next == zoomIndex || !refs.current) {
       return
     }
@@ -263,12 +263,12 @@ export const Graph = <A, F>({
     const oldScale = ZOOMS[zoomIndex]
     const newScale = ZOOMS[nextZoomIndex]
 
-    // Adjust offset to zoom around pointer position
-    if (pointer) {
-      const canvasX = (pointer.x - refs.current.view.left) / oldScale
-      const canvasY = (pointer.y - refs.current.view.top) / oldScale
-      refs.current.view.left = pointer.x - canvasX * newScale
-      refs.current.view.top = pointer.y - canvasY * newScale
+    // Adjust offset to zoom around point position
+    if (point) {
+      const canvasX = (point.x - refs.current.view.left) / oldScale
+      const canvasY = (point.y - refs.current.view.top) / oldScale
+      refs.current.view.left = point.x - canvasX * newScale
+      refs.current.view.top = point.y - canvasY * newScale
     }
 
     setZoomIndex(nextZoomIndex)
@@ -281,7 +281,7 @@ export const Graph = <A, F>({
     if (refs.current) {
       const point = getPointer(refs.current?.ui, e)
       if (point) {
-        const hover: Types.Hover = getHover(pointer)
+        const hover: Types.Hover = getHover(point)
         if (
           onPointerDown &&
           (hover?.node != null || (hover?.arrows && hover?.arrows?.size > 0))

@@ -26,7 +26,6 @@ import styles from "./TxPage.module.css"
 
 // TODO: graph - ETH and token transfers
 // TODO: error handling
-// TODO: hover pin or modal on click
 
 // Must match height in .tracerController
 const TRACER_CONTROLLER_HEIGHT = 60

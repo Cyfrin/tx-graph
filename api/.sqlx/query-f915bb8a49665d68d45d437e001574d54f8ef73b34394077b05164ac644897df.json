@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT chain, address, name, abi, label, src FROM contracts WHERE chain = $1 AND address = $2",
+  "query": "SELECT chain, address, name, abi, label, src, updated_at FROM contracts WHERE chain = $1 AND address = $2",
   "describe": {
     "columns": [
       {
@@ -32,6 +32,11 @@
         "ordinal": 5,
         "name": "src",
         "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
@@ -46,8 +51,9 @@
       true,
       true,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "fd77e50339263f2f04a759be7399c012d2cbe30b1432ba5dd2e50b0357781d9b"
+  "hash": "f915bb8a49665d68d45d437e001574d54f8ef73b34394077b05164ac644897df"
 }

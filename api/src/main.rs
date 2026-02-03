@@ -6,6 +6,7 @@ use axum::{
     routing::{get, post},
 };
 use axum_macros::debug_handler;
+use chrono::{Duration, Utc};
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -44,6 +45,8 @@ struct Contract {
     abi: Option<Value>,
     label: Option<String>,
     src: Option<String>,
+    #[serde(skip_serializing)]
+    updated_at: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 #[derive(Clone, Serialize)]
@@ -118,6 +121,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         abi: res.abi.clone(),
                         label: None,
                         src: res.src.clone(),
+                        updated_at: Some(Utc::now()),
                     };
 
                     let _ = sqlx::query!(
@@ -244,19 +248,40 @@ async fn post_jobs(
 
     let contracts: Vec<Contract> = sqlx::query_as!(
         Contract,
-        "SELECT chain, address, name, abi, label, NULL as src FROM contracts WHERE chain = $1 AND address = ANY($2)",
+        "SELECT chain, address, name, abi, label, NULL as src, updated_at FROM contracts WHERE chain = $1 AND address = ANY($2)",
         req.chain, &addrs.iter().cloned().collect::<Vec<String>>()
     )
     .fetch_all(&pool)
     .await
     .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
+    let one_day_ago = Utc::now() - Duration::days(1);
+
+    // Find addresses not in DB
     let set: HashSet<String> =
         contracts.iter().map(|c| c.address.clone()).collect();
-    let addrs_to_fetch: Vec<String> = addrs
+    let addrs_not_in_db: Vec<String> = addrs
         .iter()
         .filter(|addr| !set.contains(*addr))
         .cloned()
+        .collect();
+
+    // Find contracts with no name that haven't been updated in 1 day
+    let addrs_to_refetch: Vec<String> = contracts
+        .iter()
+        .filter(|c| {
+            c.name.is_none()
+                && c.updated_at
+                    .map(|updated| updated < one_day_ago)
+                    .unwrap_or(true)
+        })
+        .map(|c| c.address.clone())
+        .collect();
+
+    // Combine both lists
+    let addrs_to_fetch: Vec<String> = addrs_not_in_db
+        .into_iter()
+        .chain(addrs_to_refetch.into_iter())
         .collect();
 
     // Send fetch requests to the queue
@@ -365,7 +390,7 @@ async fn get_contract(
 
     let contract = sqlx::query_as!(
         Contract,
-        "SELECT chain, address, name, abi, label, src FROM contracts WHERE chain = $1 AND address = $2",
+        "SELECT chain, address, name, abi, label, src, updated_at FROM contracts WHERE chain = $1 AND address = $2",
         chain, addr
     )
     .fetch_one(&pool)

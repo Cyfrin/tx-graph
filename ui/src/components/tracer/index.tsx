@@ -109,13 +109,15 @@ function Fn<V>({
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        {renderCallType ? renderCallType(call?.ctx) : null}
-        <div className={styles.index} onClick={onClick}>
-          {state.pins.has(call.i) ? (
-            <span className={styles.pin}>x</span>
-          ) : (
-            call.i
-          )}
+        <div className={styles.sticky}>
+          {renderCallType ? renderCallType(call?.ctx) : null}
+          <div className={styles.index} onClick={onClick}>
+            {state.pins.has(call.i) ? (
+              <span className={styles.pin}>x</span>
+            ) : (
+              call.i
+            )}
+          </div>
         </div>
         <Pad depth={call.depth} />
         <div className={styles.call}>

@@ -19,9 +19,21 @@
   height: 20px;
   transition: background-color 0.2s ease;
   cursor: pointer;
+  background-color: var(--bg-color);
 }
 .line:hover {
   background-color: var(--tracer-line-hover-color);
+}
+.sticky {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: sticky;
+  left: 0;
+  background-color: var(--bg-color);
+  z-index: 1;
+  padding-right: 10px;
+  height: 100%;
 }
 .index {
   /* Prevent element from shrinking when x overflows */

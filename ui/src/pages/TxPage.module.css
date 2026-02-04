@@ -97,8 +97,21 @@
   white-space: nowrap;
 }
 .arrowIndex {
+  /* Prevent element from shrinking when x overflows */
+  /* Fixed width for up to 4 digits */
+  min-width: 38px;
+  width: 38px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
   color: var(--tracer-index-color);
-  margin-right: 10px;
+  background-color: var(--bg-dim-color);
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  padding-right: 10px;
+  height: 100%;
 }
 .arrowSrc {
   color: var(--tracer-obj-color);

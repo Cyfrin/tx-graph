@@ -104,11 +104,21 @@ export async function getContract(params: {
   )
 }
 
-export async function batchGetContract(params: {
+export async function batchGetContracts(params: {
   chain: string
   addrs: string[]
 }): Promise<Record<string, TxTypes.ContractInfo | null>> {
-  return {}
+  const res = await Promise.all(
+    params.addrs.map((addr) => getContract({ chain: params.chain, addr })),
+  )
+
+  return params.addrs.reduce(
+    (z, addr, i) => {
+      z[addr] = res[i]
+      return z
+    },
+    {} as Record<string, TxTypes.ContractInfo | null>,
+  )
 }
 
 export async function getEtherscanContract(

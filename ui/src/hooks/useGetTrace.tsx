@@ -22,6 +22,7 @@ export type Data = {
   trace: TracerTypes.Trace<EvmTypes.Evm>
   graph: GraphTypes.Graph
   labels: Record<string, string>
+  addrs: Set<string>
 }
 
 function parse(
@@ -106,10 +107,15 @@ function build(root: TxTypes.TxCall, contracts: TxTypes.ContractInfo[]): Data {
   // Put initial caller into it's own group
   groups.set(0, new Set())
 
+  const addrs = new Set<string>()
+
   graph.dfs<TxTypes.TxCall>(
     root,
     (c) => c?.calls || [],
     (i, d, c) => {
+      addrs.add(c.from)
+      addrs.add(c.to)
+
       for (const addr of [c.from, c.to]) {
         const key = `addr:${addr}`
         if (!ids.has(key)) {

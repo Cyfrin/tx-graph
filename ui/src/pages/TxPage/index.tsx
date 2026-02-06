@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
 import { useWindowSizeContext } from "../../contexts/WindowSize"
+import * as api from "../../api"
 import Splits from "../../components/Splits"
 import {
   Provider as TracerProvider,
@@ -24,6 +25,7 @@ import Modal from "../../components/Modal"
 import Button from "../../components/Button"
 import ArrowDownTray from "../../components/svg/ArrowDownTray"
 import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
+import useAsync from "../../hooks/useAsync"
 import styles from "./index.module.css"
 
 // TODO: graph - ETH and token transfers
@@ -169,6 +171,7 @@ function TxPage() {
   })
   const [checked, setChecked] = useState(false)
   const [modal, setModal] = useState<GraphTypes.Hover | null>(null)
+  const batchGetContracts = useAsync(api.batchGetContracts)
 
   if (getTrace.state.trace.error) {
     return <div>error :(</div>
@@ -178,7 +181,20 @@ function TxPage() {
     return <div>loading...</div>
   }
 
-  const { graph, calls, groups, objs, labels } = getTrace.state.data
+  const { graph, calls, groups, objs, labels, addrs } = getTrace.state.data
+
+  async function onClickDownloadCode() {
+    const { data, error } = await batchGetContracts.exec({
+      chain,
+      addrs: [...addrs.values()],
+    })
+
+    // TODO: toast
+    console.log("error", error)
+
+    if (data) {
+    }
+  }
 
   function onCheck() {
     setChecked(!checked)
@@ -329,7 +345,10 @@ function TxPage() {
                   {getTrace.state.q.fetched} / {getTrace.state.q.total}{" "}
                   contracts
                 </div>
-                <Button disabled={true}>
+                <Button
+                  disabled={batchGetContracts.running || addrs.size == 0}
+                  onClick={onClickDownloadCode}
+                >
                   <ArrowDownTray size={16} />
                 </Button>
               </div>

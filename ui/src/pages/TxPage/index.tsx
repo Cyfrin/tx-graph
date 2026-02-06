@@ -1,28 +1,30 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
-import { useWindowSizeContext } from "../contexts/WindowSize"
-import Splits from "../components/Splits"
+import { useWindowSizeContext } from "../../contexts/WindowSize"
+import Splits from "../../components/Splits"
 import {
   Provider as TracerProvider,
   useTracerContext,
   State as TracerState,
-} from "../contexts/Tracer"
-import { Graph as CanvasGraph } from "../components/graph/Graph"
-import * as GraphTypes from "../components/graph/lib/types"
-import Tracer from "../components/tracer"
-import * as TracerTypes from "../components/tracer/types"
-import FnDef from "../components/tracer/FnDef"
-import FnCall from "../components/tracer/FnCall"
-import Evm from "../components/ctx/evm/tracer/Evm"
-import Op from "../components/ctx/evm/tracer/Op"
-import ContractDropDown from "../components/ctx/evm/tracer/ContractDropDown"
-import FnDropDown from "../components/ctx/evm/tracer/FnDropDown"
-import CopyText from "../components/CopyText"
-import * as EvmTypes from "../components/ctx/evm/types"
-import Checkbox from "../components/Checkbox"
-import Modal from "../components/Modal"
-import { useGetTrace, ObjType } from "../hooks/useGetTrace"
-import styles from "./TxPage.module.css"
+} from "../../contexts/Tracer"
+import { Graph as CanvasGraph } from "../../components/graph/Graph"
+import * as GraphTypes from "../../components/graph/lib/types"
+import Tracer from "../../components/tracer"
+import * as TracerTypes from "../../components/tracer/types"
+import FnDef from "../../components/tracer/FnDef"
+import FnCall from "../../components/tracer/FnCall"
+import Evm from "../../components/ctx/evm/tracer/Evm"
+import Op from "../../components/ctx/evm/tracer/Op"
+import ContractDropDown from "../../components/ctx/evm/tracer/ContractDropDown"
+import FnDropDown from "../../components/ctx/evm/tracer/FnDropDown"
+import CopyText from "../../components/CopyText"
+import * as EvmTypes from "../../components/ctx/evm/types"
+import Checkbox from "../../components/Checkbox"
+import Modal from "../../components/Modal"
+import Button from "../../components/Button"
+import ArrowDownTray from "../../components/svg/ArrowDownTray"
+import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
+import styles from "./index.module.css"
 
 // TODO: graph - ETH and token transfers
 // TODO: error handling
@@ -310,20 +312,27 @@ function TxPage() {
         {(rect) => (
           <div className={styles.tracer}>
             <div className={styles.tracerController}>
-              <div className={styles.tx}>
-                <div className={styles.txHashLabel}>TX hash:</div>
-                <div className={styles.txHash}>
-                  <CopyText text={txHash} val={txHash} />
+              <div className={styles.traceControllerLeft}>
+                <div className={styles.tx}>
+                  <div className={styles.txHashLabel}>TX hash:</div>
+                  <div className={styles.txHash}>
+                    <CopyText text={txHash} val={txHash} />
+                  </div>
+                  <div className={styles.callsCount}>{calls.length} calls</div>
                 </div>
-                <div className={styles.callsCount}>{calls.length} calls</div>
+                <Checkbox checked={checked} onChange={onCheck}>
+                  Pin ETH transfers
+                </Checkbox>
+              </div>
+              <div className={styles.traceControllerRight}>
                 <div className={styles.contractCount}>
                   {getTrace.state.q.fetched} / {getTrace.state.q.total}{" "}
                   contracts
                 </div>
+                <Button disabled={true}>
+                  <ArrowDownTray size={16} />
+                </Button>
               </div>
-              <Checkbox checked={checked} onChange={onCheck}>
-                Pin ETH transfers
-              </Checkbox>
             </div>
             <div className={styles.tracerComponent}>
               <Tracer

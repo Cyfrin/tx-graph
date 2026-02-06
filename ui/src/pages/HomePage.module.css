@@ -92,28 +92,6 @@
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-.button {
-  padding: 0.875rem 1.75rem;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-}
-
-.button:active {
-  transform: translateY(0);
-}
-
 .foundrySection {
   display: flex;
   flex-direction: column;

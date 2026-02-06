@@ -95,6 +95,22 @@ export async function getJobs(params: {
   )
 }
 
+export async function getContract(params: {
+  chain: string
+  addr: string
+}): Promise<TxTypes.ContractInfo | null> {
+  return get<TxTypes.ContractInfo | null>(
+    `${import.meta.env.VITE_API_URL}/contracts/${params.chain}/${params.addr}`,
+  )
+}
+
+export async function batchGetContract(params: {
+  chain: string
+  addrs: string[]
+}): Promise<Record<string, TxTypes.ContractInfo | null>> {
+  return {}
+}
+
 export async function getEtherscanContract(
   addr: string,
 ): Promise<{ abi: any | null; name: string | null }> {

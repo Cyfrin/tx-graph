@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { RPC_CONFIG, RpcConfig } from "../config"
 import * as FileStorage from "../files"
+import Button from "../components/Button"
 import FoundryForm from "../components/FoundryForm"
 import * as FileTypes from "../types/file"
 import styles from "./HomePage.module.css"
@@ -111,9 +112,7 @@ export function HomePage() {
                   placeholder="0x..."
                   autoFocus
                 />
-                <button type="submit" className={styles.button}>
-                  explore
-                </button>
+                <Button type="submit">explore</Button>
               </div>
             </div>
           )}

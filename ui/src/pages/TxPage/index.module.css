@@ -9,7 +9,7 @@
 }
 .tracerController {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   padding: 10px 12px 4px 12px;
   border-bottom: 1px solid #4b4949;
   box-sizing: border-box;
@@ -18,11 +18,16 @@
   overflow-x: auto;
   overflow-y: hidden;
 }
-.tracerComponent {
+.traceControllerLeft {
   display: flex;
   flex-direction: column;
-  padding: 0px 0px 0px 12px;
-  overflow-y: hidden;
+  align-items: flex-start;
+}
+.traceControllerRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
 }
 .tx {
   display: flex;
@@ -40,12 +45,17 @@
 }
 .callsCount {
   white-space: nowrap;
-  margin-right: 10px;
 }
 .contractCount {
   white-space: nowrap;
   margin-left: auto;
   color: var(--secondary-text-color);
+}
+.tracerComponent {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 0px 0px 12px;
+  overflow-y: hidden;
 }
 .objLabel {
   color: var(--tracer-obj-color);

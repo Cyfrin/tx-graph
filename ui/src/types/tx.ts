@@ -33,4 +33,5 @@ export type ContractInfo = {
   name?: string
   abi?: AbiEntry[]
   label?: string
+  src?: string
 }

@@ -253,6 +253,7 @@ function build(root: TxTypes.TxCall, contracts: TxTypes.ContractInfo[]): Data {
     calls,
     graph: graph.build(calls),
     labels,
+    addrs,
   }
 }
 

@@ -1,0 +1,20 @@
+.component {
+  width: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  cursor: pointer;
+}
+.component:hover {
+  color: var(--tracer-fold-hover-color);
+}
+.chevronRight {
+  color: var(--tracer-index-color);
+  transform: rotate(0deg);
+}
+.chevronDown {
+  color: var(--tracer-index-color);
+  transform: rotate(90deg);
+}

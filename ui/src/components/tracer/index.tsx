@@ -1,61 +1,16 @@
 import React, { useState } from "react"
 import { useTracerContext } from "../../contexts/Tracer"
-import Chevron from "../svg/Chevron"
 import * as Types from "./types"
 import VirtualList from "./VirtualList"
 import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
+import Pad from "./Pad"
+import Fold from "./Fold"
 import styles from "./index.module.css"
 
 // Fixed line height (must match line height in .line)
 const LINE_HEIGHT = 20
-
-const Pad: React.FC<{ depth: number }> = ({ depth }) => {
-  if (depth > 0) {
-    // 10px per depth: 9px padding + 1px line
-    const width = depth * 10
-
-    return (
-      <div>
-        <svg width={width} height={LINE_HEIGHT} style={{ display: "block" }}>
-          {Array.from({ length: depth }, (_, i) => (
-            <g key={i}>
-              {/* Vertical line offset by 9px to the right */}
-              <line
-                x1={i * 10 + 9}
-                y1={0}
-                x2={i * 10 + 9}
-                y2={LINE_HEIGHT}
-                stroke="grey"
-                strokeWidth={1}
-              />
-            </g>
-          ))}
-        </svg>
-      </div>
-    )
-  }
-  return null
-}
-
-const Fold: React.FC<{
-  show: boolean
-  hasChildren: boolean
-  onClick: () => void
-}> = ({ show, hasChildren, onClick }) => {
-  return (
-    <div className={styles.fold}>
-      {hasChildren ? (
-        <Chevron
-          size={19}
-          className={show ? styles.chevronDown : styles.chevronRight}
-          onClick={onClick}
-        />
-      ) : null}
-    </div>
-  )
-}
 
 type FnProps<A> = {
   call: Types.Call<A, Types.FnCall>
@@ -119,7 +74,7 @@ function Fn<V>({
             )}
           </div>
         </div>
-        <Pad depth={call.depth} />
+        <Pad depth={call.depth} height={LINE_HEIGHT} />
         <div className={styles.call}>
           <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
           <div className={styles.obj}>

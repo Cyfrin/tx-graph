@@ -56,26 +56,6 @@
   align-items: center;
   color: var(--tracer-func-color);
 }
-.fold {
-  width: 10px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  cursor: pointer;
-}
-.fold:hover {
-  color: var(--tracer-fold-hover-color);
-}
-.chevronRight {
-  color: var(--tracer-index-color);
-  transform: rotate(0deg);
-}
-.chevronDown {
-  color: var(--tracer-index-color);
-  transform: rotate(90deg);
-}
 .obj {
   color: var(--tracer-obj-color);
 }

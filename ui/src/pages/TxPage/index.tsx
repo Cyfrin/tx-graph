@@ -26,6 +26,7 @@ import Button from "../../components/Button"
 import ArrowDownTray from "../../components/svg/ArrowDownTray"
 import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
 import useAsync from "../../hooks/useAsync"
+import JSZip from "jszip"
 import styles from "./index.module.css"
 
 // TODO: graph - ETH and token transfers
@@ -184,15 +185,53 @@ function TxPage() {
   const { graph, calls, groups, objs, labels, addrs } = getTrace.state.data
 
   async function onClickDownloadCode() {
+    if (batchGetContracts.running) {
+      return
+    }
+
     const { data, error } = await batchGetContracts.exec({
       chain,
       addrs: [...addrs.values()],
     })
 
     // TODO: toast
-    console.log("error", error)
+    if (error) {
+      console.log("error", error)
+      return
+    }
 
-    if (data) {
+    const files = []
+    for (const [addr, src] of Object.entries(data ?? {})) {
+      if (src) {
+        const flat = Object.entries(src.sources)
+          .map(([name, code]) => `// ${name}\n${code?.content}`)
+          .join("\n")
+
+        if (flat.length > 0) {
+          files.push({
+            name: `${addr}.sol`,
+            data: flat,
+          })
+        }
+      }
+    }
+
+    if (files.length > 0) {
+      const zip = new JSZip()
+      for (const f of files) {
+        zip.file(f.name, f.data)
+      }
+
+      // Generate and download zip file
+      const blob = await zip.generateAsync({ type: "blob" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `contracts_${txHash.slice(0, 8)}...${txHash.slice(-5)}.zip`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
     }
   }
 
@@ -346,7 +385,11 @@ function TxPage() {
                   contracts
                 </div>
                 <Button
-                  disabled={batchGetContracts.running || addrs.size == 0}
+                  disabled={
+                    batchGetContracts.running ||
+                    addrs.size == 0 ||
+                    chain == "foundry-test"
+                  }
                   onClick={onClickDownloadCode}
                 >
                   <ArrowDownTray size={16} />

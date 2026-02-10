@@ -35,3 +35,14 @@ export type ContractInfo = {
   label?: string
   src?: string
 }
+
+export type Source = {
+  language: string
+  sources: Record<string, { content: string }>
+  settings: {
+    optimizer: { enabled: boolean; runs: number }
+    evmVersion: string
+    outputSelection: Record<string, Record<string, string[]>>
+    // libraries: Record<string, Record<string, string>>
+  }
+}

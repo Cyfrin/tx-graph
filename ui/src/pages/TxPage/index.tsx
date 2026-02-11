@@ -201,15 +201,15 @@ function TxPage() {
     }
 
     const files = []
-    for (const [addr, src] of Object.entries(data ?? {})) {
-      if (src) {
-        const flat = Object.entries(src.sources)
+    for (const [addr, c] of Object.entries(data ?? {})) {
+      if (c?.src) {
+        const flat = Object.entries(c.src.sources)
           .map(([name, code]) => `// ${name}\n${code?.content}`)
           .join("\n")
 
         if (flat.length > 0) {
           files.push({
-            name: `${addr}.sol`,
+            name: `${c?.name || "?"}_${addr}.sol`,
             data: flat,
           })
         }

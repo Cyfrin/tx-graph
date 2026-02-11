@@ -107,7 +107,9 @@ export async function getContract(params: {
 export async function batchGetContracts(params: {
   chain: string
   addrs: string[]
-}): Promise<Record<string, TxTypes.Source | null>> {
+}): Promise<
+  Record<string, { name: string | null; src: TxTypes.Source | null } | null>
+> {
   const res = await Promise.all(
     params.addrs.map((addr) => getContract({ chain: params.chain, addr })),
   )
@@ -119,7 +121,10 @@ export async function batchGetContracts(params: {
         try {
           // Remove extra { and }
           const s = res[i].src.slice(1, -1)
-          z[addr] = JSON.parse(s)
+          z[addr] = {
+            name: res[i].name || null,
+            src: JSON.parse(s),
+          }
           return z
         } catch (error) {
           console.log("JSON parse error:", addr, error)
@@ -129,7 +134,10 @@ export async function batchGetContracts(params: {
       z[addr] = null
       return z
     },
-    {} as Record<string, TxTypes.Source | null>,
+    {} as Record<
+      string,
+      { name: string | null; src: TxTypes.Source | null } | null
+    >,
   )
 }
 

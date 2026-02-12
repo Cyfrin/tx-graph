@@ -79,13 +79,24 @@ export function HomePage() {
               value={inputs.chain}
               onChange={(e) => setChain(e.target.value)}
             >
-              {Object.entries(RPC_CONFIG).map(
-                ([key, cfg]: [string, RpcConfig]) => (
-                  <option key={key} value={key}>
-                    {cfg.text}
-                  </option>
-                ),
-              )}
+              <optgroup label="mainnet">
+                {Object.entries(RPC_CONFIG)
+                  .filter(([_, cfg]) => !cfg.test)
+                  .map(([key, cfg]: [string, RpcConfig]) => (
+                    <option key={key} value={key}>
+                      {cfg.text}
+                    </option>
+                  ))}
+              </optgroup>
+              <optgroup label="test">
+                {Object.entries(RPC_CONFIG)
+                  .filter(([_, cfg]) => cfg.test)
+                  .map(([key, cfg]: [string, RpcConfig]) => (
+                    <option key={key} value={key}>
+                      {cfg.text}
+                    </option>
+                  ))}
+              </optgroup>
             </select>
           </div>
 

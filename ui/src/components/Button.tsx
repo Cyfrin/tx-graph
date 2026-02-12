@@ -6,12 +6,19 @@ const Button: React.FC<{
   onClick?: () => void
   children?: React.ReactNode
   disabled?: boolean
-}> = ({ type = "button", disabled = false, onClick, children }) => {
+  className?: string
+}> = ({
+  type = "button",
+  disabled = false,
+  onClick,
+  children,
+  className = "",
+}) => {
   return (
     <button
       type={type}
       disabled={disabled}
-      className={styles.component}
+      className={`${styles.component} ${className}`}
       onClick={onClick}
     >
       {children}

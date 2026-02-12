@@ -11,8 +11,8 @@ export function HomePage() {
   const navigate = useNavigate()
 
   const [inputs, setInputs] = useState({
-    chain: "eth-mainnet",
-    // chain: "foundry-test",
+    // chain: "eth-mainnet",
+    chain: "foundry-test",
     txHash: "",
   })
   const [fs, setFiles] = useState<Record<string, FileTypes.File[]>>({})
@@ -96,9 +96,9 @@ export function HomePage() {
                 setABIFiles={setABIFiles}
                 abis={get("abi") || []}
               />
-              <button type="submit" className={styles.button}>
-                Explore Transaction
-              </button>
+              <Button type="submit" className={styles.submit}>
+                explore
+              </Button>
             </div>
           ) : (
             <div className={styles.formGroup}>

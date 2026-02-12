@@ -98,6 +98,11 @@
   gap: 1rem;
 }
 
+.submit {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .footer {
   margin-top: 2rem;
   color: #7a7a7a;

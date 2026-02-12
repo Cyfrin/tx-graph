@@ -11,8 +11,8 @@ export function HomePage() {
   const navigate = useNavigate()
 
   const [inputs, setInputs] = useState({
-    // chain: "eth-mainnet",
-    chain: "foundry-test",
+    chain: "eth-mainnet",
+    // chain: "foundry-test",
     txHash: "",
   })
   const [fs, setFiles] = useState<Record<string, FileTypes.File[]>>({})

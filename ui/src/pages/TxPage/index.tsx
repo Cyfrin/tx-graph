@@ -163,12 +163,17 @@ function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
   const chain = q.get("chain") || ""
+  const rpcUrl = localStorage.getItem("txgraph_rpc_url") || undefined
+  const etherscanApiKey =
+    localStorage.getItem("txgraph_etherscan_api_key") || undefined
 
   const windowSize = useWindowSizeContext()
   const tracer = useTracerContext()
   const getTrace = useGetTrace({
     txHash,
     chain,
+    rpcUrl,
+    etherscanApiKey,
   })
   const [checked, setChecked] = useState(false)
   const [modal, setModal] = useState<GraphTypes.Hover | null>(null)

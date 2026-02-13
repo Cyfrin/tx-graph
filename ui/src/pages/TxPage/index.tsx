@@ -388,6 +388,7 @@ function TxPage() {
                   disabled={
                     batchGetContracts.running ||
                     addrs.size == 0 ||
+                    getTrace.state.q.running ||
                     chain == "foundry-test"
                   }
                   onClick={onClickDownloadCode}

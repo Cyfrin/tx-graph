@@ -267,6 +267,7 @@ export type State = {
     total: number
     fetched: number
     contracts: TxTypes.ContractInfo[]
+    running: boolean
   }
   data: Data | null
 }
@@ -282,6 +283,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
       total: 0,
       fetched: 0,
       contracts: [],
+      running: false,
     },
     data: null,
   }
@@ -376,6 +378,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
               total: contracts.length,
               fetched: contracts.length,
               contracts,
+              running: false,
             },
             data: build(data, contracts),
           }))
@@ -386,6 +389,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
               total: addrs.size,
               fetched: 0,
               contracts: [],
+              running: true,
             },
             data: build(data, []),
           }))
@@ -403,6 +407,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
               total: addrs.size,
               fetched: contracts.length,
               contracts,
+              running: job_ids.length > 0,
             },
             data: b,
           }))
@@ -439,6 +444,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
                       total: addrs.size,
                       fetched: all.length,
                       contracts: all,
+                      running: !stop,
                     },
                     data: b,
                   }))

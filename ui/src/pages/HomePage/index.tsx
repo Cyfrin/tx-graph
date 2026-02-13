@@ -1,18 +1,19 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { RPC_CONFIG, RpcConfig } from "../config"
-import * as FileStorage from "../files"
-import Button from "../components/Button"
-import FoundryForm from "../components/FoundryForm"
-import * as FileTypes from "../types/file"
-import styles from "./HomePage.module.css"
+import { RPC_CONFIG, RpcConfig } from "../../config"
+import * as FileStorage from "../../files"
+import Button from "../../components/Button"
+import FoundryForm from "./FoundryForm"
+import * as FileTypes from "../../types/file"
+import styles from "./index.module.css"
 
 export function HomePage() {
   const navigate = useNavigate()
 
   const [inputs, setInputs] = useState({
-    chain: "eth-mainnet",
-    // chain: "foundry-test",
+    // chain: "eth-mainnet",
+    // TODO:switch back to eth-mainnet
+    chain: "foundry-test",
     txHash: "",
     rpcUrl: localStorage.getItem("txgraph_rpc_url") || "",
     etherscanApiKey: localStorage.getItem("txgraph_etherscan_api_key") || "",

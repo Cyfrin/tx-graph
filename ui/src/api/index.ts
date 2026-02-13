@@ -154,7 +154,7 @@ export async function getEtherscanContract(
   const res = await get<{ result: EtherscanContractInfo[] }>(
     `https://api.etherscan.io/v2/api?chainid=${chainId}&module=contract&action=getsourcecode&address=${addr}&apikey=${key}`,
   )
-  console.log(res)
+  
   // @ts-ignore
   const abi = res?.result?.[0]?.ABI || ""
   // @ts-ignore

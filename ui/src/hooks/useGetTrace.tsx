@@ -399,7 +399,7 @@ export function useGetTrace(params: {
           const addrList = [...addrs.values()]
           const results = await Promise.all(
             addrList.map((addr) =>
-              api.getEtherscanContract(addr, params.etherscanApiKey),
+              api.getEtherscanContract(addr, params.chain, params.etherscanApiKey),
             ),
           )
 

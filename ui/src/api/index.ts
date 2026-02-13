@@ -145,13 +145,16 @@ export async function batchGetContracts(params: {
 
 export async function getEtherscanContract(
   addr: string,
+  chain: any,
   apiKey?: string,
 ): Promise<{ abi: any | null; name: string | null }> {
   const key = apiKey || import.meta.env.VITE_ETHERSCAN_API_KEY
+  const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG]
+  const chainId = cfg?.chainId
   const res = await get<{ result: EtherscanContractInfo[] }>(
-    `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${addr}&apikey=${key}`,
+    `https://api.etherscan.io/v2/api?chainid=${chainId}&module=contract&action=getsourcecode&address=${addr}&apikey=${key}`,
   )
-
+  console.log(res)
   // @ts-ignore
   const abi = res?.result?.[0]?.ABI || ""
   // @ts-ignore

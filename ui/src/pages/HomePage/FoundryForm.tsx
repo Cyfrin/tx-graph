@@ -1,4 +1,4 @@
-import * as FileTypes from "../types/file"
+import * as FileTypes from "../../types/file"
 import styles from "./FoundryForm.module.css"
 
 const FoundryForm: React.FC<{

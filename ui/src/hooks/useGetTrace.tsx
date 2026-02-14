@@ -323,7 +323,11 @@ export function useGetTrace(params: {
           }))
           return { data: res }
         } else {
-          const res = await api.getTxTrace(params.chain, params.txHash, params.rpcUrl)
+          const res = await api.getTxTrace(
+            params.chain,
+            params.txHash,
+            params.rpcUrl,
+          )
           assert(!!res?.result, "Get trace returned null")
           setState((state) => ({
             ...state,
@@ -395,6 +399,7 @@ export function useGetTrace(params: {
               total: addrs.size,
               fetched: 0,
               contracts: [],
+              running: true,
             },
             data: build(data, []),
           }))
@@ -402,18 +407,20 @@ export function useGetTrace(params: {
           const addrList = [...addrs.values()]
           const results = await Promise.all(
             addrList.map((addr) =>
-              api.getEtherscanContract(addr, params.chain, params.etherscanApiKey),
+              api.getEtherscanContract(
+                addr,
+                params.chain,
+                params.etherscanApiKey,
+              ),
             ),
           )
 
-          const contracts: TxTypes.ContractInfo[] = addrList.map(
-            (addr, i) => ({
-              chain: params.chain,
-              address: addr,
-              name: results[i].name || undefined,
-              abi: results[i].abi || undefined,
-            }),
-          )
+          const contracts: TxTypes.ContractInfo[] = addrList.map((addr, i) => ({
+            chain: params.chain,
+            address: addr,
+            name: results[i].name || undefined,
+            abi: results[i].abi || undefined,
+          }))
 
           setState((state) => ({
             ...state,
@@ -421,6 +428,7 @@ export function useGetTrace(params: {
               total: addrs.size,
               fetched: contracts.length,
               contracts,
+              running: false,
             },
             data: build(data, contracts),
           }))

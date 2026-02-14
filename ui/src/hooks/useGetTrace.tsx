@@ -272,7 +272,12 @@ export type State = {
   data: Data | null
 }
 
-export function useGetTrace(params: { txHash: string; chain: string }) {
+export function useGetTrace(params: {
+  txHash: string
+  chain: string
+  rpcUrl?: string
+  etherscanApiKey?: string
+}) {
   const STATE: State = {
     trace: {
       running: false,
@@ -318,7 +323,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
           }))
           return { data: res }
         } else {
-          const res = await api.getTxTrace(params.chain, params.txHash)
+          const res = await api.getTxTrace(params.chain, params.txHash, params.rpcUrl)
           assert(!!res?.result, "Get trace returned null")
           setState((state) => ({
             ...state,
@@ -379,6 +384,43 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
               fetched: contracts.length,
               contracts,
               running: false,
+            },
+            data: build(data, contracts),
+          }))
+        } else if (params.etherscanApiKey) {
+          // Use etherscan API directly when user provides an API key
+          setState((state) => ({
+            ...state,
+            q: {
+              total: addrs.size,
+              fetched: 0,
+              contracts: [],
+            },
+            data: build(data, []),
+          }))
+
+          const addrList = [...addrs.values()]
+          const results = await Promise.all(
+            addrList.map((addr) =>
+              api.getEtherscanContract(addr, params.chain, params.etherscanApiKey),
+            ),
+          )
+
+          const contracts: TxTypes.ContractInfo[] = addrList.map(
+            (addr, i) => ({
+              chain: params.chain,
+              address: addr,
+              name: results[i].name || undefined,
+              abi: results[i].abi || undefined,
+            }),
+          )
+
+          setState((state) => ({
+            ...state,
+            q: {
+              total: addrs.size,
+              fetched: contracts.length,
+              contracts,
             },
             data: build(data, contracts),
           }))
@@ -472,7 +514,7 @@ export function useGetTrace(params: { txHash: string; chain: string }) {
     return () => {
       stop = true
     }
-  }, [params.txHash, params.chain])
+  }, [params.txHash, params.chain, params.rpcUrl, params.etherscanApiKey])
 
   return {
     state,

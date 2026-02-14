@@ -51,6 +51,7 @@ function setCache<T>(key: string, data: T): void {
 export async function getTxTrace(
   chain: string,
   txHash: string,
+  rpcUrl?: string,
 ): Promise<{ result: TxTypes.TxCall }> {
   const cacheKey = `tx:${chain}:${txHash}`
   const cached = getCached<{ result: TxTypes.TxCall }>(cacheKey)
@@ -60,9 +61,10 @@ export async function getTxTrace(
 
   // @ts-ignore
   const cfg = RPC_CONFIG[chain]
-  assert(cfg, `Config for ${chain} is empty`)
+  const url = rpcUrl || cfg?.url
+  assert(url, `RPC URL for ${chain} is empty`)
 
-  const res = await post<any, { result: TxTypes.TxCall }>(cfg.url, {
+  const res = await post<any, { result: TxTypes.TxCall }>(url, {
     jsonrpc: "2.0",
     method: "debug_traceTransaction",
     params: [txHash, { tracer: "callTracer" }],
@@ -143,11 +145,16 @@ export async function batchGetContracts(params: {
 
 export async function getEtherscanContract(
   addr: string,
+  chain: any,
+  apiKey?: string,
 ): Promise<{ abi: any | null; name: string | null }> {
+  const key = apiKey || import.meta.env.VITE_ETHERSCAN_API_KEY
+  const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG]
+  const chainId = cfg?.chainId
   const res = await get<{ result: EtherscanContractInfo[] }>(
-    `https://api.etherscan.io/api?module=contract&action=getsourcecode&address=${addr}&apikey=${import.meta.env.VITE_ETHERSCAN_API_KEY}`,
+    `https://api.etherscan.io/v2/api?chainid=${chainId}&module=contract&action=getsourcecode&address=${addr}&apikey=${key}`,
   )
-
+  
   // @ts-ignore
   const abi = res?.result?.[0]?.ABI || ""
   // @ts-ignore

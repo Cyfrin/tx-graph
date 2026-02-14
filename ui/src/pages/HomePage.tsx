@@ -14,6 +14,8 @@ export function HomePage() {
     chain: "eth-mainnet",
     // chain: "foundry-test",
     txHash: "",
+    rpcUrl: localStorage.getItem("txgraph_rpc_url") || "",
+    etherscanApiKey: localStorage.getItem("txgraph_etherscan_api_key") || "",
   })
   const [fs, setFiles] = useState<Record<string, FileTypes.File[]>>({})
 
@@ -63,6 +65,11 @@ export function HomePage() {
     } else {
       const txHash = inputs.txHash.trim()
       if (txHash != "") {
+        localStorage.setItem("txgraph_rpc_url", inputs.rpcUrl.trim())
+        localStorage.setItem(
+          "txgraph_etherscan_api_key",
+          inputs.etherscanApiKey.trim(),
+        )
         navigate(`/tx/${inputs.txHash}?chain=${inputs.chain}`)
       }
     }
@@ -112,20 +119,48 @@ export function HomePage() {
               </Button>
             </div>
           ) : (
-            <div className={styles.formGroup}>
-              <label className={styles.label}>transaction hash</label>
-              <div className={styles.inputWrapper}>
+            <>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>transaction hash</label>
+                <div className={styles.inputWrapper}>
+                  <input
+                    className={styles.input}
+                    type="text"
+                    value={inputs.txHash}
+                    onChange={(e) => setTxHash(e.target.value)}
+                    placeholder="0x..."
+                    autoFocus
+                  />
+                  <Button type="submit">explore</Button>
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>rpc url (optional)</label>
                 <input
                   className={styles.input}
                   type="text"
-                  value={inputs.txHash}
-                  onChange={(e) => setTxHash(e.target.value)}
-                  placeholder="0x..."
-                  autoFocus
+                  value={inputs.rpcUrl}
+                  onChange={(e) =>
+                    setInputs({ ...inputs, rpcUrl: e.target.value })
+                  }
+                  placeholder="https://..."
                 />
-                <Button type="submit">explore</Button>
               </div>
-            </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>
+                  etherscan api key (optional)
+                </label>
+                <input
+                  className={styles.input}
+                  type="text"
+                  value={inputs.etherscanApiKey}
+                  onChange={(e) =>
+                    setInputs({ ...inputs, etherscanApiKey: e.target.value })
+                  }
+                  placeholder="API key"
+                />
+              </div>
+            </>
           )}
         </form>
       </div>

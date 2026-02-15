@@ -5,7 +5,6 @@ import { Provider as WindowSizeProvider } from "./contexts/WindowSize"
 import { Provider as FileWatchProvider } from "./contexts/FileWatch"
 import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
-import "./files"
 
 function App() {
   const app = useAppContext()

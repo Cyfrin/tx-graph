@@ -1,5 +1,5 @@
 import * as TxTypes from "./types/tx"
-import * as FileStorage from "./files"
+import * as FileTypes from "./types/file"
 
 type Trace = {
   depth: number
@@ -66,9 +66,9 @@ function dfs<A>(
 //  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
 
 // Build TxCall
-export function getTrace(): TxTypes.TxCall | null {
+export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
   // @ts-ignore
-  const tests: Tests = FileStorage.get("trace")?.[0]?.data
+  const tests: Tests = mem.get("trace")?.[0]?.data
   if (!tests) {
     return null
   }
@@ -129,14 +129,17 @@ export function getTrace(): TxTypes.TxCall | null {
   return txCall
 }
 
-export function getContracts(addrs: string[]): TxTypes.ContractInfo[] {
+export function getContracts(
+  mem: FileTypes.MemStore,
+  addrs: string[],
+): TxTypes.ContractInfo[] {
   // @ts-ignore
-  const tests: Tests = FileStorage.get("trace")?.[0]?.data
+  const tests: Tests = mem.get("trace")?.[0]?.data
   if (!tests) {
     return []
   }
 
-  const abis = FileStorage.get("abi") || []
+  const abis = mem.get("abi") || []
   // contract name => ABI
   const files = new Map(abis.map((f) => [f.name, f.data]))
   const addrToAbi = new Map()

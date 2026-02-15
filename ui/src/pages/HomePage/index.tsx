@@ -15,6 +15,7 @@ export function HomePage() {
     // TODO:switch back to eth-mainnet
     chain: "foundry-test",
     txHash: "",
+    // TODO: App context
     rpcUrl: localStorage.getItem("txgraph_rpc_url") || "",
     etherscanApiKey: localStorage.getItem("txgraph_etherscan_api_key") || "",
   })

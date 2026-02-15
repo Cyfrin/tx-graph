@@ -55,14 +55,14 @@ function reducer(state: State = STATE, action: Action): State {
   }
 }
 
-const AppContext = createContext({
+const Context = createContext({
   state: STATE,
   init: () => {},
   setMode: (mode: Mode) => {},
 })
 
 export function useAppContext() {
-  return useContext(AppContext)
+  return useContext(Context)
 }
 
 function saveToLocalStorage(state: State) {
@@ -138,5 +138,5 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     [state],
   )
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>
+  return <Context.Provider value={value}>{children}</Context.Provider>
 }

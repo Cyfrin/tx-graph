@@ -148,13 +148,14 @@ export async function getEtherscanContract(
   chain: any,
   apiKey?: string,
 ): Promise<{ abi: any | null; name: string | null }> {
+  // TODO: assert apiKey not empty
   const key = apiKey || import.meta.env.VITE_ETHERSCAN_API_KEY
   const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG]
   const chainId = cfg?.chainId
   const res = await get<{ result: EtherscanContractInfo[] }>(
     `https://api.etherscan.io/v2/api?chainid=${chainId}&module=contract&action=getsourcecode&address=${addr}&apikey=${key}`,
   )
-  
+
   // @ts-ignore
   const abi = res?.result?.[0]?.ABI || ""
   // @ts-ignore

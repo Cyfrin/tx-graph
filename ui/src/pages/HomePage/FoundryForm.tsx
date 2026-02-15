@@ -1,11 +1,42 @@
 import * as FileTypes from "../../types/file"
+import Button from "../../components/Button"
 import styles from "./FoundryForm.module.css"
+
+const FILE_SYS_ACCESS = !!(
+  // @ts-ignore
+  (window?.showDirectoryPicker && window?.showOpenFilePicker)
+)
 
 const FoundryForm: React.FC<{
   setTraceFile: (file: FileTypes.File) => void
   setABIFiles: (files: FileTypes.File[]) => void
   abis: FileTypes.File[]
 }> = ({ setTraceFile, setABIFiles, abis }) => {
+  const selectTraceFile = async () => {
+    try {
+      // @ts-ignore
+      const [handle]: FileSystemFileHandle[] = await window.showOpenFilePicker()
+      const file = await handle.getFile()
+      const contents = await file.text()
+
+      console.log(file.name)
+      console.log(contents)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const selectAbiFiles = async () => {
+    try {
+      const handle: FileSystemDirectoryHandle =
+        // @ts-ignore
+        await window.showDirectoryPicker()
+      console.log(handle)
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, files } = e.target
 
@@ -22,6 +53,7 @@ const FoundryForm: React.FC<{
             data: json,
           })
         } catch (error) {
+          // TODO: toast
           alert(`Failed to parse JSON: ${file.name}`)
           break
         }
@@ -48,18 +80,26 @@ const FoundryForm: React.FC<{
             {`--match-path test/MyTest.t.sol -vvvv --json > out.json`}
           </div>
         </div>
-        <input type="file" name="trace" onChange={onChange} />
+        {FILE_SYS_ACCESS ? (
+          <Button onClick={selectTraceFile}>Choose File</Button>
+        ) : (
+          <input type="file" name="trace" onChange={onChange} />
+        )}
       </div>
       <div className={styles.input}>
         <div>2. Upload ABI files</div>
-        <input
-          type="file"
-          name="abi"
-          // @ts-ignore
-          webkitdirectory=""
-          multiple
-          onChange={onChange}
-        />
+        {FILE_SYS_ACCESS ? (
+          <Button onClick={selectAbiFiles}>Choose File</Button>
+        ) : (
+          <input
+            type="file"
+            name="abi"
+            // @ts-ignore
+            webkitdirectory=""
+            multiple
+            onChange={onChange}
+          />
+        )}
       </div>
       <ul style={{ maxHeight: 300, overflowY: "auto" }}>
         {abis.map((file, i) => (

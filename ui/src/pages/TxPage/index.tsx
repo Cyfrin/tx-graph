@@ -163,6 +163,7 @@ function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
   const chain = q.get("chain") || ""
+  // TODO: move to App
   const rpcUrl = localStorage.getItem("txgraph_rpc_url") || undefined
   const etherscanApiKey =
     localStorage.getItem("txgraph_etherscan_api_key") || undefined

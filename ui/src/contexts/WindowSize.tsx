@@ -5,10 +5,10 @@ export type State = {
   height: number
 }
 
-const WindowSizeContext = createContext<State | null>(null)
+const Context = createContext<State | null>(null)
 
 export function useWindowSizeContext() {
-  return useContext(WindowSizeContext)
+  return useContext(Context)
 }
 
 export const Provider: React.FC<{ children: React.ReactNode }> = ({
@@ -33,9 +33,5 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [])
 
-  return (
-    <WindowSizeContext.Provider value={state}>
-      {children}
-    </WindowSizeContext.Provider>
-  )
+  return <Context.Provider value={state}>{children}</Context.Provider>
 }

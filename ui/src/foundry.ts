@@ -65,6 +65,8 @@ function dfs<A>(
 
 //  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
 
+// TODO: fix - contracts / interfaces not shown on trace and graph
+
 // Build TxCall
 export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
   // @ts-ignore

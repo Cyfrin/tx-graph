@@ -138,7 +138,7 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
   })
 
   useEffect(() => {
-    if (Object.keys(state.handles).length == 0) {
+    if (state.handles.size == 0) {
       return
     }
 
@@ -146,11 +146,8 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
       const snapshot = await snap(state.handles)
 
       // Compare snapshots
-      for (const [tag, files] of state.files.entries()) {
-        const sub = snapshot.get(tag)
-        if (!sub) {
-          continue
-        }
+      for (const [tag, sub] of snapshot.entries()) {
+        const files = state.files.get(tag) || new Map()
 
         // Diff
         const curr = new Set(sub.keys())
@@ -158,19 +155,23 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
         const added = new Set([...curr].filter((x) => !prev.has(x)))
         const removed = new Set([...prev].filter((x) => !curr.has(x)))
         const updated = new Set(
-          [...files.values()].filter((f) => {
-            const next = sub.get(f.path)
-            if (next) {
-              return next.size != f.size || next.lastModified != f.lastModified
-            }
-            return false
-          }),
+          [...files.values()]
+            .filter((f) => {
+              const next = sub.get(f.path)
+              if (next) {
+                return (
+                  next.size != f.size || next.lastModified != f.lastModified
+                )
+              }
+              return false
+            })
+            .map((f) => f.path),
         )
 
         if (added.size > 0 || removed.size > 0 || updated.size > 0) {
           const data: Map<string, FileTypes.File> = new Map(files)
 
-          const changed = new Set(...added, ...updated)
+          const changed = new Set([...added, ...updated])
           await Promise.all(
             [...changed].map(async (p) => {
               const f = sub.get(p)
@@ -209,9 +210,9 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     }, 3000)
 
     return () => {
+      // TODO: check if infinite loop (set state => unmount + mount)
       clearInterval(id)
     }
-    // TODO: state.version?
   }, [state])
 
   function get(tag: string): FileTypes.File[] {
@@ -239,9 +240,12 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     tag: string,
     handle: FileSystemDirectoryHandle | FileSystemFileHandle,
   ) {
+    const handles = new Map(state.handles)
+    handles.set(tag, handle)
+
     setState((state) => ({
       ...state,
-      handles: { ...state.handles, [tag]: handle },
+      handles,
     }))
   }
 

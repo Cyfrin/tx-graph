@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { RPC_CONFIG, RpcConfig } from "../../config"
-import * as FileStorage from "../../files"
+import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
 import FoundryForm from "./FoundryForm"
 import * as FileTypes from "../../types/file"
@@ -19,19 +19,7 @@ export function HomePage() {
     rpcUrl: localStorage.getItem("txgraph_rpc_url") || "",
     etherscanApiKey: localStorage.getItem("txgraph_etherscan_api_key") || "",
   })
-  const [fs, setFiles] = useState<Record<string, FileTypes.File[]>>({})
-
-  const set = (key: string, files: FileTypes.File[]) => {
-    setFiles({
-      ...fs,
-      [key]: files,
-    })
-    FileStorage.set(key, files)
-  }
-
-  const get = (key: string) => {
-    return fs[key] || null
-  }
+  const fileWatch = useFileWatchContext()
 
   const setChain = (chain: string) => {
     setInputs({
@@ -47,19 +35,11 @@ export function HomePage() {
     })
   }
 
-  const setTraceFile = (file: FileTypes.File) => {
-    set("trace", [file])
-  }
-
-  const setABIFiles = (files: FileTypes.File[]) => {
-    set("abi", files)
-  }
-
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (inputs.chain == "foundry-test") {
-      const trace = get("trace")?.[0] || null
+      const trace = fileWatch.get("trace")?.[0] || null
       if (trace != null) {
         // Need none empty tx hash for /tx to render
         navigate(`/tx/0x00?chain=foundry-test`)
@@ -76,6 +56,9 @@ export function HomePage() {
       }
     }
   }
+
+  // TODO: remove
+  console.log("watch", fileWatch.state)
 
   return (
     <div className={styles.component}>
@@ -112,9 +95,9 @@ export function HomePage() {
           {inputs.chain == "foundry-test" ? (
             <div className={styles.foundrySection}>
               <FoundryForm
-                setTraceFile={setTraceFile}
-                setABIFiles={setABIFiles}
-                abis={get("abi") || []}
+                setTraceFile={(f) => fileWatch.set("trace", [f])}
+                setABIFiles={(fs) => fileWatch.set("abi", fs)}
+                abis={fileWatch.get("abi")}
               />
               <Button type="submit" className={styles.submit}>
                 explore

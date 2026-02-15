@@ -126,8 +126,8 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
       )
       // compare snapshots
       // if changed
-      //    update tags => file path
-      //    file path => content
+      //    update tags => file path (remove delete files + add added files)
+      //    update file path => content
     }, 3000)
 
     return () => {

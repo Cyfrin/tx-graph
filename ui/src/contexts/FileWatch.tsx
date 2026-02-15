@@ -7,20 +7,23 @@ import React, {
 } from "react"
 import * as FileTypes from "../types/file"
 
+export type FileHandle = {
+  path: string
+  lastModified: number
+  size: number
+  handle: FileSystemFileHandle
+}
+
 export type State = {
-  // TODO: remove tag?
-  // tag => file paths
-  tags: Record<string, string[]>
-  // file path => file
-  files: Record<string, FileTypes.File>
+  // tag => files
+  files: Map<string, Map<string, FileTypes.File>>
   // tag => file handle
-  handles: Record<string, FileSystemDirectoryHandle | FileSystemFileHandle>
+  handles: Map<string, FileSystemDirectoryHandle | FileSystemFileHandle>
 }
 
 const STATE: State = {
-  tags: {},
-  files: {},
-  handles: {},
+  files: new Map(),
+  handles: new Map(),
 }
 
 const Context = createContext({
@@ -31,6 +34,7 @@ const Context = createContext({
     _tag: string,
     _handle: FileSystemDirectoryHandle | FileSystemFileHandle,
   ) => {},
+  unwatch: (_tag: string) => {},
   reset: () => {},
 })
 
@@ -38,14 +42,7 @@ export function useFileWatchContext() {
   return useContext(Context)
 }
 
-async function walk(handle: FileSystemDirectoryHandle): Promise<
-  {
-    path: string
-    lastModified: number
-    size: number
-    handle: FileSystemFileHandle
-  }[]
-> {
+async function walk(handle: FileSystemDirectoryHandle): Promise<FileHandle[]> {
   // BFS
   const q: {
     path: string
@@ -95,36 +92,75 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, setState] = useState<State>({
-    tags: {},
-    files: {},
-    handles: {},
+    files: new Map(),
+    handles: new Map(),
   })
 
   useEffect(() => {
-    const entries = Object.entries(state.handles)
-    if (entries.length == 0) {
+    if (Object.keys(state.handles).length == 0) {
       return
     }
 
     const id = setInterval(async () => {
-      const files = []
+      // tag => path => file
+      const snapshot: Map<string, Map<string, FileTypes.File>> = new Map()
+
       await Promise.all(
-        entries.map(async ([tag, handle]) => {
+        [...state.handles.entries()].map(async ([tag, handle]) => {
           if (handle.kind == "file") {
             const file = await handle.getFile()
-            files.push({
+
+            const map = new Map()
+            map.set(file.name, {
               // TODO: path?
               path: file.name,
               lastModified: file.lastModified,
               size: file.size,
               handle,
             })
+
+            snapshot.set(tag, map)
           } else if (handle.kind == "directory") {
-            files.push(...(await walk(handle)))
+            const files = await walk(handle)
+
+            const map = new Map()
+            for (const f of files) {
+              map.set(f.path, f)
+            }
+
+            snapshot.set(tag, map)
           }
         }),
       )
-      // compare snapshots
+
+      // Compare snapshots
+      for (const [tag, files] of state.files.entries()) {
+        const snap = new Set(snapshot.get(tag)?.keys() || [])
+        const curr = new Set([...files.values()].map((f) => f.path))
+        const added = new Set([...curr].filter((x) => !snap.has(x)))
+        const removed = new Set([...snap].filter((x) => !curr.has(x)))
+        const updated = new Set(
+          [...files.values()].filter((f) => {
+            const next = snapshot.get(tag)?.get(f.path)
+            if (next) {
+              return next.size != f.size || next.lastModified != f.lastModified
+            }
+            return false
+          }),
+        )
+
+        for (const p of added) {
+          const f = snapshot.get(tag)?.get(p)
+          if (f) {
+            await f.handle.text()
+          }
+        }
+      }
+
+      let changed = false
+      if (changed) {
+      }
+
       // if changed
       //    update tags => file path (remove delete files + add added files)
       //    update file path => content
@@ -133,25 +169,25 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     return () => {
       clearInterval(id)
     }
+    // TODO: state.version?
   }, [state])
 
   function get(tag: string): FileTypes.File[] {
-    return (state.tags[tag] || []).map((path) => state.files[path])
+    return Object.values(state.files[tag] || {})
   }
 
   function set(tag: string, files: FileTypes.File[]) {
     setState((state) => ({
       ...state,
-      tags: {
-        ...state.tags,
-        [tag]: files.map((f) => f.path),
-      },
       files: {
         ...state.files,
-        ...files.reduce((z: Record<string, FileTypes.File>, f) => {
-          z[f.path] = f
-          return z
-        }, {}),
+        [tag]: files.reduce(
+          (z, f) => {
+            z[f.path] = f
+            return z
+          },
+          {} as Record<string, FileTypes.File>,
+        ),
       },
     }))
   }
@@ -170,8 +206,12 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     const handles = { ...state.handles }
     delete handles[tag]
 
+    const files = { ...state.files }
+    delete files[tag]
+
     setState((state) => ({
       ...state,
+      files,
       handles,
     }))
   }

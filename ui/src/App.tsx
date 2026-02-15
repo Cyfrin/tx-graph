@@ -2,6 +2,7 @@ import { useLayoutEffect } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { Provider as AppProvider, useAppContext } from "./contexts/App"
 import { Provider as WindowSizeProvider } from "./contexts/WindowSize"
+import { Provider as FileWatchProvider } from "./contexts/FileWatch"
 import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
 import "./files"
@@ -27,7 +28,9 @@ export default () => {
   return (
     <WindowSizeProvider>
       <AppProvider>
-        <App />
+        <FileWatchProvider>
+          <App />
+        </FileWatchProvider>
       </AppProvider>
     </WindowSizeProvider>
   )

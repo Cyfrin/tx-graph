@@ -9,7 +9,7 @@ export type State = {
 
 const STATE: State = { hidden: new Set(), hover: null, pins: new Set() }
 
-const TracerContext = createContext({
+const Context = createContext({
   state: STATE,
   fold: (_: number) => {},
   setHover: (_: number | null) => {},
@@ -17,7 +17,7 @@ const TracerContext = createContext({
 })
 
 export function useTracerContext() {
-  return useContext(TracerContext)
+  return useContext(Context)
 }
 
 export const Provider: React.FC<{ children: React.ReactNode }> = ({
@@ -76,7 +76,5 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     [state],
   )
 
-  return (
-    <TracerContext.Provider value={value}>{children}</TracerContext.Provider>
-  )
+  return <Context.Provider value={value}>{children}</Context.Provider>
 }

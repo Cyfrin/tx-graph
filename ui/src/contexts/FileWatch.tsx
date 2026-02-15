@@ -28,7 +28,9 @@ const STATE: State = {
 
 const Context = createContext({
   state: STATE,
-  get: (tag: string) => {},
+  get: (tag: string) => {
+    return []
+  },
   set: (tag: string, files: FileTypes.File[]) => {},
   watch: (
     tag: string,
@@ -102,7 +104,6 @@ async function snap(
 
           const map = new Map()
           map.set(file.name, {
-            // TODO: path?
             path: file.name,
             lastModified: file.lastModified,
             size: file.size,
@@ -211,6 +212,7 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => {
       // TODO: check if infinite loop (set state => unmount + mount)
+      console.log("unmount")
       clearInterval(id)
     }
   }, [state])

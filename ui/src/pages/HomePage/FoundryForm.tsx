@@ -7,6 +7,7 @@ const FILE_SYS_ACCESS = !!(
   (window?.showDirectoryPicker && window?.showOpenFilePicker)
 )
 
+// TODO: filewatch context
 const FoundryForm: React.FC<{
   setTraceFile: (file: FileTypes.File) => void
   setABIFiles: (files: FileTypes.File[]) => void
@@ -51,6 +52,8 @@ const FoundryForm: React.FC<{
             name: file.name,
             path: file.webkitRelativePath,
             data: json,
+            lastModified: file.lastModified,
+            size: file.size,
           })
         } catch (error) {
           // TODO: toast

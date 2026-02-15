@@ -15,7 +15,7 @@ export type FileHandle = {
 }
 
 export type State = {
-  // tag => files
+  // tag => path => file
   files: Map<string, Map<string, FileTypes.File>>
   // tag => file handle
   handles: Map<string, FileSystemDirectoryHandle | FileSystemFileHandle>
@@ -103,7 +103,7 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
 
     const id = setInterval(async () => {
       // tag => path => file
-      const snapshot: Map<string, Map<string, FileTypes.File>> = new Map()
+      const snapshot: Map<string, Map<string, FileHandle>> = new Map()
 
       await Promise.all(
         [...state.handles.entries()].map(async ([tag, handle]) => {
@@ -149,21 +149,44 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
           }),
         )
 
-        for (const p of added) {
+        const data: Map<string, FileTypes.File> = new Map(state.files.get(tag))
+
+        // TODO: clean up + parallel read
+        const changed = new Set(...added, ...updated)
+        for (const p of changed) {
           const f = snapshot.get(tag)?.get(p)
           if (f) {
-            await f.handle.text()
+            try {
+              const file = await f.handle.getFile()
+              const txt = await file.text()
+              const json = JSON.parse(txt)
+              data.set(f.path, {
+                name: file.name,
+                path: f.path,
+                data: json,
+                size: file.size,
+                lastModified: file.lastModified,
+              })
+            } catch (error) {
+              console.log(error)
+            }
           }
         }
-      }
 
-      let changed = false
-      if (changed) {
-      }
+        for (const p of removed) {
+          data.delete(p)
+        }
 
-      // if changed
-      //    update tags => file path (remove delete files + add added files)
-      //    update file path => content
+        if (data.size > 0) {
+          setState((state) => ({
+            ...state,
+            files: {
+              ...state.files,
+              [tag]: data,
+            },
+          }))
+        }
+      }
     }, 3000)
 
     return () => {
@@ -173,22 +196,23 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
   }, [state])
 
   function get(tag: string): FileTypes.File[] {
-    return Object.values(state.files[tag] || {})
+    return [...(state.files.get(tag)?.values() || [])]
   }
 
   function set(tag: string, files: FileTypes.File[]) {
+    const map = new Map()
+    for (const f of files) {
+      map.set(f.path, f)
+    }
+
+    const updates: Map<string, Map<string, FileTypes.File>> = new Map(
+      state.files,
+    )
+    updates.set(tag, map)
+
     setState((state) => ({
       ...state,
-      files: {
-        ...state.files,
-        [tag]: files.reduce(
-          (z, f) => {
-            z[f.path] = f
-            return z
-          },
-          {} as Record<string, FileTypes.File>,
-        ),
-      },
+      files: updates,
     }))
   }
 
@@ -203,11 +227,11 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
   }
 
   function unwatch(tag: string) {
-    const handles = { ...state.handles }
-    delete handles[tag]
+    const handles = new Map(state.handles)
+    handles.delete(tag)
 
-    const files = { ...state.files }
-    delete files[tag]
+    const files = new Map(state.files)
+    files.delete(tag)
 
     setState((state) => ({
       ...state,

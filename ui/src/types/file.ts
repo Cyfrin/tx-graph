@@ -5,3 +5,8 @@ export type File = {
   size: number
   lastModified: number
 }
+
+// In memory file storage
+export type MemStore = {
+  get(tag: string): File[]
+}

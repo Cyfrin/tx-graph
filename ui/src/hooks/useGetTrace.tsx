@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { ethers } from "ethers"
 import * as TxTypes from "../types/tx"
+import * as FileTypes from "../types/file"
 import * as api from "../api"
 import * as TracerTypes from "../components/tracer/types"
 import * as GraphTypes from "../components/graph/lib/types"
@@ -275,6 +276,7 @@ export type State = {
 export function useGetTrace(params: {
   txHash: string
   chain: string
+  mem: FileTypes.MemStore
   rpc?: string
   etherscan?: string
 }) {
@@ -311,7 +313,7 @@ export function useGetTrace(params: {
 
       try {
         if (params.chain == "foundry-test") {
-          const res = foundry.getTrace()
+          const res = foundry.getTrace(params.mem)
           assert(!!res, "Foundry trace is null")
           setState((state) => ({
             ...state,
@@ -377,9 +379,10 @@ export function useGetTrace(params: {
 
       try {
         if (params.chain == "foundry-test") {
-          const contracts: TxTypes.ContractInfo[] = foundry.getContracts([
-            ...addrs.values(),
-          ])
+          const contracts: TxTypes.ContractInfo[] = foundry.getContracts(
+            params.mem,
+            [...addrs.values()],
+          )
 
           setState((state) => ({
             ...state,
@@ -518,7 +521,7 @@ export function useGetTrace(params: {
     return () => {
       stop = true
     }
-  }, [params.txHash, params.chain, params.rpc, params.etherscan])
+  }, [params.txHash, params.chain, params.mem, params.rpc, params.etherscan])
 
   return {
     state,

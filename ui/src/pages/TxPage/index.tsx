@@ -1,8 +1,9 @@
 import React, { useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
-import * as api from "../../api"
 import { useAppContext } from "../../contexts/App"
 import { useWindowSizeContext } from "../../contexts/WindowSize"
+import { useFileWatchContext } from "../../contexts/FileWatch"
+import * as api from "../../api"
 import {
   Provider as TracerProvider,
   useTracerContext,
@@ -168,17 +169,24 @@ function TxPage() {
   const app = useAppContext()
   const windowSize = useWindowSizeContext()
   const tracer = useTracerContext()
+  const fileWatch = useFileWatchContext()
+
+  console.log("FILE watch", fileWatch)
+
+  // TODO: react to file watch
   const getTrace = useGetTrace({
     txHash,
     chain,
     rpc: app.state.rpc,
     etherscan: app.state.etherscan,
+    mem: fileWatch,
   })
   const [checked, setChecked] = useState(false)
   const [modal, setModal] = useState<GraphTypes.Hover | null>(null)
   const batchGetContracts = useAsync(api.batchGetContracts)
 
   if (getTrace.state.trace.error) {
+    console.log(getTrace)
     return <div>error :(</div>
   }
 

@@ -1,4 +1,5 @@
 import * as FileTypes from "../../types/file"
+import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
 import styles from "./FoundryForm.module.css"
 
@@ -9,20 +10,20 @@ const FILE_SYS_ACCESS = !!(
 
 // TODO: filewatch context
 const FoundryForm: React.FC<{
+  // TODO: remove
   setTraceFile: (file: FileTypes.File) => void
   setABIFiles: (files: FileTypes.File[]) => void
   abis: FileTypes.File[]
 }> = ({ setTraceFile, setABIFiles, abis }) => {
+  const fileWatch = useFileWatchContext()
+
   const selectTraceFile = async () => {
     try {
       // @ts-ignore
       const [handle]: FileSystemFileHandle[] = await window.showOpenFilePicker()
-      const file = await handle.getFile()
-      const contents = await file.text()
-
-      console.log(file.name)
-      console.log(contents)
+      fileWatch.watch("trace", handle)
     } catch (err) {
+      // TODO: toast
       console.log(err)
     }
   }
@@ -32,8 +33,9 @@ const FoundryForm: React.FC<{
       const handle: FileSystemDirectoryHandle =
         // @ts-ignore
         await window.showDirectoryPicker()
-      console.log(handle)
+      fileWatch.watch("abi", handle)
     } catch (err) {
+      // TODO: toast
       console.log(err)
     }
   }
@@ -55,7 +57,7 @@ const FoundryForm: React.FC<{
             lastModified: file.lastModified,
             size: file.size,
           })
-        } catch (error) {
+        } catch (err) {
           // TODO: toast
           alert(`Failed to parse JSON: ${file.name}`)
           break
@@ -72,6 +74,7 @@ const FoundryForm: React.FC<{
     }
   }
 
+  // TODO: UI - watching or uploaded
   return (
     <div>
       <div className={styles.input}>

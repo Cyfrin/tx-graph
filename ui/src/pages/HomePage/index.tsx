@@ -55,8 +55,6 @@ export function HomePage() {
     }
   }
 
-  // TODO: fix scroll - cannot scroll when file list is long
-
   return (
     <div className={styles.component}>
       <div className={styles.container}>

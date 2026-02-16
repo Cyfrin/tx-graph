@@ -171,9 +171,6 @@ function TxPage() {
   const tracer = useTracerContext()
   const fileWatch = useFileWatchContext()
 
-  console.log("FILE watch", fileWatch)
-
-  // TODO: react to file watch
   const getTrace = useGetTrace({
     txHash,
     chain,

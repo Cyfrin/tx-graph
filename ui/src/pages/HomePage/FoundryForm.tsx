@@ -81,8 +81,12 @@ const FoundryForm: React.FC<{}> = ({}) => {
           <div className={styles.watch}>
             <Button onClick={selectTraceFile}>Choose File</Button>
             <div className={styles.status}>
-              <Spinner size={16} className={styles.spinner} />
-              {trace ? `watching ${trace.name}` : ""}
+              {trace ? (
+                <>
+                  <Spinner size={16} className={styles.spinner} />
+                  <div>watching {trace.name}</div>
+                </>
+              ) : null}
             </div>
           </div>
         ) : (
@@ -95,8 +99,12 @@ const FoundryForm: React.FC<{}> = ({}) => {
           <div className={styles.watch}>
             <Button onClick={selectAbiFiles}>Choose File</Button>
             <div className={styles.status}>
-              <Spinner size={16} className={styles.spinner} />
-              {abis.length > 0 ? `watching ${abis.length} files` : ""}
+              {abis.length > 0 ? (
+                <>
+                  <Spinner size={16} className={styles.spinner} />
+                  <div>watching {abis.length} files</div>
+                </>
+              ) : null}
             </div>
           </div>
         ) : (

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { RPC_CONFIG, RpcConfig } from "../../config"
 import { useAppContext } from "../../contexts/App"
@@ -10,6 +10,7 @@ import styles from "./index.module.css"
 export function HomePage() {
   const navigate = useNavigate()
   const app = useAppContext()
+  const fileWatch = useFileWatchContext()
 
   const [inputs, setInputs] = useState({
     // chain: "eth-mainnet",
@@ -19,7 +20,10 @@ export function HomePage() {
     rpc: app.state.rpc,
     etherscan: app.state.etherscan,
   })
-  const fileWatch = useFileWatchContext()
+
+  useEffect(() => {
+    fileWatch.reset()
+  }, [inputs.chain])
 
   const setInput = (key: string, val: string) => {
     setInputs({

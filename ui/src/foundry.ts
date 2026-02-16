@@ -176,7 +176,6 @@ export function getContracts(
 
   return addrs.map((addr) => {
     const val = addrToAbi.get(addr)
-    console.log("VAL", val)
     if (val) {
       return {
         chain: "foundry-test",

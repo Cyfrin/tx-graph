@@ -15,6 +15,15 @@
   line-height: 1.5;
 }
 
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.check {
+  margin-right: 10px;
+}
+
 .input {
   margin: 1rem 0;
   color: #e0e0e0;

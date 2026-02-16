@@ -2,6 +2,7 @@ import * as FileTypes from "../../types/file"
 import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
 import Spinner from "../../components/svg/Spinner"
+import Check from "../../components/svg/Check"
 import styles from "./FoundryForm.module.css"
 
 const FILE_SYS_ACCESS = !!(
@@ -69,7 +70,10 @@ const FoundryForm: React.FC<{}> = ({}) => {
   return (
     <div>
       <div className={styles.input}>
-        <div>1. Upload output of test trace</div>
+        <div className={styles.row}>
+          {trace ? <Check size={16} className={styles.check} /> : null}
+          <div>1. Upload output of test trace</div>
+        </div>
         <div className={styles.wrap}>
           <div className={styles.shell}>
             <span style={{ color: "orange" }}>forge</span>
@@ -94,7 +98,12 @@ const FoundryForm: React.FC<{}> = ({}) => {
         )}
       </div>
       <div className={styles.input}>
-        <div>2. Upload ABI files</div>
+        <div className={styles.row}>
+          {abis.length > 0 ? (
+            <Check size={16} className={styles.check} />
+          ) : null}
+          <div>2. Upload ABI files</div>
+        </div>
         {FILE_SYS_ACCESS ? (
           <div className={styles.watch}>
             <Button onClick={selectAbiFiles}>Choose File</Button>

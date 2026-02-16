@@ -1,13 +1,14 @@
 .component {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 2rem;
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
   box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .container {

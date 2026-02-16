@@ -51,6 +51,24 @@
 .input input[type="file"]::-webkit-file-upload-button:hover {
   opacity: 0.9;
 }
+.watch {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.spinner {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.abiList {
+  max-height: 300px;
+  overflow-y: auto;
+}
 
 /* Mobile */
 @media (max-width: 640px) {

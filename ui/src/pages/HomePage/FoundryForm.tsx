@@ -1,21 +1,17 @@
 import * as FileTypes from "../../types/file"
 import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
+import Spinner from "../../components/svg/Spinner"
 import styles from "./FoundryForm.module.css"
 
 const FILE_SYS_ACCESS = !!(
   // @ts-ignore
   (window?.showDirectoryPicker && window?.showOpenFilePicker)
 )
-
-// TODO: filewatch context
-const FoundryForm: React.FC<{
-  // TODO: remove
-  setTraceFile: (file: FileTypes.File) => void
-  setABIFiles: (files: FileTypes.File[]) => void
-  abis: FileTypes.File[]
-}> = ({ setTraceFile, setABIFiles, abis }) => {
+const FoundryForm: React.FC<{}> = ({}) => {
   const fileWatch = useFileWatchContext()
+  const abis = fileWatch.get("abi")
+  const trace = fileWatch.get("trace")?.[0]
 
   const selectTraceFile = async () => {
     try {
@@ -30,10 +26,8 @@ const FoundryForm: React.FC<{
 
   const selectAbiFiles = async () => {
     try {
-      const handle: FileSystemDirectoryHandle =
-        // @ts-ignore
-        await window.showDirectoryPicker()
-      fileWatch.watch("abi", handle)
+      // @ts-ignore
+      fileWatch.watch("abi", await window.showDirectoryPicker())
     } catch (err) {
       // TODO: toast
       console.log(err)
@@ -45,8 +39,8 @@ const FoundryForm: React.FC<{
 
     if (files) {
       const vals: FileTypes.File[] = []
-      for (const file of files) {
-        try {
+      try {
+        for (const file of files) {
           const text = await file.text()
           const json = JSON.parse(text)
 
@@ -57,24 +51,21 @@ const FoundryForm: React.FC<{
             lastModified: file.lastModified,
             size: file.size,
           })
-        } catch (err) {
-          // TODO: toast
-          alert(`Failed to parse JSON: ${file.name}`)
-          break
         }
+      } catch (err) {
+        // TODO: toast
+        alert(`Failed to parse JSON: ${err}`)
       }
 
-      if (vals.length == files.length) {
-        if (name == "trace") {
-          setTraceFile(vals[0])
-        } else {
-          setABIFiles(vals)
-        }
+      if (
+        (name == "trace" && vals.length == 1) ||
+        (name == "abi" && vals.length > 0)
+      ) {
+        fileWatch.set(name, vals)
       }
     }
   }
 
-  // TODO: UI - watching or uploaded
   return (
     <div>
       <div className={styles.input}>
@@ -87,7 +78,13 @@ const FoundryForm: React.FC<{
           </div>
         </div>
         {FILE_SYS_ACCESS ? (
-          <Button onClick={selectTraceFile}>Choose File</Button>
+          <div className={styles.watch}>
+            <Button onClick={selectTraceFile}>Choose File</Button>
+            <div className={styles.status}>
+              <Spinner size={16} className={styles.spinner} />
+              {trace ? `watching ${trace.name}` : ""}
+            </div>
+          </div>
         ) : (
           <input type="file" name="trace" onChange={onChange} />
         )}
@@ -95,7 +92,13 @@ const FoundryForm: React.FC<{
       <div className={styles.input}>
         <div>2. Upload ABI files</div>
         {FILE_SYS_ACCESS ? (
-          <Button onClick={selectAbiFiles}>Choose File</Button>
+          <div className={styles.watch}>
+            <Button onClick={selectAbiFiles}>Choose File</Button>
+            <div className={styles.status}>
+              <Spinner size={16} className={styles.spinner} />
+              {abis.length > 0 ? `watching ${abis.length} files` : ""}
+            </div>
+          </div>
         ) : (
           <input
             type="file"
@@ -107,7 +110,7 @@ const FoundryForm: React.FC<{
           />
         )}
       </div>
-      <ul style={{ maxHeight: 300, overflowY: "auto" }}>
+      <ul className={styles.abiList}>
         {abis.map((file, i) => (
           <li key={i}>{file.path}</li>
         ))}

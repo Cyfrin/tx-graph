@@ -1,21 +1,23 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import * as FileTypes from "../types/file"
 import { RPC_CONFIG, RpcConfig } from "../config"
+import { useAppContext } from "../contexts/App"
 import * as FileStorage from "../files"
 import Button from "../components/Button"
 import FoundryForm from "../components/FoundryForm"
-import * as FileTypes from "../types/file"
 import styles from "./HomePage.module.css"
 
 export function HomePage() {
   const navigate = useNavigate()
+  const app = useAppContext()
 
   const [inputs, setInputs] = useState({
     chain: "eth-mainnet",
     // chain: "foundry-test",
     txHash: "",
-    rpcUrl: localStorage.getItem("txgraph_rpc_url") || "",
-    etherscanApiKey: localStorage.getItem("txgraph_etherscan_api_key") || "",
+    rpc: app.state.rpc,
+    etherscan: app.state.etherscan,
   })
   const [fs, setFiles] = useState<Record<string, FileTypes.File[]>>({})
 
@@ -31,17 +33,10 @@ export function HomePage() {
     return fs[key] || null
   }
 
-  const setChain = (chain: string) => {
+  const setInput = (key: string, val: string) => {
     setInputs({
       ...inputs,
-      chain,
-    })
-  }
-
-  const setTxHash = (txHash: string) => {
-    setInputs({
-      ...inputs,
-      txHash,
+      [key]: val,
     })
   }
 
@@ -65,11 +60,16 @@ export function HomePage() {
     } else {
       const txHash = inputs.txHash.trim()
       if (txHash != "") {
-        localStorage.setItem("txgraph_rpc_url", inputs.rpcUrl.trim())
-        localStorage.setItem(
-          "txgraph_etherscan_api_key",
-          inputs.etherscanApiKey.trim(),
-        )
+        const rpc = inputs.rpc.trim()
+        const etherscan = inputs.etherscan.trim()
+
+        if (rpc) {
+          app.setRpc(rpc)
+        }
+        if (etherscan) {
+          app.setEtherscan(etherscan)
+        }
+
         navigate(`/tx/${inputs.txHash}?chain=${inputs.chain}`)
       }
     }
@@ -84,7 +84,7 @@ export function HomePage() {
             <select
               className={styles.select}
               value={inputs.chain}
-              onChange={(e) => setChain(e.target.value)}
+              onChange={(e) => setInput("chain", e.target.value)}
             >
               <optgroup label="mainnet">
                 {Object.entries(RPC_CONFIG)
@@ -127,7 +127,7 @@ export function HomePage() {
                     className={styles.input}
                     type="text"
                     value={inputs.txHash}
-                    onChange={(e) => setTxHash(e.target.value)}
+                    onChange={(e) => setInput("txHash", e.target.value)}
                     placeholder="0x..."
                     autoFocus
                   />
@@ -139,10 +139,8 @@ export function HomePage() {
                 <input
                   className={styles.input}
                   type="text"
-                  value={inputs.rpcUrl}
-                  onChange={(e) =>
-                    setInputs({ ...inputs, rpcUrl: e.target.value })
-                  }
+                  value={inputs.rpc}
+                  onChange={(e) => setInput("rpc", e.target.value)}
                   placeholder="https://..."
                 />
               </div>
@@ -153,10 +151,8 @@ export function HomePage() {
                 <input
                   className={styles.input}
                   type="text"
-                  value={inputs.etherscanApiKey}
-                  onChange={(e) =>
-                    setInputs({ ...inputs, etherscanApiKey: e.target.value })
-                  }
+                  value={inputs.etherscan}
+                  onChange={(e) => setInput("etherscan", e.target.value)}
                   placeholder="API key"
                 />
               </div>

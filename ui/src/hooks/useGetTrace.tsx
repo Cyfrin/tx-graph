@@ -275,8 +275,8 @@ export type State = {
 export function useGetTrace(params: {
   txHash: string
   chain: string
-  rpcUrl?: string
-  etherscanApiKey?: string
+  rpc?: string
+  etherscan?: string
 }) {
   const STATE: State = {
     trace: {
@@ -326,7 +326,7 @@ export function useGetTrace(params: {
           const res = await api.getTxTrace(
             params.chain,
             params.txHash,
-            params.rpcUrl,
+            params.rpc,
           )
           assert(!!res?.result, "Get trace returned null")
           setState((state) => ({
@@ -391,7 +391,7 @@ export function useGetTrace(params: {
             },
             data: build(data, contracts),
           }))
-        } else if (params.etherscanApiKey) {
+        } else if (params.etherscan) {
           // Use etherscan API directly when user provides an API key
           setState((state) => ({
             ...state,
@@ -407,11 +407,7 @@ export function useGetTrace(params: {
           const addrList = [...addrs.values()]
           const results = await Promise.all(
             addrList.map((addr) =>
-              api.getEtherscanContract(
-                addr,
-                params.chain,
-                params.etherscanApiKey,
-              ),
+              api.getEtherscanContract(addr, params.chain, params.etherscan),
             ),
           )
 
@@ -522,7 +518,7 @@ export function useGetTrace(params: {
     return () => {
       stop = true
     }
-  }, [params.txHash, params.chain, params.rpcUrl, params.etherscanApiKey])
+  }, [params.txHash, params.chain, params.rpc, params.etherscan])
 
   return {
     state,

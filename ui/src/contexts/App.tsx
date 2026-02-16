@@ -1,10 +1,4 @@
-import React, {
-  useReducer,
-  createContext,
-  useContext,
-  useMemo,
-  useCallback,
-} from "react"
+import React, { useReducer, createContext, useContext, useMemo } from "react"
 import { Mode } from "../types/app"
 
 // Local storage keys
@@ -12,11 +6,16 @@ const KEY = "local"
 
 type LocalStorageData = {
   mode: string
+  rpc: string
+  etherscan: string
 }
 
 type State = {
   initialized: boolean
   mode: Mode
+  rpc: string
+  // API key
+  etherscan: string
 }
 
 interface Init {
@@ -29,11 +28,23 @@ interface SetMode {
   mode: Mode
 }
 
-type Action = Init | SetMode
+interface SetRpc {
+  type: "SET_RPC"
+  rpc: string
+}
+
+interface SetEtherscan {
+  type: "SET_ETHERSCAN"
+  etherscan: string
+}
+
+type Action = Init | SetMode | SetRpc | SetEtherscan
 
 const STATE: State = {
   initialized: false,
   mode: "dark",
+  rpc: "",
+  etherscan: "",
 }
 
 function reducer(state: State = STATE, action: Action): State {
@@ -50,29 +61,53 @@ function reducer(state: State = STATE, action: Action): State {
         mode: action.mode,
       }
     }
+    case "SET_RPC": {
+      return {
+        ...state,
+        rpc: action.rpc,
+      }
+    }
+    case "SET_ETHERSCAN": {
+      return {
+        ...state,
+        etherscan: action.etherscan,
+      }
+    }
     default:
       return state
   }
 }
 
-const AppContext = createContext({
+type AppContext = {
+  state: State
+  init: () => void
+  setMode: (mode: Mode) => void
+  setRpc: (rpc: string) => void
+  setEtherscan: (etherscan: string) => void
+}
+
+const Context = createContext<AppContext>({
   state: STATE,
   init: () => {},
   setMode: (mode: Mode) => {},
+  setRpc: (rpc: string) => {},
+  setEtherscan: (etherscan: string) => {},
 })
 
 export function useAppContext() {
-  return useContext(AppContext)
+  return useContext(Context)
 }
 
 function saveToLocalStorage(state: State) {
-  const { mode }: LocalStorageData = state
+  const { mode, rpc, etherscan }: LocalStorageData = state
 
   try {
     localStorage.setItem(
       KEY,
       JSON.stringify({
         mode,
+        rpc,
+        etherscan,
       }),
     )
   } catch (error) {
@@ -84,9 +119,12 @@ function getFromLocalStorage(): Partial<LocalStorageData> {
   let data: Partial<LocalStorageData> = {}
 
   try {
-    const { mode } = JSON.parse(localStorage.getItem(KEY) || "") || {}
+    const { mode, rpc, etherscan } =
+      JSON.parse(localStorage.getItem(KEY) || "") || {}
     data = {
       mode: mode ?? STATE.mode,
+      rpc: rpc ?? "",
+      etherscan: etherscan ?? "",
     }
   } catch (error) {
     console.log("Get local storage error:", error)
@@ -100,7 +138,7 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, STATE)
 
-  const init = useCallback(() => {
+  const init = () => {
     if (state.initialized) {
       return
     }
@@ -109,9 +147,9 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
       type: "INIT",
       mode: (data?.mode || STATE.mode) as Mode,
     })
-  }, [])
+  }
 
-  const setMode = useCallback((mode: Mode) => {
+  const setMode = (mode: Mode) => {
     // NOTE: also update index.html
     if (mode == "dark") {
       document.body.classList.remove("light")
@@ -127,16 +165,26 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
       ...state,
       mode,
     })
-  }, [])
+  }
+
+  const setRpc = (rpc: string) => {
+    dispatch({ type: "SET_RPC", rpc })
+  }
+
+  const setEtherscan = (etherscan: string) => {
+    dispatch({ type: "SET_ETHERSCAN", etherscan })
+  }
 
   const value = useMemo(
     () => ({
       state,
       init,
       setMode,
+      setRpc,
+      setEtherscan,
     }),
     [state],
   )
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>
+  return <Context.Provider value={value}>{children}</Context.Provider>
 }

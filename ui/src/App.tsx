@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useLayoutEffect } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { Provider as AppProvider, useAppContext } from "./contexts/App"
 import { Provider as WindowSizeProvider } from "./contexts/WindowSize"
@@ -9,7 +9,7 @@ import "./files"
 function App() {
   const app = useAppContext()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     app.init()
   }, [])
 

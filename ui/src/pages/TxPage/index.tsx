@@ -1,13 +1,14 @@
 import React, { useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
-import { useWindowSizeContext } from "../../contexts/WindowSize"
 import * as api from "../../api"
-import Splits from "../../components/Splits"
+import { useAppContext } from "../../contexts/App"
+import { useWindowSizeContext } from "../../contexts/WindowSize"
 import {
   Provider as TracerProvider,
   useTracerContext,
   State as TracerState,
 } from "../../contexts/Tracer"
+import Splits from "../../components/Splits"
 import { Graph as CanvasGraph } from "../../components/graph/Graph"
 import * as GraphTypes from "../../components/graph/lib/types"
 import Tracer from "../../components/tracer"
@@ -163,17 +164,15 @@ function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
   const chain = q.get("chain") || ""
-  const rpcUrl = localStorage.getItem("txgraph_rpc_url") || undefined
-  const etherscanApiKey =
-    localStorage.getItem("txgraph_etherscan_api_key") || undefined
 
+  const app = useAppContext()
   const windowSize = useWindowSizeContext()
   const tracer = useTracerContext()
   const getTrace = useGetTrace({
     txHash,
     chain,
-    rpcUrl,
-    etherscanApiKey,
+    rpc: app.state.rpc,
+    etherscan: app.state.etherscan,
   })
   const [checked, setChecked] = useState(false)
   const [modal, setModal] = useState<GraphTypes.Hover | null>(null)

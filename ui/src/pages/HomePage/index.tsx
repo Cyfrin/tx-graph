@@ -13,9 +13,8 @@ export function HomePage() {
   const fileWatch = useFileWatchContext()
 
   const [inputs, setInputs] = useState({
-    // chain: "eth-mainnet",
-    // TODO:switch back to eth-mainnet
-    chain: "foundry-test",
+    chain: "eth-mainnet",
+    // chain: "foundry-test",
     txHash: "",
     rpc: app.state.rpc,
     etherscan: app.state.etherscan,

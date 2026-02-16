@@ -78,6 +78,14 @@
   max-height: 300px;
   overflow-y: auto;
 }
+.warning {
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  background-color: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  color: #eab308;
+  font-size: 0.8125rem;
+}
 
 /* Mobile */
 @media (max-width: 640px) {

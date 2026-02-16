@@ -69,6 +69,11 @@ const FoundryForm: React.FC<{}> = ({}) => {
 
   return (
     <div>
+      {!FILE_SYS_ACCESS ? (
+        <div className={styles.warning}>
+          Enable File Acess API for live reload
+        </div>
+      ) : null}
       <div className={styles.input}>
         <div className={styles.row}>
           {trace ? <Check size={16} className={styles.check} /> : null}

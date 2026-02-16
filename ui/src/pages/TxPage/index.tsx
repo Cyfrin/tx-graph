@@ -1,9 +1,10 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { useParams, useSearchParams } from "react-router-dom"
+import JSZip from "jszip"
+import * as api from "../../api"
 import { useAppContext } from "../../contexts/App"
 import { useWindowSizeContext } from "../../contexts/WindowSize"
 import { useFileWatchContext } from "../../contexts/FileWatch"
-import * as api from "../../api"
 import {
   Provider as TracerProvider,
   useTracerContext,
@@ -28,7 +29,6 @@ import Button from "../../components/Button"
 import ArrowDownTray from "../../components/svg/ArrowDownTray"
 import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
 import useAsync from "../../hooks/useAsync"
-import JSZip from "jszip"
 import styles from "./index.module.css"
 
 // TODO: graph - ETH and token transfers

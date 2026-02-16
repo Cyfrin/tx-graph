@@ -34,7 +34,6 @@ export type FileWatchContext = {
     tag: string,
     handle: FileSystemDirectoryHandle | FileSystemFileHandle,
   ) => void
-  unwatch: (tag: string) => void
   reset: () => void
 }
 
@@ -48,7 +47,6 @@ const Context = createContext<FileWatchContext>({
     tag: string,
     handle: FileSystemDirectoryHandle | FileSystemFileHandle,
   ) => {},
-  unwatch: (tag: string) => {},
   reset: () => {},
 })
 
@@ -155,9 +153,6 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
       return
     }
 
-    // TODO: remove
-    console.log("MOUNT")
-
     const id = setInterval(async () => {
       const snapshot = await snap(state.handles)
 
@@ -225,11 +220,9 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
           }
         }
       }
-    }, 3000)
+    }, 1000)
 
     return () => {
-      // TODO: check if infinite loop (set state => unmount + mount)
-      console.log("unmount")
       clearInterval(id)
     }
   }, [state])
@@ -268,21 +261,6 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     }))
   }
 
-  // TODO: remove?
-  function unwatch(tag: string) {
-    const handles = new Map(state.handles)
-    handles.delete(tag)
-
-    const files = new Map(state.files)
-    files.delete(tag)
-
-    setState((state) => ({
-      ...state,
-      files,
-      handles,
-    }))
-  }
-
   function reset() {
     setState(STATE)
   }
@@ -293,7 +271,6 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
       get,
       set,
       watch,
-      unwatch,
       reset,
     }),
     [state],

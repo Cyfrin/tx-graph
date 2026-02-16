@@ -55,9 +55,6 @@ export function HomePage() {
     }
   }
 
-  // TODO: remove
-  console.log("watch", fileWatch.state)
-
   // TODO: fix scroll - cannot scroll when file list is long
 
   return (
@@ -94,11 +91,7 @@ export function HomePage() {
 
           {inputs.chain == "foundry-test" ? (
             <div className={styles.foundrySection}>
-              <FoundryForm
-                setTraceFile={(f) => fileWatch.set("trace", [f])}
-                setABIFiles={(fs) => fileWatch.set("abi", fs)}
-                abis={fileWatch.get("abi")}
-              />
+              <FoundryForm />
               <Button type="submit" className={styles.submit}>
                 explore
               </Button>

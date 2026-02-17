@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import { useTracerContext } from "../../contexts/Tracer"
+import XMark from "../svg/XMark"
 import * as Types from "./types"
 import VirtualList from "./VirtualList"
 import DropDown from "./DropDown"
@@ -77,6 +78,7 @@ function Fn<V>({
         <Pad depth={call.depth} height={LINE_HEIGHT} />
         <div className={styles.call}>
           <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
+          {!call.ok ? <XMark color="#E53935" size={16} /> : null}
           <div className={styles.obj}>
             {renderModDropDown ? (
               <DropDown

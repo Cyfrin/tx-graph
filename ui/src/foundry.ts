@@ -28,6 +28,7 @@ type Arena = {
 type LifeCycle = "Deployment" | "Setup" | "Execution"
 
 type Test = {
+  status: "Success" | ""
   traces: [LifeCycle, Arena][]
   // Address => label
   labeled_addresses?: Record<string, string>
@@ -97,6 +98,7 @@ export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
                 gas: trace.gas_limit.toString(),
                 gasUsed: trace.gas_used.toString(),
                 value: trace.value,
+                error: trace.success ? "" : "error",
                 calls: [],
               }
 

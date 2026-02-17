@@ -183,7 +183,6 @@ function TxPage() {
   const batchGetContracts = useAsync(api.batchGetContracts)
 
   if (getTrace.state.trace.error) {
-    console.log(getTrace)
     return <div>error :(</div>
   }
 

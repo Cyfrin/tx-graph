@@ -9,6 +9,7 @@ export type Call<C, F> = {
   depth: number
   ctx: C
   fn: F
+  ok: boolean
 }
 
 export type Obj<T, V> = {

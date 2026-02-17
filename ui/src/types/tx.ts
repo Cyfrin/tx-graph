@@ -7,6 +7,7 @@ export type TxCall = {
   gas: string
   gasUsed: string
   value: string
+  error?: string
   calls?: TxCall[]
 }
 

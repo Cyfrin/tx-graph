@@ -222,6 +222,7 @@ function build(root: TxTypes.TxCall, contracts: TxTypes.ContractInfo[]): Data {
         depth: d,
         ctx: trace.ctx,
         fn: trace.fn,
+        ok: !c.error,
       })
     },
   )

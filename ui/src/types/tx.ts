@@ -1,7 +1,7 @@
 export type TxCall = {
   from: string
   to: string
-  type: "CREATE" | "CALL" | "DELEGATECALL" | "STATICCALL"
+  type: "CREATE" | "CREATE2" | "CALL" | "DELEGATECALL" | "STATICCALL"
   input: string
   output?: string
   gas: string

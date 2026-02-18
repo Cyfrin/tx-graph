@@ -1,45 +1,10 @@
-import * as TxTypes from "./types/tx"
-import * as FileTypes from "./types/file"
-
-type Trace = {
-  depth: number
-  success: boolean
-  caller: string
-  address: string
-  kind: "CREATE" | "CALL" | "DELEGATECALL" | "STATICCALL"
-  value: string
-  data: string
-  output: string
-  gas_limit: number
-  gas_used: number
-}
-
-type ArenaEntry = {
-  trace: Trace
-  idx: number
-  parent: number | null
-  children: number[]
-}
-
-type Arena = {
-  arena: ArenaEntry[]
-}
-
-type LifeCycle = "Deployment" | "Setup" | "Execution"
-
-type Test = {
-  status: "Success" | ""
-  traces: [LifeCycle, Arena][]
-  // Address => label
-  labeled_addresses?: Record<string, string>
-}
-
-// Test contract name => test name => Test
-type Tests = Record<string, { test_results: Record<string, Test> }>
+import * as TxTypes from "../types/tx"
+import * as FileTypes from "../types/file"
+import { Tests, JsonFile } from "./types"
 
 const LABELS: Record<string, string> = {
   "0x7109709ecfa91a80626ff3989d68f67f5b1dd12d": "Vm",
-  "0x000000000000000000636f6e736f6c652e6c6f67": "Console",
+  "0x000000000000000000636f6e736f6c652e6c6f67": "console",
 }
 
 function dfs<A>(
@@ -64,10 +29,6 @@ function dfs<A>(
   }
 }
 
-//  forge test --match-path test/Counter.t.sol -vvvv --json | jq . > out.json
-
-// TODO: fix - contracts / interfaces not shown on trace and graph
-
 // Build TxCall
 export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
   // @ts-ignore
@@ -78,8 +39,9 @@ export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
 
   const txCalls: TxTypes.TxCall[] = []
 
-  for (const [testContractName, { test_results }] of Object.entries(tests)) {
-    for (const [testName, test] of Object.entries(test_results)) {
+  // key = path/to/test:TestContractName
+  for (const [_, { test_results }] of Object.entries(tests)) {
+    for (const [_, test] of Object.entries(test_results)) {
       for (const [step, { arena }] of test.traces) {
         if (step == "Setup" || step == "Execution") {
           const stack: TxTypes.TxCall[] = []
@@ -145,36 +107,86 @@ export function getContracts(
 
   const abis = mem.get("abi") || []
   // contract name => ABI
-  const files = new Map(abis.map((f) => [f.name, f.data]))
-  const addrToAbi = new Map()
+  const files = new Map<string, JsonFile>(
+    abis.map((f) => [f.name, f.data as JsonFile]),
+  )
+  const addrToAbi = new Map<string, { name: string; abi: TxTypes.AbiEntry[] }>()
+  const bytecodeToAbi = new Map<
+    string,
+    { name: string; abi: TxTypes.AbiEntry[] }
+  >()
 
-  // Map Foundry addresses to ABIs
-  for (const [addr, name] of Object.entries(LABELS)) {
-    const abi = files.get(`${name}.json`)
-    addrToAbi.set(addr, { name, abi })
+  // Map label to ABI
+  for (const [addr, label] of Object.entries(LABELS)) {
+    const { abi } = files.get(`${label}.json`) || {}
+    if (abi) {
+      addrToAbi.set(addr, { name: label, abi })
+    }
   }
 
-  // Map addresses to ABIs
+  // Map deployed bytecode to ABI
+  for (const [name, file] of files) {
+    const bytecode = file?.deployedBytecode?.object
+    // 0x
+    if (bytecode?.length > 2) {
+      bytecodeToAbi.set(bytecode, {
+        name: name.replace(".json", ""),
+        abi: file?.abi,
+      })
+    }
+  }
+
+  // Map address to ABI
   for (const [testContractName, { test_results }] of Object.entries(tests)) {
-    for (const [testName, test] of Object.entries(test_results)) {
+    for (const [_, test] of Object.entries(test_results)) {
       if (test.labeled_addresses) {
         for (const [addr, name] of Object.entries(test.labeled_addresses)) {
-          const abi = files.get(`${name}.json`)
-          addrToAbi.set(addr, { name, abi })
+          const { abi } = files.get(`${name}.json`) || {}
+          if (abi) {
+            addrToAbi.set(addr, { name, abi })
+          }
         }
       }
 
       for (const [step, { arena }] of test.traces) {
-        if (step == "Deployment") {
-          // Test contract address
-          const name = testContractName.split(":")[1]
-          const addr = arena[0].trace.address
-          const abi = files.get(`${name}.json`)
-          addrToAbi.set(addr, { name, abi })
+        switch (step) {
+          case "Deployment": {
+            // Test contract address
+            const name = testContractName.split(":")[1]
+            const addr = arena[0].trace.address
+            const { abi } = files.get(`${name}.json`) || {}
+            if (abi) {
+              addrToAbi.set(addr, { name, abi })
+            }
+            break
+          }
+          case "Setup":
+          case "Execution": {
+            // Find deployed contracts, match to deployed bytecode
+            for (const a of arena) {
+              if (a.trace.kind == "CREATE" || a.trace.kind == "CREATE2") {
+                if (!addrToAbi.has(a.trace.address)) {
+                  const { name, abi } = bytecodeToAbi.get(a.trace.output) || {}
+                  if (name && abi) {
+                    addrToAbi.set(a.trace.address, { name, abi })
+                  }
+                }
+              }
+            }
+            break
+          }
+          default: {
+            break
+          }
         }
       }
+
+      // TODO: match interface by func selector (if only one func selector matches)
     }
   }
+
+  // TODO: remove
+  console.log("ADDR ABI", addrToAbi)
 
   return addrs.map((addr) => {
     const val = addrToAbi.get(addr)
@@ -183,7 +195,7 @@ export function getContracts(
         chain: "foundry-test",
         address: addr,
         name: val.name,
-        abi: val.abi?.abi || null,
+        abi: val.abi || null,
       }
     } else {
       return {

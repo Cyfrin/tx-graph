@@ -40,8 +40,8 @@ export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
   const txCalls: TxTypes.TxCall[] = []
 
   // key = path/to/test:TestContractName
-  for (const [_, { test_results }] of Object.entries(tests)) {
-    for (const [_, test] of Object.entries(test_results)) {
+  for (const [, { test_results }] of Object.entries(tests)) {
+    for (const [, test] of Object.entries(test_results)) {
       for (const [step, { arena }] of test.traces) {
         if (step == "Setup" || step == "Execution") {
           const stack: TxTypes.TxCall[] = []
@@ -115,6 +115,10 @@ export function getContracts(
     string,
     { name: string; abi: TxTypes.AbiEntry[] }
   >()
+  const selectorToAbis = new Map<
+    string,
+    Array<{ name: string; abi: TxTypes.AbiEntry[] }>
+  >()
 
   // Map label to ABI
   for (const [addr, label] of Object.entries(LABELS)) {
@@ -136,9 +140,25 @@ export function getContracts(
     }
   }
 
+  // Map selector to ABI
+  for (const [name, file] of files) {
+    for (const [, selector] of Object.entries(file?.methodIdentifiers || {})) {
+      if (!selectorToAbis.has(selector)) {
+        selectorToAbis.set(selector, [])
+      }
+      const abis = selectorToAbis.get(selector)
+      if (abis) {
+        abis.push({
+          name: name.replace(".json", ""),
+          abi: file?.abi,
+        })
+      }
+    }
+  }
+
   // Map address to ABI
-  for (const [testContractName, { test_results }] of Object.entries(tests)) {
-    for (const [_, test] of Object.entries(test_results)) {
+  for (const [testPath, { test_results }] of Object.entries(tests)) {
+    for (const [, test] of Object.entries(test_results)) {
       if (test.labeled_addresses) {
         for (const [addr, name] of Object.entries(test.labeled_addresses)) {
           const { abi } = files.get(`${name}.json`) || {}
@@ -151,8 +171,8 @@ export function getContracts(
       for (const [step, { arena }] of test.traces) {
         switch (step) {
           case "Deployment": {
-            // Test contract address
-            const name = testContractName.split(":")[1]
+            // Test contract name
+            const name = testPath.split(":")[1]
             const addr = arena[0].trace.address
             const { abi } = files.get(`${name}.json`) || {}
             if (abi) {
@@ -179,14 +199,26 @@ export function getContracts(
             break
           }
         }
-      }
 
-      // TODO: match interface by func selector (if only one func selector matches)
+        // Match interface by selector
+        for (const a of arena) {
+          if (
+            a.trace.kind == "CALL" ||
+            a.trace.kind == "STATICCALL" ||
+            a.trace.kind == "DELEGATECALL"
+          ) {
+            if (!addrToAbi.has(a.trace.address)) {
+              const selector = a.trace.data.slice(2, 10)
+              const { name, abi } = selectorToAbis.get(selector)?.[0] || {}
+              if (name && abi) {
+                addrToAbi.set(a.trace.address, { name, abi })
+              }
+            }
+          }
+        }
+      }
     }
   }
-
-  // TODO: remove
-  console.log("ADDR ABI", addrToAbi)
 
   return addrs.map((addr) => {
     const val = addrToAbi.get(addr)

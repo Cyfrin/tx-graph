@@ -43,7 +43,6 @@ export type Trace<C> = {
   i: number
   depth: number
   fn: FnCall
-  // TODO: ok + error?
   calls: Trace<C>[]
   ctx: C
 }

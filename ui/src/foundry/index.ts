@@ -29,6 +29,25 @@ function dfs<A>(
   }
 }
 
+// Zero out immutable variable byte ranges in a hex bytecode string
+function mask(
+  bytecode: string,
+  refs: Record<string, Array<{ start: number; length: number }>>,
+): string {
+  const buf = [...bytecode]
+  for (const positions of Object.values(refs)) {
+    for (const { start, length } of positions) {
+      // skip "0x"
+      const hexStart = 2 + start * 2
+      const hexLen = length * 2
+      for (let i = hexStart; i < hexStart + hexLen; i++) {
+        buf[i] = "0"
+      }
+    }
+  }
+  return buf.join("")
+}
+
 // Build TxCall
 export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
   // @ts-ignore
@@ -115,6 +134,13 @@ export function getContracts(
     string,
     { name: string; abi: TxTypes.AbiEntry[] }
   >()
+  // Contracts with immutable variables - need fuzzy matching
+  const immutableBytecodes: Array<{
+    bytecode: string
+    name: string
+    abi: TxTypes.AbiEntry[]
+    refs: Record<string, Array<{ start: number; length: number }>>
+  }> = []
   const selectorToAbis = new Map<
     string,
     Array<{ name: string; abi: TxTypes.AbiEntry[] }>
@@ -133,10 +159,21 @@ export function getContracts(
     const bytecode = file?.deployedBytecode?.object
     // 0x
     if (bytecode?.length > 2) {
-      bytecodeToAbi.set(bytecode, {
-        name: name.replace(".json", ""),
-        abi: file?.abi,
-      })
+      const contractName = name.replace(".json", "")
+      const refs = file?.deployedBytecode?.immutableReferences
+      if (refs && Object.keys(refs).length > 0) {
+        immutableBytecodes.push({
+          bytecode,
+          name: contractName,
+          abi: file?.abi,
+          refs,
+        })
+      } else {
+        bytecodeToAbi.set(bytecode, {
+          name: contractName,
+          abi: file?.abi,
+        })
+      }
     }
   }
 
@@ -186,9 +223,25 @@ export function getContracts(
             for (const a of arena) {
               if (a.trace.kind == "CREATE" || a.trace.kind == "CREATE2") {
                 if (!addrToAbi.has(a.trace.address)) {
-                  const { name, abi } = bytecodeToAbi.get(a.trace.output) || {}
-                  if (name && abi) {
-                    addrToAbi.set(a.trace.address, { name, abi })
+                  // Exact match (no immutables)
+                  const exact = bytecodeToAbi.get(a.trace.output)
+                  if (exact) {
+                    addrToAbi.set(a.trace.address, exact)
+                    continue
+                  }
+                  // Fuzzy match - zero out immutable byte ranges then compare
+                  for (const entry of immutableBytecodes) {
+                    if (a.trace.output.length !== entry.bytecode.length) {
+                      continue
+                    }
+                    const masked = mask(a.trace.output, entry.refs)
+                    if (masked == entry.bytecode) {
+                      addrToAbi.set(a.trace.address, {
+                        name: entry.name,
+                        abi: entry.abi,
+                      })
+                      break
+                    }
                   }
                 }
               }

@@ -7,6 +7,7 @@ export type JsonFile = {
   }
   deployedBytecode: {
     object: string
+    immutableReferences?: Record<string, Array<{ start: number; length: number }>>
   }
   // func sig => selector
   methodIdentifiers: Record<string, string>

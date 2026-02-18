@@ -209,9 +209,15 @@ export function getContracts(
           ) {
             if (!addrToAbi.has(a.trace.address)) {
               const selector = a.trace.data.slice(2, 10)
-              const { name, abi } = selectorToAbis.get(selector)?.[0] || {}
-              if (name && abi) {
-                addrToAbi.set(a.trace.address, { name, abi })
+              // Guard agains selector = ""
+              if (selector) {
+                const abis = selectorToAbis.get(selector)
+                if (abis?.length == 1) {
+                  const { name, abi } = abis[0]
+                  if (name && abi) {
+                    addrToAbi.set(a.trace.address, { name, abi })
+                  }
+                }
               }
             }
           }

@@ -145,6 +145,7 @@ export function getContracts(
     string,
     Array<{ name: string; abi: TxTypes.AbiEntry[] }>
   >()
+  const addrToSelectors = new Map<string, Set<string>>()
 
   // Map label to ABI
   for (const [addr, label] of Object.entries(LABELS)) {
@@ -253,30 +254,54 @@ export function getContracts(
           }
         }
 
-        // Match interface by selector
+        // Map address to selectors
         for (const a of arena) {
-          if (
-            a.trace.kind == "CALL" ||
-            a.trace.kind == "STATICCALL" ||
-            a.trace.kind == "DELEGATECALL"
-          ) {
-            if (!addrToAbi.has(a.trace.address)) {
-              const selector = a.trace.data.slice(2, 10)
-              // Guard agains selector = ""
-              if (selector) {
-                // TODO: find best match
-                const abis = selectorToAbis.get(selector)
-                if (abis?.length == 1) {
-                  const { name, abi } = abis[0]
-                  if (name && abi) {
-                    addrToAbi.set(a.trace.address, { name, abi })
-                  }
-                }
+          if (a.trace.kind == "CALL" || a.trace.kind == "STATICCALL") {
+            const selector = a.trace.data.slice(2, 10)
+            if (selector) {
+              if (!addrToSelectors.has(a.trace.address)) {
+                addrToSelectors.set(a.trace.address, new Set())
               }
+              addrToSelectors.get(a.trace.address)?.add(selector)
             }
           }
         }
       }
+    }
+  }
+
+  // Map address to ABI
+  for (const addr of addrs) {
+    if (addrToAbi.get(addr)) {
+      continue
+    }
+
+    const selectors = addrToSelectors.get(addr)
+    if (!selectors) {
+      continue
+    }
+
+    // Select ABI with highest match to selectors that were
+    // actually called on an address
+    let bestMatch: { name: string; abi: TxTypes.AbiEntry[] } | null = null
+    let bestCount = 0
+
+    for (const [name, file] of files) {
+      const methodSelectors = new Set(
+        Object.values(file?.methodIdentifiers || {}),
+      )
+      let count = 0
+      for (const s of selectors) {
+        if (methodSelectors.has(s)) count++
+      }
+      if (count > bestCount) {
+        bestCount = count
+        bestMatch = { name: name.replace(".json", ""), abi: file?.abi }
+      }
+    }
+
+    if (bestMatch && bestCount > 0) {
+      addrToAbi.set(addr, bestMatch)
     }
   }
 

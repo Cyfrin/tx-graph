@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useTracerContext } from "../../contexts/Tracer"
 import XMark from "../svg/XMark"
+import Pin from "../svg/Pin"
 import * as Types from "./types"
 import VirtualList from "./VirtualList"
 import DropDown from "./DropDown"
@@ -71,7 +72,9 @@ function Fn<V>({
           {renderCallType ? renderCallType(call?.ctx) : null}
           <div className={styles.index} onClick={onClick}>
             {state.pins.has(call.i) ? (
-              <span className={styles.pin}>x</span>
+              <span className={styles.pin}>
+                <Pin size={10} />
+              </span>
             ) : (
               call.i
             )}

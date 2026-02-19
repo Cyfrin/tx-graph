@@ -224,23 +224,27 @@ function TxPage() {
       }
     }
 
-    if (files.length > 0) {
-      const zip = new JSZip()
-      for (const f of files) {
-        zip.file(f.name, f.data)
-      }
-
-      // Generate and download zip file
-      const blob = await zip.generateAsync({ type: "blob" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `contracts_${txHash.slice(0, 8)}...${txHash.slice(-5)}.zip`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
+    if (files.length == 0) {
+      // TODO: toast
+      console.log("no code to download")
+      return
     }
+
+    const zip = new JSZip()
+    for (const f of files) {
+      zip.file(f.name, f.data)
+    }
+
+    // Generate and download zip file
+    const blob = await zip.generateAsync({ type: "blob" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `contracts_${txHash.slice(0, 8)}...${txHash.slice(-5)}.zip`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   function onCheck() {

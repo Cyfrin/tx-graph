@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { toast } from "react-toastify"
 import { useParams, useSearchParams } from "react-router-dom"
 import JSZip from "jszip"
 import * as api from "../../api"
@@ -202,9 +203,8 @@ function TxPage() {
       addrs: [...addrs.values()],
     })
 
-    // TODO: toast
     if (error) {
-      console.log("error", error)
+      toast.error(`Failed to fetch contracts: ${error}`)
       return
     }
 
@@ -225,8 +225,7 @@ function TxPage() {
     }
 
     if (files.length == 0) {
-      // TODO: toast
-      console.log("no code to download")
+      toast.warn("No verified contract source code to download")
       return
     }
 

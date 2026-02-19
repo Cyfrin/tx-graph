@@ -1,5 +1,6 @@
 import { useLayoutEffect } from "react"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { ToastContainer } from "react-toastify"
 import { Provider as AppProvider, useAppContext } from "./contexts/App"
 import { Provider as WindowSizeProvider } from "./contexts/WindowSize"
 import { Provider as FileWatchProvider } from "./contexts/FileWatch"
@@ -29,6 +30,7 @@ export default () => {
       <AppProvider>
         <FileWatchProvider>
           <App />
+          <ToastContainer theme="dark" />
         </FileWatchProvider>
       </AppProvider>
     </WindowSizeProvider>

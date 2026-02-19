@@ -1,3 +1,4 @@
+import { toast } from "react-toastify"
 import * as FileTypes from "../../types/file"
 import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
@@ -20,8 +21,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
       const [handle]: FileSystemFileHandle[] = await window.showOpenFilePicker()
       fileWatch.watch("trace", handle)
     } catch (err) {
-      // TODO: toast
-      console.log(err)
+      toast.error(`Failed to select trace file: ${err}`)
     }
   }
 
@@ -30,8 +30,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
       // @ts-ignore
       fileWatch.watch("abi", await window.showDirectoryPicker())
     } catch (err) {
-      // TODO: toast
-      console.log(err)
+      toast.error(`Failed to select ABI directory: ${err}`)
     }
   }
 
@@ -54,8 +53,7 @@ const FoundryForm: React.FC<{}> = ({}) => {
           })
         }
       } catch (err) {
-        // TODO: toast
-        alert(`Failed to parse JSON: ${err}`)
+        toast.error(`Failed to parse JSON: ${err}`)
       }
 
       if (

@@ -35,6 +35,7 @@ function parse(
   selector?: string
   inputs?: TracerTypes.Input[]
   outputs?: TracerTypes.Output[]
+  error?: { name: string; args: any[] }
 } | null {
   try {
     if (!abi) {
@@ -47,37 +48,75 @@ function parse(
       return null
     }
 
-    const fn = {
+    const fn: {
+      name: string
+      selector: string
+      inputs: TracerTypes.Input[]
+      outputs: TracerTypes.Output[]
+      error?: { name: string; args: any[] }
+    } = {
       name: tx.name,
       selector: tx.selector,
       inputs: [],
       outputs: [],
     }
 
-    // @ts-ignore
-    if (tx?.fragment) {
-      const vals = iface.decodeFunctionData(tx.fragment, input)
-      // @ts-ignore
-      fn.inputs = zip(vals, [...tx.fragment.inputs], (v, t) => {
-        return {
+    if (!tx.fragment) {
+      return fn
+    }
+
+    const vals = iface.decodeFunctionData(tx.fragment, input)
+    fn.inputs = zip(vals, [...tx.fragment.inputs], (v, t) => ({
+      type: t.type,
+      name: t.name,
+      val: v,
+    }))
+
+    if (output) {
+      try {
+        const vals = iface.decodeFunctionResult(tx.fragment, output)
+        fn.outputs = zip(vals, [...tx.fragment.outputs], (v, t) => ({
           type: t.type,
           name: t.name,
           val: v,
+        }))
+      } catch {
+        // Try decoding as an error
+        try {
+          const err = iface.parseError(output)
+          if (err) {
+            fn.error = {
+              name: err.name,
+              args: [...err.args],
+            }
+          }
+        } catch {
+          // Try Error(string) — selector 0x08c379a2
+          // Try Panic(uint256) — selector 0x4e487b71
+          try {
+            const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+            if (output.startsWith("0x08c379a2")) {
+              const [reason] = abiCoder.decode(
+                ["string"],
+                "0x" + output.slice(10),
+              )
+              fn.error = { name: "Error", args: [reason] }
+            } else if (output.startsWith("0x4e487b71")) {
+              const [code] = abiCoder.decode(
+                ["uint256"],
+                "0x" + output.slice(10),
+              )
+              fn.error = { name: "Panic", args: [code] }
+            } else {
+              fn.error = { name: "unknown error", args: [output] }
+            }
+          } catch {
+            fn.error = { name: "unknown error", args: [output] }
+          }
         }
-      })
+      }
     }
-    if (tx?.fragment && output) {
-      // @ts-ignore
-      const vals = iface.decodeFunctionResult(tx.fragment, output)
-      // @ts-ignore
-      fn.outputs = zip(vals, [...tx.fragment.outputs], (v, t) => {
-        return {
-          type: t.type,
-          name: t.name,
-          val: v,
-        }
-      })
-    }
+
     return fn
   } catch (error) {
     console.log("Parse fn error", error)

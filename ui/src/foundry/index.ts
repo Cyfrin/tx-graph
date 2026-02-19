@@ -264,6 +264,7 @@ export function getContracts(
               const selector = a.trace.data.slice(2, 10)
               // Guard agains selector = ""
               if (selector) {
+                // TODO: find best match
                 const abis = selectorToAbis.get(selector)
                 if (abis?.length == 1) {
                   const { name, abi } = abis[0]

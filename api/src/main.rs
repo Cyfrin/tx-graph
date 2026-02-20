@@ -248,8 +248,15 @@ async fn post_jobs(
 
     let contracts: Vec<Contract> = sqlx::query_as!(
         Contract,
-        "SELECT chain, address, name, abi, label, NULL as src, updated_at FROM contracts WHERE chain = $1 AND address = ANY($2)",
-        req.chain, &addrs.iter().cloned().collect::<Vec<String>>()
+        r#"
+        SELECT chain, address, name, abi, label,
+               CASE WHEN length(src) > 0 THEN 'x' ELSE NULL END as src,
+               updated_at
+        FROM contracts
+        WHERE chain = $1 AND address = ANY($2)
+        "#,
+        req.chain,
+        &addrs.iter().cloned().collect::<Vec<String>>()
     )
     .fetch_all(&pool)
     .await
@@ -270,7 +277,7 @@ async fn post_jobs(
     let addrs_to_refetch: Vec<String> = contracts
         .iter()
         .filter(|c| {
-            c.name.is_none()
+            (c.name.is_none() || c.src.is_none())
                 && c.updated_at
                     .map(|updated| updated < one_day_ago)
                     .unwrap_or(true)
@@ -317,7 +324,16 @@ async fn post_jobs(
         }
     }
 
-    Ok(Json(PostJobsResponse { contracts, job_ids }))
+    Ok(Json(PostJobsResponse {
+        contracts: contracts
+            .into_iter()
+            .map(|mut c| {
+                c.src = None;
+                c
+            })
+            .collect(),
+        job_ids,
+    }))
 }
 
 #[derive(Debug, Serialize, Deserialize)]

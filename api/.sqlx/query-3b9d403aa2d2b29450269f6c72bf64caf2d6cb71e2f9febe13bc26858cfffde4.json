@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT chain, address, name, abi, label, NULL as src, updated_at FROM contracts WHERE chain = $1 AND address = ANY($2)",
+  "query": "\n        SELECT chain, address, name, abi, label,\n               CASE WHEN length(src) > 0 THEN 'x' ELSE NULL END as src,\n               updated_at\n        FROM contracts\n        WHERE chain = $1 AND address = ANY($2)\n        ",
   "describe": {
     "columns": [
       {
@@ -55,5 +55,5 @@
       false
     ]
   },
-  "hash": "3d1ef7c58909ac60be339e309d43c23b13a1c5c7cb44d3316fcb27c1a131739a"
+  "hash": "3b9d403aa2d2b29450269f6c72bf64caf2d6cb71e2f9febe13bc26858cfffde4"
 }

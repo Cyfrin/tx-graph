@@ -1,10 +1,14 @@
 import * as TxTypes from "../types/tx"
 import * as FileTypes from "../types/file"
 import { Tests, JsonFile } from "./types"
+// ABI of console.sol is empty so import from here
+import CONSOLE_ABI from "./console.json"
+
+const CONSOLE_ADDR = "0x000000000000000000636f6e736f6c652e6c6f67"
 
 const LABELS: Record<string, string> = {
   "0x7109709ecfa91a80626ff3989d68f67f5b1dd12d": "Vm",
-  "0x000000000000000000636f6e736f6c652e6c6f67": "console",
+  [CONSOLE_ADDR]: "console",
 }
 
 function dfs<A>(
@@ -149,7 +153,10 @@ export function getContracts(
 
   // Map label to ABI
   for (const [addr, label] of Object.entries(LABELS)) {
-    const { abi } = files.get(`${label}.json`) || {}
+    const { abi } =
+      label == "console"
+        ? { abi: CONSOLE_ABI }
+        : files.get(`${label}.json`) || {}
     if (abi) {
       addrToAbi.set(addr, { name: label, abi })
     }

@@ -75,6 +75,18 @@ export async function getTxTrace(
     setCache(cacheKey, res)
   }
 
+  /*
+  Fetch events
+  const txRes = await post<any, { result: any }>(url, {
+    jsonrpc: "2.0",
+    method: "eth_getTransactionReceipt",
+    params: [txHash],
+    id: cfg.chainId,
+  })
+
+  console.log("TX", res, txRes)
+  */
+
   return res
 }
 

@@ -4,7 +4,6 @@ import { Tests, JsonFile } from "./types"
 
 const LABELS: Record<string, string> = {
   "0x7109709ecfa91a80626ff3989d68f67f5b1dd12d": "Vm",
-  // Internal call - it won't show up on tracer
   "0x000000000000000000636f6e736f6c652e6c6f67": "console",
 }
 

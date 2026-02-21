@@ -419,11 +419,9 @@ function TxPage() {
                 calls={calls}
                 renderCallCtx={(ctx) => <Evm ctx={ctx} />}
                 renderCallType={(ctx) => <Op ctx={ctx} />}
-                renderModDropDown={(ctx) => (
-                  <ContractDropDown ctx={ctx} chain={chain} />
-                )}
+                renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
                 renderFnDropDown={(ctx, fnName) => (
-                  <FnDropDown ctx={ctx} chain={chain} fnName={fnName} />
+                  <FnDropDown ctx={ctx} fnName={fnName} />
                 )}
                 getInputLabel={(val) => labels[val?.toLowerCase()] || null}
                 getOutputLabel={(val) => labels[val?.toLowerCase()] || null}

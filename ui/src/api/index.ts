@@ -113,6 +113,7 @@ export async function getContract(params: {
   chain: string
   addr: string
 }): Promise<TxTypes.ContractInfo<Record<string, string>> | null> {
+  // TODO: cache
   const res = await get<TxTypes.ContractInfo<string> | null>(
     `${import.meta.env.VITE_API_URL}/contracts/${params.chain}/${params.addr}`,
   )

@@ -124,15 +124,16 @@ function parse(
   }
 }
 
-function build(root: TxTypes.TxCall, contracts: TxTypes.ContractInfo[]): Data {
-  const cons: { [key: string]: TxTypes.ContractInfo[] } = contracts.reduce(
-    (z, c) => {
+function build(
+  root: TxTypes.TxCall,
+  contracts: TxTypes.ContractInfo<string>[],
+): Data {
+  const cons: { [key: string]: TxTypes.ContractInfo<string>[] } =
+    contracts.reduce((z, c) => {
       // @ts-ignore
       z[c.address] = c
       return z
-    },
-    {},
-  )
+    }, {})
 
   // Account or function to Id
   const ids: Map<string, GraphTypes.Id> = new Map()
@@ -307,7 +308,7 @@ export type State = {
   q: {
     total: number
     fetched: number
-    contracts: TxTypes.ContractInfo[]
+    contracts: TxTypes.ContractInfo<string>[]
     running: boolean
   }
   data: Data | null
@@ -419,10 +420,8 @@ export function useGetTrace(params: {
 
       try {
         if (params.chain == "foundry-test") {
-          const contracts: TxTypes.ContractInfo[] = foundry.getContracts(
-            params.mem,
-            [...addrs.values()],
-          )
+          const contracts: TxTypes.ContractInfo<string>[] =
+            foundry.getContracts(params.mem, [...addrs.values()])
 
           setState((state) => ({
             ...state,
@@ -454,12 +453,14 @@ export function useGetTrace(params: {
             ),
           )
 
-          const contracts: TxTypes.ContractInfo[] = addrList.map((addr, i) => ({
-            chain: params.chain,
-            address: addr,
-            name: results[i].name || undefined,
-            abi: results[i].abi || undefined,
-          }))
+          const contracts: TxTypes.ContractInfo<string>[] = addrList.map(
+            (addr, i) => ({
+              chain: params.chain,
+              address: addr,
+              name: results[i].name || undefined,
+              abi: results[i].abi || undefined,
+            }),
+          )
 
           setState((state) => ({
             ...state,
@@ -513,13 +514,12 @@ export function useGetTrace(params: {
                     Object.values(res).filter((v) => v?.status == "complete")
                       .length == job_ids.length
 
-                  const newContracts: TxTypes.ContractInfo[] = Object.values(
-                    res,
-                  )
-                    .map((v) => v?.contract)
-                    .filter((c) => !!c)
+                  const newContracts: TxTypes.ContractInfo<string>[] =
+                    Object.values(res)
+                      .map((v) => v?.contract)
+                      .filter((c) => !!c)
 
-                  const set: Record<string, TxTypes.ContractInfo> = {}
+                  const set: Record<string, TxTypes.ContractInfo<string>> = {}
                   for (const c of [...contracts, ...newContracts]) {
                     set[c.address] = c
                   }

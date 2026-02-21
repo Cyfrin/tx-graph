@@ -211,8 +211,8 @@ function TxPage() {
     const files = []
     for (const [addr, c] of Object.entries(data ?? {})) {
       if (c?.src) {
-        const flat = Object.entries(c.src.sources)
-          .map(([name, code]) => `// ${name}\n${code?.content}`)
+        const flat = Object.entries(c.src)
+          .map(([name, code]) => `// ${name}\n${code}`)
           .join("\n")
 
         if (flat.length > 0) {
@@ -419,8 +419,12 @@ function TxPage() {
                 calls={calls}
                 renderCallCtx={(ctx) => <Evm ctx={ctx} />}
                 renderCallType={(ctx) => <Op ctx={ctx} />}
-                renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
-                renderFnDropDown={(ctx) => <FnDropDown ctx={ctx} />}
+                renderModDropDown={(ctx) => (
+                  <ContractDropDown ctx={ctx} chain={chain} />
+                )}
+                renderFnDropDown={(ctx, fnName) => (
+                  <FnDropDown ctx={ctx} chain={chain} fnName={fnName} />
+                )}
                 getInputLabel={(val) => labels[val?.toLowerCase()] || null}
                 getOutputLabel={(val) => labels[val?.toLowerCase()] || null}
               />

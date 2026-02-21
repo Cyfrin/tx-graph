@@ -93,11 +93,11 @@ export async function getTxTrace(
 export async function postJobs(params: {
   chain: string
   addrs: string[]
-}): Promise<{ job_ids: string[]; contracts: TxTypes.ContractInfo[] }> {
-  return post<any, { job_ids: string[]; contracts: TxTypes.ContractInfo[] }>(
-    `${import.meta.env.VITE_API_URL}/contracts`,
-    params,
-  )
+}): Promise<{ job_ids: string[]; contracts: TxTypes.ContractInfo<string>[] }> {
+  return post<
+    any,
+    { job_ids: string[]; contracts: TxTypes.ContractInfo<string>[] }
+  >(`${import.meta.env.VITE_API_URL}/contracts`, params)
 }
 
 export async function getJobs(params: {
@@ -112,11 +112,8 @@ export async function getJobs(params: {
 export async function getContract(params: {
   chain: string
   addr: string
-}): Promise<{
-  contract: TxTypes.ContractInfo
-  src: TxTypes.Source | null
-} | null> {
-  const res = await get<TxTypes.ContractInfo | null>(
+}): Promise<TxTypes.ContractInfo<Record<string, string>> | null> {
+  const res = await get<TxTypes.ContractInfo<string> | null>(
     `${import.meta.env.VITE_API_URL}/contracts/${params.chain}/${params.addr}`,
   )
 
@@ -127,24 +124,36 @@ export async function getContract(params: {
   try {
     if (res?.src) {
       // Remove extra { and }
-      const src = JSON.parse(res.src.slice(1, -1))
+      const src: TxTypes.Source = JSON.parse(res.src.slice(1, -1))
       return {
-        contract: res,
-        src,
+        ...res,
+        src: Object.entries(src.sources).reduce(
+          (z, [name, { content }]) => {
+            z[name] = content
+            return z
+          },
+          {} as Record<string, string>,
+        ),
       }
     }
   } catch (err) {
     console.log(err)
   }
 
-  return { contract: res, src: null }
+  return {
+    ...res,
+    src: res.src ? { [res.name || "?"]: res.src } : {},
+  }
 }
 
 export async function batchGetContracts(params: {
   chain: string
   addrs: string[]
 }): Promise<
-  Record<string, { name: string | null; src: TxTypes.Source | null } | null>
+  Record<
+    string,
+    { name: string | null; src: Record<string, string> | null } | null
+  >
 > {
   const res = await Promise.all(
     params.addrs.map((addr) => getContract({ chain: params.chain, addr })),
@@ -154,7 +163,7 @@ export async function batchGetContracts(params: {
     (z, addr, i) => {
       if (res[i]?.src) {
         z[addr] = {
-          name: res[i]?.contract?.name || null,
+          name: res[i]?.name || null,
           src: res[i]?.src,
         }
         return z
@@ -165,7 +174,7 @@ export async function batchGetContracts(params: {
     },
     {} as Record<
       string,
-      { name: string | null; src: TxTypes.Source | null } | null
+      { name: string | null; src: Record<string, string> | null } | null
     >,
   )
 }

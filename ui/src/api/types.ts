@@ -12,5 +12,5 @@ export type CacheEntry<T> = {
 
 export type Job = {
   status: "pending" | "complete"
-  contract: ContractInfo | null
+  contract: ContractInfo<string> | null
 }

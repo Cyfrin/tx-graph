@@ -7,7 +7,7 @@ const DropDown: React.FC<{
   highlight: boolean
   onMouseEnter: () => void
   onMouseLeave: () => void
-  children: React.ReactNode
+  children: () => React.ReactNode
 }> = ({ label, highlight, onMouseEnter, onMouseLeave, children }) => {
   const trigger = useRef<HTMLDivElement | null>(null)
   const dropDown = useRef<HTMLDivElement | null>(null)
@@ -36,7 +36,7 @@ const DropDown: React.FC<{
         ref={dropDown}
         className={`${styles.tooltip} ${show ? styles.show : ""}`}
       >
-        {children}
+        {show ? children() : null}
       </div>
     </div>
   )

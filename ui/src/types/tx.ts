@@ -28,13 +28,14 @@ export type AbiEntry = {
   outputs?: AbiOutput[]
 }
 
-export type ContractInfo = {
+export type ContractInfo<S = string | Record<string, string>> = {
   chain: string
   address: string
   name?: string
   abi?: AbiEntry[]
   label?: string
-  src?: string
+  // string or Record<name => code>
+  src?: S | null
 }
 
 export type Source = {

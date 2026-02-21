@@ -12,7 +12,9 @@ const FnDropDown: React.FC<{
     selector?: string
     raw?: { input?: string; output?: string }
   }
-}> = ({ ctx }) => {
+  chain: string
+  fnName?: string
+}> = ({ ctx, chain, fnName }) => {
   return (
     <div className={styles.component}>
       <div className={styles.row}>

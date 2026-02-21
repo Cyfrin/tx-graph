@@ -22,7 +22,7 @@ type FnProps<A> = {
   renderCallType?: (ctx: A) => React.ReactNode
   renderCallCtx?: (ctx: A) => React.ReactNode
   renderModDropDown?: (ctx: A) => React.ReactNode
-  renderFnDropDown?: (ctx: A) => React.ReactNode
+  renderFnDropDown?: (ctx: A, fnName: string) => React.ReactNode
   highlights: { [key: string]: boolean }
   setHighlight: (key: string | number, on: boolean) => void
   getInputLabel?: (val: string) => string | null
@@ -92,7 +92,7 @@ function Fn<V>({
                 onMouseEnter={() => setHighlight(call.fn.mod, true)}
                 onMouseLeave={() => setHighlight(call.fn.mod, false)}
               >
-                {renderModDropDown(call.ctx)}
+                {() => renderModDropDown(call.ctx)}
               </DropDown>
             ) : (
               call.fn.mod
@@ -107,7 +107,7 @@ function Fn<V>({
                 onMouseEnter={() => setHighlight(call.fn.name, true)}
                 onMouseLeave={() => setHighlight(call.fn.name, false)}
               >
-                {renderFnDropDown(call.ctx)}
+                {() => renderFnDropDown(call.ctx, call.fn.name)}
               </DropDown>
             ) : (
               call.fn.name
@@ -137,7 +137,7 @@ type TracerProps<C> = {
   renderCallType?: (ctx: C) => React.ReactNode
   renderCallCtx?: (ctx: C) => React.ReactNode
   renderModDropDown?: (ctx: C) => React.ReactNode
-  renderFnDropDown?: (ctx: C) => React.ReactNode
+  renderFnDropDown?: (ctx: C, fnName: string) => React.ReactNode
   getInputLabel?: (val: string) => string | null
   getOutputLabel?: (val: string) => string | null
 }

@@ -121,7 +121,7 @@ export function getTrace(mem: FileTypes.MemStore): TxTypes.TxCall | null {
 export function getContracts(
   mem: FileTypes.MemStore,
   addrs: string[],
-): TxTypes.ContractInfo[] {
+): TxTypes.ContractInfo<string>[] {
   // @ts-ignore
   const tests: Tests = mem.get("trace")?.[0]?.data
   if (!tests) {

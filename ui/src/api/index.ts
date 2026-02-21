@@ -112,10 +112,32 @@ export async function getJobs(params: {
 export async function getContract(params: {
   chain: string
   addr: string
-}): Promise<TxTypes.ContractInfo | null> {
-  return get<TxTypes.ContractInfo | null>(
+}): Promise<{
+  contract: TxTypes.ContractInfo
+  src: TxTypes.Source | null
+} | null> {
+  const res = await get<TxTypes.ContractInfo | null>(
     `${import.meta.env.VITE_API_URL}/contracts/${params.chain}/${params.addr}`,
   )
+
+  if (!res) {
+    return null
+  }
+
+  try {
+    if (res?.src) {
+      // Remove extra { and }
+      const src = JSON.parse(res.src.slice(1, -1))
+      return {
+        contract: res,
+        src,
+      }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+
+  return { contract: res, src: null }
 }
 
 export async function batchGetContracts(params: {
@@ -128,21 +150,14 @@ export async function batchGetContracts(params: {
     params.addrs.map((addr) => getContract({ chain: params.chain, addr })),
   )
 
-  // TODO: include name
   return params.addrs.reduce(
     (z, addr, i) => {
       if (res[i]?.src) {
-        try {
-          // Remove extra { and }
-          const s = res[i].src.slice(1, -1)
-          z[addr] = {
-            name: res[i].name || null,
-            src: JSON.parse(s),
-          }
-          return z
-        } catch (error) {
-          console.log("JSON parse error:", addr, error)
+        z[addr] = {
+          name: res[i]?.contract?.name || null,
+          src: res[i]?.src,
         }
+        return z
       }
 
       z[addr] = null

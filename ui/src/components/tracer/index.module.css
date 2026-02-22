@@ -56,6 +56,24 @@
   align-items: center;
   color: var(--tracer-func-color);
 }
+.noHighlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+.highlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  background-color: var(--tracer-hl-bg-color);
+  color: var(--tracer-hl-color);
+  outline: 1px solid var(--tracer-hl-outline-color);
+  outline-offset: -1px;
+  transition:
+    color 0.1s ease,
+    background-color 0.1s ease;
+}
 .obj {
   color: var(--tracer-obj-color);
 }

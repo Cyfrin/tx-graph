@@ -4,7 +4,6 @@ import XMark from "../svg/XMark"
 import Pin from "../svg/Pin"
 import * as Types from "./types"
 import VirtualList from "./VirtualList"
-import DropDown from "./DropDown"
 import Inputs from "./Inputs"
 import Outputs from "./Outputs"
 import Pad from "./Pad"
@@ -21,8 +20,6 @@ type FnProps<A> = {
   hasChildren: boolean
   renderCallType?: (ctx: A) => React.ReactNode
   renderCallCtx?: (ctx: A) => React.ReactNode
-  renderModDropDown?: (ctx: A) => React.ReactNode
-  renderFnDropDown?: (ctx: A, fnName: string) => React.ReactNode
   highlights: { [key: string]: boolean }
   setHighlight: (key: string | number, on: boolean) => void
   getInputLabel?: (val: string) => string | null
@@ -34,8 +31,6 @@ function Fn<V>({
   hasChildren,
   renderCallType,
   renderCallCtx,
-  renderModDropDown,
-  renderFnDropDown,
   highlights,
   setHighlight,
   getInputLabel,
@@ -84,34 +79,20 @@ function Fn<V>({
         <div className={styles.call}>
           <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
           {!call.ok ? <XMark color="#E53935" size={16} /> : null}
-          <div className={styles.obj}>
-            {renderModDropDown ? (
-              <DropDown
-                label={call.fn.mod}
-                highlight={highlights[call.fn.mod]}
-                onMouseEnter={() => setHighlight(call.fn.mod, true)}
-                onMouseLeave={() => setHighlight(call.fn.mod, false)}
-              >
-                {() => renderModDropDown(call.ctx)}
-              </DropDown>
-            ) : (
-              call.fn.mod
-            )}
+          <div
+            className={`${styles.obj} ${highlights[call.fn.mod] ? styles.highlight : styles.noHighlight}`}
+            onMouseEnter={() => setHighlight(call.fn.mod, true)}
+            onMouseLeave={() => setHighlight(call.fn.mod, false)}
+          >
+            {call.fn.mod}
           </div>
           <div className={styles.dot}>.</div>
-          <div className={styles.funcName}>
-            {renderFnDropDown ? (
-              <DropDown
-                label={call.fn.name}
-                highlight={highlights[call.fn.name]}
-                onMouseEnter={() => setHighlight(call.fn.name, true)}
-                onMouseLeave={() => setHighlight(call.fn.name, false)}
-              >
-                {() => renderFnDropDown(call.ctx, call.fn.name)}
-              </DropDown>
-            ) : (
-              call.fn.name
-            )}
+          <div
+            className={`${styles.funcName} ${highlights[call.fn.name] ? styles.highlight : styles.noHighlight}`}
+            onMouseEnter={() => setHighlight(call.fn.name, true)}
+            onMouseLeave={() => setHighlight(call.fn.name, false)}
+          >
+            {call.fn.name}
           </div>
           {renderCallCtx ? renderCallCtx(call.ctx) : null}
           <div>(</div>
@@ -190,8 +171,6 @@ function Tracer<C>({
             hasChildren={calls?.[cs?.[i].i + 1]?.depth > cs?.[i]?.depth}
             renderCallType={renderCallType}
             renderCallCtx={renderCallCtx}
-            renderModDropDown={renderModDropDown}
-            renderFnDropDown={renderFnDropDown}
             highlights={highlights}
             setHighlight={setHighlight}
             getInputLabel={getInputLabel}

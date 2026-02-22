@@ -20,8 +20,6 @@ import FnDef from "../../components/tracer/FnDef"
 import FnCall from "../../components/tracer/FnCall"
 import Evm from "../../components/ctx/evm/tracer/Evm"
 import Op from "../../components/ctx/evm/tracer/Op"
-import ContractDropDown from "../../components/ctx/evm/tracer/ContractDropDown"
-import FnDropDown from "../../components/ctx/evm/tracer/FnDropDown"
 import CopyText from "../../components/CopyText"
 import * as EvmTypes from "../../components/ctx/evm/types"
 import Checkbox from "../../components/Checkbox"
@@ -419,10 +417,6 @@ function TxPage() {
                 calls={calls}
                 renderCallCtx={(ctx) => <Evm ctx={ctx} />}
                 renderCallType={(ctx) => <Op ctx={ctx} />}
-                renderModDropDown={(ctx) => <ContractDropDown ctx={ctx} />}
-                renderFnDropDown={(ctx, fnName) => (
-                  <FnDropDown ctx={ctx} fnName={fnName} />
-                )}
                 getInputLabel={(val) => labels[val?.toLowerCase()] || null}
                 getOutputLabel={(val) => labels[val?.toLowerCase()] || null}
               />

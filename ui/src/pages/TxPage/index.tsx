@@ -391,7 +391,7 @@ function TxPage() {
       return null
     }
     if (traceModal.type == "mod") {
-      return <ContractModal ctx={traceModal.call.ctx} />
+      return <ContractModal ctx={traceModal.call.ctx} chain={chain} />
     }
     if (traceModal.type == "fn") {
       return <FnModal ctx={traceModal.call.ctx} />

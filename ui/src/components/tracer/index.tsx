@@ -10,8 +10,6 @@ import Pad from "./Pad"
 import Fold from "./Fold"
 import styles from "./index.module.css"
 
-// TODO: show fn dropdown (with raw data) on fn without name
-
 // Fixed line height (must match line height in .line)
 const LINE_HEIGHT = 20
 
@@ -91,7 +89,7 @@ function Fn<V>({
           onMouseEnter={() => setHighlight(call.fn.name, true)}
           onMouseLeave={() => setHighlight(call.fn.name, false)}
         >
-          {call.fn.name}
+          {call.fn.name || "?"}
         </div>
         {renderCallCtx ? renderCallCtx(call.ctx) : null}
         <div>(</div>
@@ -153,8 +151,6 @@ function Tracer<C>({
     }
     i++
   }
-
-  console.log("CALLS", calls)
 
   return (
     <div className={styles.component}>

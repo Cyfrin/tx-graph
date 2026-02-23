@@ -14,15 +14,15 @@ const ContractModal: React.FC<{
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(null)
+  const timer = useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
     if (ctx.dst && chain && chain != "foundry-test") {
       getContract.exec({ addr: ctx.dst, chain })
     }
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current)
+      if (timer.current) {
+        clearTimeout(timer.current)
       }
     }
   }, [])
@@ -31,10 +31,10 @@ const ContractModal: React.FC<{
     navigator.clipboard.writeText(val)
 
     setCopiedIndex(i)
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
+    if (timer.current) {
+      clearTimeout(timer.current)
     }
-    timerRef.current = setTimeout(() => setCopiedIndex(null), 1500)
+    timer.current = setTimeout(() => setCopiedIndex(null), 1500)
   }
 
   const entries = Object.entries(getContract.data?.src || {})

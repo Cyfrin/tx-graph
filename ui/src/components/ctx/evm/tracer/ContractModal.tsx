@@ -4,6 +4,8 @@ import useAsync from "../../../../hooks/useAsync"
 import CopyText from "../../../CopyText"
 import Copy from "../../../svg/Copy"
 import Check from "../../../svg/Check"
+import FullScreen from "../../../svg/FullScreen"
+import FullScreenExit from "../../../svg/FullScreenExit"
 import Button from "../../../Button"
 import CodeViewer from "../../../CodeViewer"
 import styles from "./ContractModal.module.css"
@@ -13,6 +15,7 @@ const ContractModal: React.FC<{
   chain: string
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
+  const [fullScreen, setFullScreen] = useState(false)
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
 
@@ -55,8 +58,21 @@ const ContractModal: React.FC<{
                 <Button className={styles.copyBtn} onClick={() => copy(v, i)}>
                   {copiedIndex == i ? <Check size={16} /> : <Copy size={16} />}
                 </Button>
+                <Button
+                  className={styles.fullScreenBtn}
+                  onClick={() => setFullScreen(!fullScreen)}
+                >
+                  {fullScreen ? (
+                    <FullScreenExit size={16} />
+                  ) : (
+                    <FullScreen size={16} />
+                  )}
+                </Button>
               </div>
-              <div className={styles.code} style={{ maxHeight: 300 }}>
+              <div
+                className={styles.code}
+                style={{ maxHeight: fullScreen ? "100%" : 300 }}
+              >
                 <CodeViewer text={v} />
               </div>
             </div>

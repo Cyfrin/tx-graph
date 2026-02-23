@@ -13,6 +13,8 @@ html {
   --secondary-text-color: rgb(145, 145, 155);
   --bg-modal-overlay: rgba(110, 118, 129, 0.4);
   --bg-modal: #161b22;
+  --btn-bg-color: rgb(36, 36, 42);
+  --btn-color: white;
 
   --tracer-line-color: rgb(230, 230, 230);
   --tracer-line-hover-color: rgb(45, 45, 52);

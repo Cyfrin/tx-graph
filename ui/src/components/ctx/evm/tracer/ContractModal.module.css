@@ -24,10 +24,16 @@
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  padding: 8px 0 8px 0;
+  padding: 6px 0 6px 0;
 }
 .copyBtn {
-  background: rgb(36, 36, 42);
-  color: white;
+  margin-right: 6px;
+  background: var(--btn-bg-color);
+  color: var(--btn-color);
+  width: 48px;
+}
+.fullScreenBtn {
+  background: var(--btn-bg-color);
+  color: var(--btn-color);
   width: 48px;
 }

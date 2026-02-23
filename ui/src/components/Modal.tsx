@@ -3,7 +3,7 @@ import useOutsideClick from "../hooks/useOutsideClick"
 import styles from "./Modal.module.css"
 
 const Modal: React.FC<{
-  children: React.ReactNode
+  children: () => React.ReactNode
   id: string
   open: boolean
   onClose: () => void
@@ -62,7 +62,7 @@ const Modal: React.FC<{
       <div className={styles.overlay}>
         <div className={styles.container}>
           <div className={styles.content} ref={contentRef}>
-            <div className={styles.children}>{children}</div>
+            <div className={styles.children}>{children()}</div>
           </div>
         </div>
       </div>

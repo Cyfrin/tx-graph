@@ -159,7 +159,6 @@ function getArrowColor(t: ArrowType): string {
   }
 }
 
-// TODO: light theme
 function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
@@ -264,6 +263,7 @@ function TxPage() {
     setModal(hover)
   }
 
+  // TODO: components?
   function renderNode(node: number, details: boolean) {
     const obj = objs.get(node)
     // @ts-ignore
@@ -286,6 +286,7 @@ function TxPage() {
     )
   }
 
+  // TODO: components?
   function renderFn(node: number) {
     const obj = objs.get(node)
     const fn = obj?.val?.name || ""
@@ -308,6 +309,7 @@ function TxPage() {
     )
   }
 
+  // TODO: components?
   function renderArrows(arrows: Set<number>) {
     const nodes = []
     for (const i of arrows) {
@@ -484,7 +486,7 @@ function TxPage() {
         )}
       </Splits>
       <Modal id="graph" open={!!modal} onClose={() => setModal(null)}>
-        {renderModal()}
+        {() => renderModal()}
       </Modal>
     </div>
   )

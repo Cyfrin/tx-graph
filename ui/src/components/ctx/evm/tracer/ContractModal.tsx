@@ -1,8 +1,9 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import * as api from "../../../../api"
 import useAsync from "../../../../hooks/useAsync"
 import CopyText from "../../../CopyText"
 import Copy from "../../../svg/Copy"
+import Check from "../../../svg/Check"
 import Button from "../../../Button"
 import CodeViewer from "../../../CodeViewer"
 import styles from "./ContractModal.module.css"
@@ -12,15 +13,28 @@ const ContractModal: React.FC<{
   chain: string
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(null)
 
   useEffect(() => {
     if (ctx.dst && chain && chain != "foundry-test") {
       getContract.exec({ addr: ctx.dst, chain })
     }
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
   }, [])
 
-  const copy = (val: string) => {
+  const copy = (val: string, i: number) => {
     navigator.clipboard.writeText(val)
+
+    setCopiedIndex(i)
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+    timerRef.current = setTimeout(() => setCopiedIndex(null), 1500)
   }
 
   const entries = Object.entries(getContract.data?.src || {})
@@ -35,11 +49,11 @@ const ContractModal: React.FC<{
         </div>
       </div>
       {entries.length > 0
-        ? entries.map(([k, v], i) => (
+        ? entries.map(([, v], i) => (
             <div className={styles.col} key={i}>
               <div className={styles.tools}>
-                <Button className={styles.copyBtn} onClick={() => copy(v)}>
-                  <Copy size={16} />
+                <Button className={styles.copyBtn} onClick={() => copy(v, i)}>
+                  {copiedIndex == i ? <Check size={16} /> : <Copy size={16} />}
                 </Button>
               </div>
               <div className={styles.code} style={{ maxHeight: 300 }}>

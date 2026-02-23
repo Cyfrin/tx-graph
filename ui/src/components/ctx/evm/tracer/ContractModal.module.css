@@ -19,3 +19,15 @@
 .code {
   overflow: auto;
 }
+.tools {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 0 8px 0;
+}
+.copyBtn {
+  background: rgb(36, 36, 42);
+  color: white;
+  width: 48px;
+}

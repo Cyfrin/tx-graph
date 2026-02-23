@@ -12,7 +12,7 @@ const Button: React.FC<{
   disabled = false,
   onClick,
   children,
-  className = "",
+  className = styles.btn,
 }) => {
   return (
     <button

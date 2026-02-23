@@ -14,24 +14,27 @@ html {
   --bg-modal-overlay: rgba(110, 118, 129, 0.4);
   --bg-modal: #161b22;
 
-  --tracer-fn-color: rgb(230, 230, 230);
+  --tracer-line-color: rgb(230, 230, 230);
+  --tracer-line-hover-color: rgb(45, 45, 52);
   --tracer-index-color: rgb(130, 130, 140);
   --tracer-index-hover-color: rgb(250, 250, 250);
   --tracer-val-color: rgb(250, 200, 130);
   --tracer-eq-color: rgb(90, 90, 95);
   --tracer-pin-color: rgb(250, 175, 55);
-  --tracer-func-color: rgb(230, 230, 230);
+  --tracer-x-color: #e53935;
   --tracer-fold-color: rgb(130, 130, 140);
   --tracer-fold-hover-color: rgb(250, 250, 250);
-  --tracer-obj-color: rgb(100, 170, 250);
-  --tracer-func-name-color: rgb(150, 110, 220);
   --tracer-arrow-color: rgb(250, 140, 110);
   --tracer-dot-color: rgb(230, 230, 230);
   --tracer-vm-val-color: rgb(255 130 255);
-  --tracer-line-hover-color: rgb(45, 45, 52);
-  --tracer-hl-bg-color: rgb(30, 45, 60);
-  --tracer-hl-color: rgb(235, 235, 240);
-  --tracer-hl-outline-color: rgb(80, 140, 200);
+  --tracer-obj-color: rgb(100, 170, 250);
+  --tracer-obj-hl-bg-color: rgb(30, 45, 60);
+  --tracer-obj-hl-color: rgb(140, 175, 210);
+  --tracer-obj-hl-outline-color: rgb(80, 140, 200);
+  --tracer-fn-color: rgb(150, 110, 220);
+  --tracer-fn-hl-bg-color: rgb(35, 25, 55);
+  --tracer-fn-hl-color: rgb(155, 135, 195);
+  --tracer-fn-hl-outline-color: rgb(120, 80, 200);
   --tracer-tooltip-border-color: rgb(110, 110, 115);
   --tracer-tooltip-bg-color: rgb(44, 44, 48);
 

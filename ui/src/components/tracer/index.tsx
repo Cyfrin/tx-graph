@@ -57,56 +57,54 @@ function Fn<V>({
   const show = !state.hidden.has(call.i)
 
   return (
-    <div className={styles.fn}>
-      <div
-        className={styles.line}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-      >
-        <div className={styles.sticky}>
-          {renderCallType ? renderCallType(call?.ctx) : null}
-          <div className={styles.index} onClick={onClick}>
-            {state.pins.has(call.i) ? (
-              <span className={styles.pin}>
-                <Pin size={10} />
-              </span>
-            ) : (
-              call.i
-            )}
-          </div>
+    <div
+      className={styles.fn}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div className={styles.sticky}>
+        {renderCallType ? renderCallType(call?.ctx) : null}
+        <div className={styles.index} onClick={onClick}>
+          {state.pins.has(call.i) ? (
+            <span className={styles.pin}>
+              <Pin size={10} />
+            </span>
+          ) : (
+            call.i
+          )}
         </div>
-        <Pad depth={call.depth} height={LINE_HEIGHT} />
-        <div className={styles.call}>
-          <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
-          {!call.ok ? <XMark color="#E53935" size={16} /> : null}
-          <div
-            className={`${styles.obj} ${highlights[call.fn.mod] ? styles.highlight : styles.noHighlight}`}
-            onMouseEnter={() => setHighlight(call.fn.mod, true)}
-            onMouseLeave={() => setHighlight(call.fn.mod, false)}
-          >
-            {call.fn.mod}
-          </div>
-          <div className={styles.dot}>.</div>
-          <div
-            className={`${styles.funcName} ${highlights[call.fn.name] ? styles.highlight : styles.noHighlight}`}
-            onMouseEnter={() => setHighlight(call.fn.name, true)}
-            onMouseLeave={() => setHighlight(call.fn.name, false)}
-          >
-            {call.fn.name}
-          </div>
-          {renderCallCtx ? renderCallCtx(call.ctx) : null}
-          <div>(</div>
-          <Inputs inputs={call.fn.inputs} getLabel={getInputLabel} />
-          <div>)</div>
-          {call.fn.outputs.length > 0 ? (
-            <div className={styles.outputs}>
-              <div className={styles.arrow}>{"→"}</div>
-              <div>(</div>
-              <Outputs outputs={call.fn.outputs} getLabel={getOutputLabel} />
-              <div>)</div>
-            </div>
-          ) : null}
+      </div>
+      <Pad depth={call.depth} height={LINE_HEIGHT} />
+      <div className={styles.call}>
+        <Fold show={show} hasChildren={hasChildren} onClick={onClickFold} />
+        {!call.ok ? <XMark className={styles.x} size={16} /> : null}
+        <div
+          className={`${highlights[call.fn.mod] ? styles.objHighlight : styles.objNoHighlight}`}
+          onMouseEnter={() => setHighlight(call.fn.mod, true)}
+          onMouseLeave={() => setHighlight(call.fn.mod, false)}
+        >
+          {call.fn.mod}
         </div>
+        <div className={styles.dot}>.</div>
+        <div
+          className={`${highlights[call.fn.name] ? styles.fnHighlight : styles.fnNoHighlight}`}
+          onMouseEnter={() => setHighlight(call.fn.name, true)}
+          onMouseLeave={() => setHighlight(call.fn.name, false)}
+        >
+          {call.fn.name}
+        </div>
+        {renderCallCtx ? renderCallCtx(call.ctx) : null}
+        <div>(</div>
+        <Inputs inputs={call.fn.inputs} getLabel={getInputLabel} />
+        <div>)</div>
+        {call.fn.outputs.length > 0 ? (
+          <div className={styles.outputs}>
+            <div className={styles.arrow}>{"→"}</div>
+            <div>(</div>
+            <Outputs outputs={call.fn.outputs} getLabel={getOutputLabel} />
+            <div>)</div>
+          </div>
+        ) : null}
       </div>
     </div>
   )
@@ -117,8 +115,6 @@ type TracerProps<C> = {
   calls: Types.Call<C, Types.FnCall>[]
   renderCallType?: (ctx: C) => React.ReactNode
   renderCallCtx?: (ctx: C) => React.ReactNode
-  renderModDropDown?: (ctx: C) => React.ReactNode
-  renderFnDropDown?: (ctx: C, fnName: string) => React.ReactNode
   getInputLabel?: (val: string) => string | null
   getOutputLabel?: (val: string) => string | null
 }
@@ -128,8 +124,6 @@ function Tracer<C>({
   calls,
   renderCallType,
   renderCallCtx,
-  renderModDropDown,
-  renderFnDropDown,
   getInputLabel,
   getOutputLabel,
 }: TracerProps<C>) {

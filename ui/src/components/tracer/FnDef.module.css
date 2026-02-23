@@ -4,7 +4,7 @@
   white-space: nowrap;
 }
 .fn {
-  color: var(--tracer-func-name-color);
+  color: var(--tracer-fn-color);
 }
 .type {
   color: var(--tracer-val-color)

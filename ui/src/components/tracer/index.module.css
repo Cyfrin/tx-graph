@@ -3,25 +3,22 @@
   /* overflow: auto; */
   white-space: nowrap;
 }
-.fn {
-  color: var(--tracer-fn-color);
-  white-space: nowrap;
-}
 .hide {
   display: none;
 }
-.line {
+.fn {
   display: flex;
   flex-direction: row;
   align-items: center;
   white-space: nowrap;
   /* Need to specify height for Pad to display a vertical line */
   height: 20px;
+  color: var(--tracer-line-color);
+  background-color: var(--bg-color);
   transition: background-color 0.2s ease;
   cursor: pointer;
-  background-color: var(--bg-color);
 }
-.line:hover {
+.fn:hover {
   background-color: var(--tracer-line-hover-color);
 }
 .sticky {
@@ -50,38 +47,50 @@
 .pin {
   color: var(--tracer-pin-color);
 }
+.x {
+  color: var(--tracer-x-color);
+}
 .call {
   display: flex;
   flex-direction: row;
   align-items: center;
-  color: var(--tracer-func-color);
 }
-.noHighlight {
+.objHighlight {
   cursor: pointer;
   padding: 0 2px 0 2px;
   border-radius: 2px;
+  background-color: var(--tracer-obj-hl-bg-color);
+  color: var(--tracer-obj-hl-color);
+  outline: 1px solid var(--tracer-obj-hl-outline-color);
+  outline-offset: -1px;
   transition: color 0.1s ease, background-color 0.1s ease;
 }
-.highlight {
+.objNoHighlight {
   cursor: pointer;
   padding: 0 2px 0 2px;
   border-radius: 2px;
-  background-color: var(--tracer-hl-bg-color);
-  color: var(--tracer-hl-color);
-  outline: 1px solid var(--tracer-hl-outline-color);
-  outline-offset: -1px;
-  transition:
-    color 0.1s ease,
-    background-color 0.1s ease;
-}
-.obj {
   color: var(--tracer-obj-color);
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+.fnHighlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  background-color: var(--tracer-fn-hl-bg-color);
+  color: var(--tracer-fn-hl-color);
+  outline: 1px solid var(--tracer-fn-hl-outline-color);
+  outline-offset: -1px;
+  transition: color 0.1s ease, background-color 0.1s ease;
+}
+.fnNoHighlight {
+  cursor: pointer;
+  padding: 0 2px 0 2px;
+  border-radius: 2px;
+  color: var(--tracer-fn-color);
+  transition: color 0.1s ease, background-color 0.1s ease;
 }
 .dot {
   color: var(--tracer-dot-color);
-}
-.funcName {
-  color: var(--tracer-func-name-color);
 }
 .outputs {
   display: flex;

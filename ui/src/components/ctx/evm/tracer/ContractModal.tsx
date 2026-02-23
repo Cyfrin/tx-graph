@@ -52,8 +52,9 @@ const ContractModal: React.FC<{
         </div>
       </div>
       {entries.length > 0
-        ? entries.map(([, v], i) => (
+        ? entries.map(([k, v], i) => (
             <div className={styles.col} key={i}>
+              <div className={styles.codeName}>{k}</div>
               <div className={styles.tools}>
                 <Button className={styles.copyBtn} onClick={() => copy(v, i)}>
                   {copiedIndex == i ? <Check size={16} /> : <Copy size={16} />}

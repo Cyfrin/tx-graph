@@ -19,6 +19,9 @@
 .code {
   overflow: auto;
 }
+.codeName {
+  margin-top: 10px;
+}
 .tools {
   display: flex;
   flex-direction: row;

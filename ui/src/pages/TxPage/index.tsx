@@ -20,6 +20,8 @@ import FnDef from "../../components/tracer/FnDef"
 import FnCall from "../../components/tracer/FnCall"
 import Evm from "../../components/ctx/evm/tracer/Evm"
 import Op from "../../components/ctx/evm/tracer/Op"
+import FnModal from "../../components/ctx/evm/tracer/FnModal"
+import ContractModal from "../../components/ctx/evm/tracer/ContractModal"
 import CopyText from "../../components/CopyText"
 import * as EvmTypes from "../../components/ctx/evm/types"
 import Checkbox from "../../components/Checkbox"
@@ -247,6 +249,10 @@ function TxPage() {
   })
   const [checked, setChecked] = useState(false)
   const [graphModal, setGraphModal] = useState<GraphTypes.Hover | null>(null)
+  const [traceModal, setTraceModal] = useState<{
+    type: "mod" | "fn"
+    call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>
+  } | null>(null)
   const batchGetContracts = useAsync(api.batchGetContracts)
 
   if (getTrace.state.trace.error) {
@@ -332,6 +338,14 @@ function TxPage() {
     setGraphModal(hover)
   }
 
+  function onClickMod(call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>) {
+    setTraceModal({ type: "mod", call })
+  }
+
+  function onClickFn(call: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>) {
+    setTraceModal({ type: "fn", call })
+  }
+
   function renderNode(node: number, details: boolean) {
     const obj = objs.get(node)
     // @ts-ignore
@@ -372,7 +386,20 @@ function TxPage() {
     return <GraphArrows nodes={nodes} />
   }
 
-  function renderModal() {
+  function renderTraceModal() {
+    if (!traceModal) {
+      return null
+    }
+    if (traceModal.type == "mod") {
+      return <ContractModal ctx={traceModal.call.ctx} />
+    }
+    if (traceModal.type == "fn") {
+      return <FnModal ctx={traceModal.call.ctx} />
+    }
+    return null
+  }
+
+  function renderGraphModal() {
     if (!graphModal) {
       return null
     }
@@ -440,6 +467,8 @@ function TxPage() {
                 renderCallType={(ctx) => <Op ctx={ctx} />}
                 getInputLabel={(val) => labels[val?.toLowerCase()] || null}
                 getOutputLabel={(val) => labels[val?.toLowerCase()] || null}
+                onClickMod={onClickMod}
+                onClickFn={onClickFn}
               />
             </div>
           </div>
@@ -504,8 +533,15 @@ function TxPage() {
           />
         )}
       </Splits>
+      <Modal
+        id="tracer"
+        open={!!traceModal}
+        onClose={() => setTraceModal(null)}
+      >
+        {() => renderTraceModal()}
+      </Modal>
       <Modal id="graph" open={!!graphModal} onClose={() => setGraphModal(null)}>
-        {() => renderModal()}
+        {() => renderGraphModal()}
       </Modal>
     </div>
   )

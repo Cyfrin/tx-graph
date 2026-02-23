@@ -1,0 +1,10 @@
+.ctx {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.label {
+}
+.val {
+  margin-left: 4px;
+}

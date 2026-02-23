@@ -22,6 +22,8 @@ type FnProps<A> = {
   setHighlight: (key: string | number, on: boolean) => void
   getInputLabel?: (val: string) => string | null
   getOutputLabel?: (val: string) => string | null
+  onClickMod: (call: Types.Call<A, Types.FnCall>) => void
+  onClickFn: (call: Types.Call<A, Types.FnCall>) => void
 }
 
 function Fn<V>({
@@ -33,6 +35,8 @@ function Fn<V>({
   setHighlight,
   getInputLabel,
   getOutputLabel,
+  onClickMod,
+  onClickFn,
 }: FnProps<V>) {
   const { state, fold, setHover, pin } = useTracerContext()
 
@@ -80,6 +84,7 @@ function Fn<V>({
           className={`${highlights[call.fn.mod] ? styles.objHighlight : styles.objNoHighlight}`}
           onMouseEnter={() => setHighlight(call.fn.mod, true)}
           onMouseLeave={() => setHighlight(call.fn.mod, false)}
+          onClick={() => onClickMod(call)}
         >
           {call.fn.mod}
         </div>
@@ -88,6 +93,7 @@ function Fn<V>({
           className={`${highlights[call.fn.name] ? styles.fnHighlight : styles.fnNoHighlight}`}
           onMouseEnter={() => setHighlight(call.fn.name, true)}
           onMouseLeave={() => setHighlight(call.fn.name, false)}
+          onClick={() => onClickFn(call)}
         >
           {call.fn.name || "?"}
         </div>
@@ -115,6 +121,8 @@ type TracerProps<C> = {
   renderCallCtx?: (ctx: C) => React.ReactNode
   getInputLabel?: (val: string) => string | null
   getOutputLabel?: (val: string) => string | null
+  onClickMod: (call: Types.Call<C, Types.FnCall>) => void
+  onClickFn: (call: Types.Call<C, Types.FnCall>) => void
 }
 
 function Tracer<C>({
@@ -124,6 +132,8 @@ function Tracer<C>({
   renderCallCtx,
   getInputLabel,
   getOutputLabel,
+  onClickMod,
+  onClickFn,
 }: TracerProps<C>) {
   const tracer = useTracerContext()
 
@@ -168,6 +178,8 @@ function Tracer<C>({
             setHighlight={setHighlight}
             getInputLabel={getInputLabel}
             getOutputLabel={getOutputLabel}
+            onClickMod={onClickMod}
+            onClickFn={onClickFn}
           />
         )}
       />

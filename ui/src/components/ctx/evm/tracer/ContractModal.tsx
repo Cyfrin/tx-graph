@@ -17,7 +17,6 @@ const ContractModal: React.FC<{
     }
   }, [])
 
-  console.log(ctx)
   const entries = Object.entries(getContract.data?.src || {})
 
   return (
@@ -32,8 +31,7 @@ const ContractModal: React.FC<{
       {entries.length > 0
         ? entries.map(([k, v], i) => (
             <div className={styles.col} key={i}>
-              {k}
-              <div className={styles.code}>
+              <div className={styles.code} style={{ maxHeight: 300 }}>
                 <CodeViewer text={v} />
               </div>
             </div>

@@ -27,7 +27,7 @@
 
 .container {
   display: flex;
-  min-height: 100%;
+  height: 100%;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -36,32 +36,34 @@
   transition: all 0.2s ease-in-out;
 }
 
-.dialog[data-open] .container {
-  scale: 1;
-}
-
 @media (min-width: 640px) {
   .container {
     padding: 0;
   }
 }
 
+.dialog[data-open] .container {
+  scale: 1;
+}
+
 .content {
   display: flex;
   flex-direction: column;
+  overflow: auto;
   border-radius: 0.5rem;
   background-color: var(--bg-dim-color);
-  padding: 10px;
+  padding: 10px 12px 10px 12px;
   color: var(--text-hover-color);
   box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-}
-.children {
-  overflow: auto;
 }
 
 @media (min-width: 640px) {
   .content {
     width: 100%;
-    max-width: 32rem;
   }
 }
+
+.children {
+  overflow: auto;
+}
+

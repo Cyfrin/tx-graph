@@ -1,21 +1,14 @@
 import React from "react"
 import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter"
-import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
-import styles from "./CodeViewer.module.css"
+import { atomDark as theme } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 const CodeViewer: React.FC<{
   text: string
 }> = ({ text }) => {
   return (
-    <div className={styles.component}>
-      <SyntaxHighlighter
-        language="solidity"
-        style={vscDarkPlus}
-        showLineNumbers
-      >
-        {text}
-      </SyntaxHighlighter>
-    </div>
+    <SyntaxHighlighter language="solidity" style={theme} showLineNumbers>
+      {text}
+    </SyntaxHighlighter>
   )
 }
 

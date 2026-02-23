@@ -159,6 +159,75 @@ function getArrowColor(t: ArrowType): string {
   }
 }
 
+const GraphNode: React.FC<{
+  label?: string
+  addr?: string
+  fns: TracerTypes.FnDef[]
+}> = ({ label, addr, fns }) => {
+  return (
+    <div className={styles.hover}>
+      {label ? <div className={styles.objLabel}>{label}</div> : null}
+      {addr ? <CopyText text={addr} val={addr} /> : null}
+      {fns.map((v, i) => (
+        <FnDef key={i} name={v.name} inputs={v.inputs} outputs={v.outputs} />
+      ))}
+    </div>
+  )
+}
+
+const GraphFnDef: React.FC<{ fn?: TracerTypes.FnDef }> = ({ fn }) => {
+  const name = fn?.name || ""
+  const inputs = fn?.inputs || []
+  const outputs = fn?.outputs || []
+
+  if (name) {
+    return (
+      <div className={styles.hover}>
+        <FnDef name={name} inputs={inputs} outputs={outputs} />
+      </div>
+    )
+  }
+  return (
+    <div className={styles.hover}>
+      <div>?</div>
+    </div>
+  )
+}
+
+const GraphArrows: React.FC<{
+  nodes: {
+    i: number
+    src: string
+    dst: string
+    val: number | bigint
+    inputs: TracerTypes.Input[]
+    outputs: TracerTypes.Output[]
+    fn: string
+  }[]
+}> = ({ nodes }) => {
+  return (
+    <div className={styles.hover}>
+      {nodes.map((node) => {
+        return (
+          <div key={node.i} className={styles.arrow}>
+            <div className={styles.arrowIndex}>{node.i}</div>
+            <div className={styles.arrowSrc}>{node.src}</div>
+            <div>{`→`}</div>
+            <div className={styles.arrowDst}>{node.dst}</div>
+            <div>.</div>
+            <FnCall
+              name={node.fn}
+              val={node.val}
+              inputs={node.inputs}
+              outputs={node.outputs}
+            />
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 function TxPage() {
   const { txHash = "" } = useParams()
   const [q] = useSearchParams()
@@ -177,7 +246,7 @@ function TxPage() {
     mem: fileWatch,
   })
   const [checked, setChecked] = useState(false)
-  const [modal, setModal] = useState<GraphTypes.Hover | null>(null)
+  const [graphModal, setGraphModal] = useState<GraphTypes.Hover | null>(null)
   const batchGetContracts = useAsync(api.batchGetContracts)
 
   if (getTrace.state.trace.error) {
@@ -260,56 +329,27 @@ function TxPage() {
   }
 
   function onPointerDown(hover: GraphTypes.Hover | null) {
-    setModal(hover)
+    setGraphModal(hover)
   }
 
-  // TODO: components?
   function renderNode(node: number, details: boolean) {
     const obj = objs.get(node)
-    // @ts-ignore
-    const label = obj?.val?.name
     // @ts-ignore
     const addr = obj?.val?.addr || ""
     const fns = details
       ? // @ts-ignore
-        ([...obj?.val?.fns?.values()] || []).map((v, i) => (
-          <FnDef key={i} name={v.name} inputs={v.inputs} outputs={v.outputs} />
-        ))
+        [...obj?.val?.fns?.values()] || []
       : []
 
-    return (
-      <div className={styles.hover}>
-        {label ? <div className={styles.objLabel}>{label}</div> : null}
-        {addr ? <CopyText text={addr} val={addr} /> : null}
-        {fns}
-      </div>
-    )
+    return <GraphNode label={obj?.val?.name} addr={addr} fns={fns} />
   }
 
-  // TODO: components?
   function renderFn(node: number) {
     const obj = objs.get(node)
-    const fn = obj?.val?.name || ""
     // @ts-ignore
-    const inputs = obj?.val?.inputs || []
-    // @ts-ignore
-    const outputs = obj?.val?.outputs || []
-
-    if (fn) {
-      return (
-        <div className={styles.hover}>
-          <FnDef name={fn} inputs={inputs} outputs={outputs} />
-        </div>
-      )
-    }
-    return (
-      <div className={styles.hover}>
-        <div>?</div>
-      </div>
-    )
+    return <GraphFnDef fn={obj?.val} />
   }
 
-  // TODO: components?
   function renderArrows(arrows: Set<number>) {
     const nodes = []
     for (const i of arrows) {
@@ -323,51 +363,30 @@ function TxPage() {
         // @ts-ignore
         dst: dst?.val?.mod || call?.ctx?.dst || "?",
         val: call?.ctx?.val || 0,
-        type: call?.ctx?.type || "",
         fn: dst?.val?.name || "",
         inputs: call?.fn?.inputs || [],
         outputs: call?.fn?.outputs || [],
       })
     }
 
-    return (
-      <div className={styles.hover}>
-        {nodes.map((node) => {
-          return (
-            <div key={node.i} className={styles.arrow}>
-              <div className={styles.arrowIndex}>{node.i}</div>
-              <div className={styles.arrowSrc}>{node.src}</div>
-              <div>{`→`}</div>
-              <div className={styles.arrowDst}>{node.dst}</div>
-              <div>.</div>
-              <FnCall
-                name={node.fn}
-                val={node.val}
-                inputs={node.inputs}
-                outputs={node.outputs}
-              />
-            </div>
-          )
-        })}
-      </div>
-    )
+    return <GraphArrows nodes={nodes} />
   }
 
   function renderModal() {
-    if (!modal) {
+    if (!graphModal) {
       return null
     }
-    if (modal.node != null) {
-      const obj = objs.get(modal.node)
+    if (graphModal.node != null) {
+      const obj = objs.get(graphModal.node)
       if (obj?.type == "acc") {
-        return renderNode(modal.node, true)
+        return renderNode(graphModal.node, true)
       }
       if (obj?.type == "fn") {
-        return renderFn(modal.node)
+        return renderFn(graphModal.node)
       }
     }
-    if (modal.arrows != null && modal.arrows.size > 0) {
-      return renderArrows(modal.arrows)
+    if (graphModal.arrows != null && graphModal.arrows.size > 0) {
+      return renderArrows(graphModal.arrows)
     }
     return null
   }
@@ -485,7 +504,7 @@ function TxPage() {
           />
         )}
       </Splits>
-      <Modal id="graph" open={!!modal} onClose={() => setModal(null)}>
+      <Modal id="graph" open={!!graphModal} onClose={() => setGraphModal(null)}>
         {() => renderModal()}
       </Modal>
     </div>

@@ -110,5 +110,5 @@ export type Hover = {
 export type Tracer = {
   hover: Id | null
   pins: Set<Id>
-  hidden: Set<Id>
+  folded: Set<Id>
 }

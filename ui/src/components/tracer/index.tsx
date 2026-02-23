@@ -54,7 +54,7 @@ function Fn<V>({
     setHover(null)
   }
 
-  const show = !state.hidden.has(call.i)
+  const show = !state.folded.has(call.i)
 
   return (
     <div
@@ -139,11 +139,12 @@ function Tracer<C>({
     }))
   }
 
+  // Filter out folded calls
   const cs: Types.Call<C, Types.FnCall>[] = []
   let i = 0
   while (i < calls.length) {
     cs.push(calls[i])
-    if (tracer.state.hidden.has(i)) {
+    if (tracer.state.folded.has(i)) {
       // Skip children
       const d = calls[i].depth
       while (calls[i + 1]?.depth > d) {
@@ -152,6 +153,8 @@ function Tracer<C>({
     }
     i++
   }
+
+  console.log("CALLS", calls)
 
   return (
     <div className={styles.component}>

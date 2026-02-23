@@ -3,11 +3,10 @@ import React, { useState, createContext, useContext, useMemo } from "react"
 export type State = {
   hover: number | null
   pins: Set<number>
-  // true = folded
-  hidden: Set<number>
+  folded: Set<number>
 }
 
-const STATE: State = { hidden: new Set(), hover: null, pins: new Set() }
+const STATE: State = { folded: new Set(), hover: null, pins: new Set() }
 
 const Context = createContext({
   state: STATE,
@@ -27,16 +26,16 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
 
   // i = call index
   const fold = (i: number) => {
-    const hidden = new Set(state.hidden)
-    if (hidden.has(i)) {
-      hidden.delete(i)
+    const folded = new Set(state.folded)
+    if (folded.has(i)) {
+      folded.delete(i)
     } else {
-      hidden.add(i)
+      folded.add(i)
     }
 
     setState((state) => ({
       ...state,
-      hidden,
+      folded,
     }))
   }
 

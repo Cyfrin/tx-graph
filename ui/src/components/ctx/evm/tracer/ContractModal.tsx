@@ -73,7 +73,9 @@ const ContractModal: React.FC<{
                   size={14}
                   className={`${styles.chevron} ${expanded.has(i) ? styles.chevronOpen : ""}`}
                 />
-                <div className={styles.codeName}>{k}</div>
+                <div className={styles.codeName}>
+                  {expanded.has(i) ? k : k.split("/").slice(-1)?.[0]}
+                </div>
               </div>
               {expanded.has(i) ? (
                 <>

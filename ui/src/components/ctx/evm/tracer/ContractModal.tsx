@@ -6,6 +6,7 @@ import Copy from "../../../svg/Copy"
 import Check from "../../../svg/Check"
 import FullScreen from "../../../svg/FullScreen"
 import FullScreenExit from "../../../svg/FullScreenExit"
+import Chevron from "../../../svg/Chevron"
 import Button from "../../../Button"
 import CodeViewer from "../../../CodeViewer"
 import styles from "./ContractModal.module.css"
@@ -16,6 +17,7 @@ const ContractModal: React.FC<{
 }> = ({ ctx, chain }) => {
   const getContract = useAsync(api.getContract)
   const [fullScreen, setFullScreen] = useState(false)
+  const [expanded, setExpanded] = useState<Set<number>>(new Set())
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout>>(null)
 
@@ -40,6 +42,18 @@ const ContractModal: React.FC<{
     timer.current = setTimeout(() => setCopiedIndex(null), 1500)
   }
 
+  const toggle = (i: number) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      if (next.has(i)) {
+        next.delete(i)
+      } else {
+        next.add(i)
+      }
+      return next
+    })
+  }
+
   const entries = Object.entries(getContract.data?.src || {})
 
   return (
@@ -54,28 +68,45 @@ const ContractModal: React.FC<{
       {entries.length > 0
         ? entries.map(([k, v], i) => (
             <div className={styles.col} key={i}>
-              <div className={styles.codeName}>{k}</div>
-              <div className={styles.tools}>
-                <Button className={styles.copyBtn} onClick={() => copy(v, i)}>
-                  {copiedIndex == i ? <Check size={16} /> : <Copy size={16} />}
-                </Button>
-                <Button
-                  className={styles.fullScreenBtn}
-                  onClick={() => setFullScreen(!fullScreen)}
-                >
-                  {fullScreen ? (
-                    <FullScreenExit size={16} />
-                  ) : (
-                    <FullScreen size={16} />
-                  )}
-                </Button>
+              <div className={styles.codeHeader} onClick={() => toggle(i)}>
+                <Chevron
+                  size={14}
+                  className={`${styles.chevron} ${expanded.has(i) ? styles.chevronOpen : ""}`}
+                />
+                <div className={styles.codeName}>{k}</div>
               </div>
-              <div
-                className={styles.code}
-                style={{ maxHeight: fullScreen ? "100%" : 300 }}
-              >
-                <CodeViewer text={v} />
-              </div>
+              {expanded.has(i) ? (
+                <>
+                  <div className={styles.tools}>
+                    <Button
+                      className={styles.copyBtn}
+                      onClick={() => copy(v, i)}
+                    >
+                      {copiedIndex == i ? (
+                        <Check size={16} />
+                      ) : (
+                        <Copy size={16} />
+                      )}
+                    </Button>
+                    <Button
+                      className={styles.fullScreenBtn}
+                      onClick={() => setFullScreen(!fullScreen)}
+                    >
+                      {fullScreen ? (
+                        <FullScreenExit size={16} />
+                      ) : (
+                        <FullScreen size={16} />
+                      )}
+                    </Button>
+                  </div>
+                  <div
+                    className={styles.code}
+                    style={{ maxHeight: fullScreen ? "100%" : 300 }}
+                  >
+                    <CodeViewer text={v} />
+                  </div>
+                </>
+              ) : null}
             </div>
           ))
         : null}

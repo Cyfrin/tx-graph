@@ -19,8 +19,23 @@
 .code {
   overflow: auto;
 }
-.codeName {
+.codeHeader {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   margin-top: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+.chevron {
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.chevronOpen {
+  transform: rotate(90deg);
+}
+.codeName {
+  margin-left: 4px;
 }
 .tools {
   display: flex;

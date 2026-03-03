@@ -9,6 +9,7 @@ import * as graph from "../components/graph/lib/graph"
 import * as foundry from "../foundry"
 import { zip, assert, sleep } from "../utils"
 import * as EvmTypes from "../components/ctx/evm/types"
+import { PRECOMPILES } from "../evm"
 
 export type ObjType = "acc" | "fn"
 
@@ -27,6 +28,7 @@ export type Data = {
 }
 
 function parse(
+  addr: string,
   abi: TxTypes.AbiEntry[] | null,
   input: string,
   output?: string,
@@ -38,6 +40,51 @@ function parse(
   error?: { name: string; args: any[] }
 } | null {
   try {
+    // Precompiles use raw packed bytes, not ABI-encoded data with selectors
+    const precompile = PRECOMPILES[addr.toLowerCase()]
+    if (precompile) {
+      const entry = precompile.abi[0]
+      const fn: {
+        name: string
+        selector: undefined
+        inputs: TracerTypes.Input[]
+        outputs: TracerTypes.Output[]
+      } = {
+        name: entry?.name || "",
+        selector: undefined,
+        inputs: [],
+        outputs: [],
+      }
+
+      try {
+        if (entry?.inputs?.length && input?.length > 2) {
+          const types = entry.inputs.map((i) => i.type)
+          const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+          const vals = abiCoder.decode(types, input)
+          fn.inputs = zip(vals, entry.inputs, (v, t) => ({
+            type: t.type,
+            name: t.name,
+            val: v,
+          }))
+        }
+      } catch {}
+
+      try {
+        if (entry?.outputs?.length && output && output.length > 2) {
+          const types = entry.outputs.map((o) => o.type)
+          const abiCoder = ethers.AbiCoder.defaultAbiCoder()
+          const vals = abiCoder.decode(types, output)
+          fn.outputs = zip(vals, entry.outputs, (v, t) => ({
+            type: t.type,
+            name: t.name,
+            val: v,
+          }))
+        }
+      } catch {}
+
+      return fn
+    }
+
     if (!abi) {
       return null
     }
@@ -176,9 +223,8 @@ function build(
       }
 
       // @ts-ignore
-      const fn = parse(cons[c.to]?.abi, c.input, c.output)
-
-      const fnKey = `fn:${c.to}.${fn?.selector}`
+      const fn = parse(c.to, cons[c.to]?.abi, c.input, c.output)
+      const fnKey = `fn:${c.to}.${fn?.selector ?? fn?.name}`
       if (!ids.has(fnKey)) {
         ids.set(fnKey, ids.size)
       }

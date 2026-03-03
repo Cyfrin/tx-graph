@@ -3,6 +3,7 @@ import * as FileTypes from "../types/file"
 import { Tests, JsonFile } from "./types"
 // ABI of console.sol is empty so import from here
 import CONSOLE_ABI from "./console.json"
+import { PRECOMPILES } from "../evm"
 
 const CONSOLE_ADDR = "0x000000000000000000636f6e736f6c652e6c6f67"
 
@@ -127,6 +128,21 @@ export function getContracts(
   if (!tests) {
     return []
   }
+
+  const precompiles: TxTypes.ContractInfo<string>[] = []
+  addrs = addrs.filter((addr) => {
+    const p = PRECOMPILES[addr.toLowerCase()]
+    if (p) {
+      precompiles.push({
+        chain: "foundry-test",
+        address: addr,
+        name: p.name,
+        abi: p.abi,
+      })
+      return false
+    }
+    return true
+  })
 
   const abis = mem.get("abi") || []
   // contract name => ABI
@@ -312,7 +328,7 @@ export function getContracts(
     }
   }
 
-  return addrs.map((addr) => {
+  return [...precompiles, ...addrs.map((addr) => {
     const val = addrToAbi.get(addr)
     if (val) {
       return {
@@ -327,5 +343,5 @@ export function getContracts(
         address: addr,
       }
     }
-  })
+  })]
 }

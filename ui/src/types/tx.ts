@@ -28,6 +28,11 @@ export type AbiEntry = {
   outputs?: AbiOutput[]
 }
 
+export type Precompile = {
+  name: string
+  abi: AbiEntry[]
+}
+
 export type ContractInfo<S = string | Record<string, string>> = {
   chain: string
   address: string

@@ -3,6 +3,7 @@ import * as TxTypes from "../types/tx"
 import { CacheEntry, EtherscanContractInfo, Job } from "./types"
 import { post, get } from "./lib"
 import { RPC_CONFIG } from "../config"
+import { PRECOMPILES } from "../evm"
 
 const DISABLE_CACHE = !import.meta.env.PROD
 const CACHE_TTL = 60 * 1000
@@ -94,10 +95,30 @@ export async function postJobs(params: {
   chain: string
   addrs: string[]
 }): Promise<{ job_ids: string[]; contracts: TxTypes.ContractInfo<string>[] }> {
-  return post<
+  const precompiles: TxTypes.ContractInfo<string>[] = []
+  const addrs = params.addrs.filter((addr) => {
+    const p = PRECOMPILES[addr.toLowerCase()]
+    if (p) {
+      precompiles.push({
+        chain: params.chain,
+        address: addr,
+        name: p.name,
+        abi: p.abi,
+      })
+      return false
+    }
+    return true
+  })
+
+  const res = await post<
     any,
     { job_ids: string[]; contracts: TxTypes.ContractInfo<string>[] }
-  >(`${import.meta.env.VITE_API_URL}/contracts`, params)
+  >(`${import.meta.env.VITE_API_URL}/contracts`, { ...params, addrs })
+
+  return {
+    ...res,
+    contracts: [...precompiles, ...res.contracts],
+  }
 }
 
 export async function getJobs(params: {
@@ -185,6 +206,11 @@ export async function getEtherscanContract(
   chain: any,
   apiKey?: string,
 ): Promise<{ abi: any | null; name: string | null }> {
+  const p = PRECOMPILES[addr.toLowerCase()]
+  if (p) {
+    return { abi: p.abi, name: p.name }
+  }
+
   const key = apiKey || import.meta.env.VITE_ETHERSCAN_API_KEY
   const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG]
   const chainId = cfg?.chainId

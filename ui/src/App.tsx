@@ -7,6 +7,12 @@ import { Provider as FileWatchProvider } from "./contexts/FileWatch"
 import HomePage from "./pages/HomePage"
 import TxPage from "./pages/TxPage"
 
+// React devtools calls JSON.stringify on component props for profiling
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString()
+}
+
 function App() {
   const app = useAppContext()
 

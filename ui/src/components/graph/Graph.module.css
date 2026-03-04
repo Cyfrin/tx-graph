@@ -1,0 +1,47 @@
+.root {
+  position: relative;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  touch-action: none;
+}
+
+.zoom {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--bg-dim-color);
+  border-radius: 6px;
+  padding: 2px 4px;
+  user-select: none;
+}
+
+.zoom button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 2px 8px;
+  line-height: 1;
+}
+
+.zoom span {
+  color: var(--text-color);
+  font-size: 12px;
+  min-width: 40px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.hover {
+  position: relative;
+}

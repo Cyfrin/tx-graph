@@ -3,13 +3,7 @@ import * as Types from "./lib/types"
 import * as screen from "./lib/screen"
 import * as math from "./lib/math"
 import { draw } from "./lib/canvas"
-
-const STYLE: React.CSSProperties = {
-  position: "absolute",
-  left: 0,
-  top: 0,
-  touchAction: "none",
-}
+import styles from "./Graph.module.css"
 
 const ZOOMS: number[] = [
   0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6,
@@ -508,21 +502,12 @@ export const Graph = <A, F>({
   }
 
   return (
-    <div
-      style={{
-        position: "relative",
-        cursor: "crosshair",
-        width,
-        height,
-        backgroundColor,
-        touchAction: "none",
-      }}
-    >
+    <div className={styles.root} style={{ width, height, backgroundColor }}>
       <canvas
         ref={(ref) => {
           refs.current.graph = ref
         }}
-        style={STYLE}
+        className={styles.canvas}
         width={width}
         height={height}
       ></canvas>
@@ -530,7 +515,7 @@ export const Graph = <A, F>({
         ref={(ref) => {
           refs.current.ui = ref
         }}
-        style={STYLE}
+        className={styles.canvas}
         width={width}
         height={height}
         onPointerMove={_onPointerMove}
@@ -543,8 +528,21 @@ export const Graph = <A, F>({
         onTouchMove={_onTouchMove}
         onTouchEnd={_onTouchEnd}
       ></canvas>
+      <div className={styles.zoom}>
+        <button
+          onClick={() => zoom(zoomIndex - 1, { x: width / 2, y: height / 2 })}
+        >
+          -
+        </button>
+        <span>{Math.round(ZOOMS[zoomIndex] * 100)}%</span>
+        <button
+          onClick={() => zoom(zoomIndex + 1, { x: width / 2, y: height / 2 })}
+        >
+          +
+        </button>
+      </div>
       {hover && pointer && renderHover ? (
-        <div style={{ position: "relative" }}>
+        <div className={styles.hover}>
           <div
             style={{
               position: "absolute",

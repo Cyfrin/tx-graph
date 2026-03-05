@@ -33,24 +33,33 @@
 
 .zoom button,
 .step button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: var(--text-color);
-  font-size: 18px;
+  font-size: 12px;
   cursor: pointer;
   padding: 2px 8px;
   line-height: 1;
 }
-
-.zoom span,
-.step span {
-  color: var(--text-color);
-  font-size: 12px;
-  min-width: 40px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
+.plus {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
 }
-
+.minus {
+  width: 18px;
+  height: 18px;
+  font-size: 18px;
+}
+.lt {
+ transform: rotate(180deg);
+}
+.gt {
+}
 .hover {
   position: relative;
 }

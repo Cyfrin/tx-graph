@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react"
+import Chevron from "../svg/Chevron"
 import * as Types from "./lib/types"
 import * as screen from "./lib/screen"
 import * as math from "./lib/math"
@@ -130,6 +131,7 @@ export type Props<A, F> = {
   ) => React.ReactNode
   step: number
   onStep: (fwd?: boolean) => void
+  resetStep: () => void
 }
 
 export const Graph = <A, F>({
@@ -151,6 +153,7 @@ export const Graph = <A, F>({
   renderHover,
   step,
   onStep,
+  resetStep,
 }: Props<A, F>) => {
   const arrowXPad = nodeXGap >> 1
   const arrowYPad = nodeYGap >> 1
@@ -514,7 +517,11 @@ export const Graph = <A, F>({
     }
   }
 
-  // TODO: reset zoom and steps
+  const center = {
+    x: width / 2,
+    y: height / 2,
+  }
+
   return (
     <div className={styles.root} style={{ width, height, backgroundColor }}>
       <canvas
@@ -544,25 +551,27 @@ export const Graph = <A, F>({
       ></canvas>
       <div className={styles.controls}>
         <div className={styles.zoom}>
-          <button
-            onClick={() => zoom(zoomIndex - 1, { x: width / 2, y: height / 2 })}
-          >
-            -
+          <button onClick={() => zoom(zoomIndex - 1, center)}>
+            <span className={styles.minus}>-</span>
           </button>
-          <span>{Math.round(ZOOMS[zoomIndex] * 100)}%</span>
-          <button
-            onClick={() => zoom(zoomIndex + 1, { x: width / 2, y: height / 2 })}
-          >
-            +
+          <button onClick={() => zoom(9, center)}>
+            {Math.round(ZOOMS[zoomIndex] * 100)}%
+          </button>
+          <button onClick={() => zoom(zoomIndex + 1, center)}>
+            <span className={styles.plus}>+</span>
           </button>
         </div>
         {calls.length > 0 ? (
           <div className={styles.step}>
-            <button onClick={() => _onStep(false)}>{"<"}</button>
-            <span>
+            <button onClick={() => _onStep(false)}>
+              <Chevron size={16} className={styles.lt} />
+            </button>
+            <button onClick={() => resetStep()}>
               {step} / {calls.length - 1}
-            </span>
-            <button onClick={() => _onStep(true)}>{">"}</button>
+            </button>
+            <button onClick={() => _onStep(true)}>
+              <Chevron size={16} className={styles.gt} />
+            </button>
           </div>
         ) : null}
       </div>

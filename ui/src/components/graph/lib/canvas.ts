@@ -86,7 +86,8 @@ export function draw(ctx: Canvas, params: Params) {
       maxY: (-offsetY + height) / scale,
     }
 
-    const hovers = []
+    // Arrows to render on top layer
+    const tops = []
     for (const arrow of layout.arrows) {
       if (!isArrowVisible(arrow, view)) {
         continue
@@ -94,7 +95,7 @@ export function draw(ctx: Canvas, params: Params) {
 
       const { top, style } = getArrowStyle(arrow)
       if (top) {
-        hovers.push(arrow)
+        tops.push(arrow)
       } else {
         drawArrow(ctx.graph, {
           layout,
@@ -136,8 +137,7 @@ export function draw(ctx: Canvas, params: Params) {
       }
     }
 
-    // TODO: render other highlighted arrows
-    for (const arrow of hovers) {
+    for (const arrow of tops) {
       const { style } = getArrowStyle(arrow)
       drawArrow(ctx.graph, {
         layout,

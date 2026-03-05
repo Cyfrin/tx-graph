@@ -509,7 +509,10 @@ function TxPage() {
             getArrowStyle={(hover, arrow) => {
               const top =
                 hover?.node == arrow.i ||
+                hover?.node == arrow.s ||
+                hover?.node == arrow.e ||
                 hover?.arrows?.has(arrow.i) ||
+                tracer.state.step == arrow.i ||
                 tracer.state.hover == arrow.i ||
                 tracer.state.pins.has(arrow.i)
               const t = getArrowType(hover, arrow, tracer.state)

@@ -201,6 +201,18 @@ export function map<A, F>(
     }
   }
 
+  // Compact x positions - remove empty depth columns
+  const usedDepths = [...new Set(xOffsets.values())].sort((a, b) => a - b)
+  const depthToCol: Map<number, number> = new Map()
+  for (let i = 0; i < usedDepths.length; i++) {
+    depthToCol.set(usedDepths[i], i)
+  }
+  for (const [g, d] of xOffsets) {
+    const col = depthToCol.get(d) as number
+    const node = nodes.get(g) as Node
+    node.rect.x = col * (node.rect.width + screen.node.gap.x)
+  }
+
   // Shift initial caller's y position down by 1 node height
   if (calls.length > 0) {
     const node = nodes.get(calls[0].src) as Node

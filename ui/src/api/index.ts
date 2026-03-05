@@ -134,7 +134,13 @@ export async function getContract(params: {
   chain: string
   addr: string
 }): Promise<TxTypes.ContractInfo<Record<string, string>> | null> {
-  // TODO: cache
+  const cacheKey = `contract:${params.chain}:${params.addr}`
+  const cached =
+    getCached<TxTypes.ContractInfo<Record<string, string>>>(cacheKey)
+  if (cached) {
+    return cached
+  }
+
   const res = await get<TxTypes.ContractInfo<string> | null>(
     `${import.meta.env.VITE_API_URL}/contracts/${params.chain}/${params.addr}`,
   )
@@ -147,7 +153,7 @@ export async function getContract(params: {
     if (res?.src) {
       // Remove extra { and }
       const src: TxTypes.Source = JSON.parse(res.src.slice(1, -1))
-      return {
+      const data = {
         ...res,
         src: Object.entries(src.sources).reduce(
           (z, [name, { content }]) => {
@@ -157,6 +163,8 @@ export async function getContract(params: {
           {} as Record<string, string>,
         ),
       }
+      setCache(cacheKey, data)
+      return data
     }
   } catch (err) {
     console.log(err)

@@ -1,15 +1,23 @@
 import React, { useState, createContext, useContext, useMemo } from "react"
 
 export type State = {
+  // Call index
+  step: number
   hover: number | null
   pins: Set<number>
   folded: Set<number>
 }
 
-const STATE: State = { folded: new Set(), hover: null, pins: new Set() }
+const STATE: State = {
+  folded: new Set(),
+  step: 0,
+  hover: null,
+  pins: new Set(),
+}
 
 const Context = createContext({
   state: STATE,
+  step: (_?: boolean) => {},
   fold: (_: number) => {},
   setHover: (_: number | null) => {},
   pin: (_: number[]) => {},
@@ -23,6 +31,13 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, setState] = useState<State>(STATE)
+
+  const step = (fwd = true) => {
+    setState((state) => ({
+      ...state,
+      step: fwd ? state.step + 1 : state.step - 1,
+    }))
+  }
 
   // i = call index
   const fold = (i: number) => {
@@ -68,6 +83,7 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
   const value = useMemo(
     () => ({
       state,
+      step,
       fold,
       setHover,
       pin,

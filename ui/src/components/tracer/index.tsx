@@ -14,6 +14,7 @@ import styles from "./index.module.css"
 const LINE_HEIGHT = 20
 
 type FnProps<A> = {
+  step: number
   call: Types.Call<A, Types.FnCall>
   hasChildren: boolean
   renderCallType?: (ctx: A) => React.ReactNode
@@ -27,6 +28,7 @@ type FnProps<A> = {
 }
 
 function Fn<V>({
+  step,
   call,
   hasChildren,
   renderCallType,
@@ -60,7 +62,7 @@ function Fn<V>({
 
   return (
     <div
-      className={styles.fn}
+      className={`${styles.fn} ${call.i == step ? styles.fnHover : ""}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -170,6 +172,7 @@ function Tracer<C>({
         height={height}
         render={(i) => (
           <Fn
+            step={tracer.state.step}
             call={cs[i]}
             hasChildren={calls?.[cs?.[i].i + 1]?.depth > cs?.[i]?.depth}
             renderCallType={renderCallType}

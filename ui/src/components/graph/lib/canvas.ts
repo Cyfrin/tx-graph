@@ -136,6 +136,7 @@ export function draw(ctx: Canvas, params: Params) {
       }
     }
 
+    // TODO: render other highlighted arrows
     for (const arrow of hovers) {
       const { style } = getArrowStyle(arrow)
       drawArrow(ctx.graph, {

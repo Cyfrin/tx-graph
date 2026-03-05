@@ -11,20 +11,28 @@
   touch-action: none;
 }
 
-.zoom {
+.controls {
   position: absolute;
   bottom: 18px;
   left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+.zoom,
+.step {
   display: flex;
   align-items: center;
   gap: 2px;
   background: var(--bg-dim-color);
   border-radius: 6px;
   padding: 2px 4px;
-  user-select: none;
 }
 
-.zoom button {
+.zoom button,
+.step button {
   background: none;
   border: none;
   color: var(--text-color);
@@ -34,7 +42,8 @@
   line-height: 1;
 }
 
-.zoom span {
+.zoom span,
+.step span {
   color: var(--text-color);
   font-size: 12px;
   min-width: 40px;

@@ -61,7 +61,7 @@ const STYLES = {
   ARROW_TRACER_COLOR: "rgb(0, 255, 136)",
 }
 
-type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | ""
+type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | "step" | ""
 
 function getArrowType(
   hover: GraphTypes.Hover | null,
@@ -70,6 +70,9 @@ function getArrowType(
 ): ArrowType {
   if (tracer.pins.has(arrow.i)) {
     return "pin"
+  }
+  if (tracer.step == arrow.i) {
+    return "step"
   }
   if (tracer.hover != null) {
     if (tracer.hover == arrow.i) {
@@ -93,7 +96,28 @@ function getArrowType(
     }
     return "dim"
   }
-  return ""
+  return "dim"
+}
+
+function getArrowColor(t: ArrowType): string {
+  switch (t) {
+    case "in":
+      return STYLES.ARROW_IN_COLOR
+    case "out":
+      return STYLES.ARROW_OUT_COLOR
+    case "hover":
+      return STYLES.ARROW_HOVER_COLOR
+    case "dim":
+      return STYLES.ARROW_DIM_COLOR
+    case "pin":
+      return STYLES.ARROW_PIN_COLOR
+    case "tracer":
+      return STYLES.ARROW_TRACER_COLOR
+    case "step":
+      return STYLES.ARROW_TRACER_COLOR
+    default:
+      return STYLES.ARROW_COLOR
+  }
 }
 
 function getNodeFillColor(
@@ -140,25 +164,6 @@ function getNodeFillColor(
     return STYLES.NODE_COLOR
   }
   return "transparent"
-}
-
-function getArrowColor(t: ArrowType): string {
-  switch (t) {
-    case "in":
-      return STYLES.ARROW_IN_COLOR
-    case "out":
-      return STYLES.ARROW_OUT_COLOR
-    case "hover":
-      return STYLES.ARROW_HOVER_COLOR
-    case "dim":
-      return STYLES.ARROW_DIM_COLOR
-    case "pin":
-      return STYLES.ARROW_PIN_COLOR
-    case "tracer":
-      return STYLES.ARROW_TRACER_COLOR
-    default:
-      return STYLES.ARROW_COLOR
-  }
 }
 
 const GraphNode: React.FC<{
@@ -483,6 +488,8 @@ function TxPage() {
             calls={calls}
             tracer={tracer.state}
             onPointerDown={onPointerDown}
+            step={tracer.state.step}
+            onStep={tracer.step}
             getNodeStyle={(hover, node) => {
               return {
                 fill: getNodeFillColor(objs, hover, node, graph, tracer.state),

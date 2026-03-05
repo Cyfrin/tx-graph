@@ -128,6 +128,8 @@ export type Props<A, F> = {
     hover: Types.Hover,
     pointer: Types.Point | null,
   ) => React.ReactNode
+  step: number
+  onStep: (fwd?: boolean) => void
 }
 
 export const Graph = <A, F>({
@@ -147,6 +149,8 @@ export const Graph = <A, F>({
   nodeXGap = 50,
   nodeYGap = 50,
   renderHover,
+  step,
+  onStep,
 }: Props<A, F>) => {
   const arrowXPad = nodeXGap >> 1
   const arrowYPad = nodeYGap >> 1
@@ -501,6 +505,16 @@ export const Graph = <A, F>({
     }
   }
 
+  const _onStep = (fwd: boolean) => {
+    if (fwd && step + 1 <= calls.length - 1) {
+      onStep(fwd)
+    }
+    if (!fwd && step - 1 >= 0) {
+      onStep(fwd)
+    }
+  }
+
+  // TODO: reset zoom and steps
   return (
     <div className={styles.root} style={{ width, height, backgroundColor }}>
       <canvas
@@ -528,18 +542,29 @@ export const Graph = <A, F>({
         onTouchMove={_onTouchMove}
         onTouchEnd={_onTouchEnd}
       ></canvas>
-      <div className={styles.zoom}>
-        <button
-          onClick={() => zoom(zoomIndex - 1, { x: width / 2, y: height / 2 })}
-        >
-          -
-        </button>
-        <span>{Math.round(ZOOMS[zoomIndex] * 100)}%</span>
-        <button
-          onClick={() => zoom(zoomIndex + 1, { x: width / 2, y: height / 2 })}
-        >
-          +
-        </button>
+      <div className={styles.controls}>
+        <div className={styles.zoom}>
+          <button
+            onClick={() => zoom(zoomIndex - 1, { x: width / 2, y: height / 2 })}
+          >
+            -
+          </button>
+          <span>{Math.round(ZOOMS[zoomIndex] * 100)}%</span>
+          <button
+            onClick={() => zoom(zoomIndex + 1, { x: width / 2, y: height / 2 })}
+          >
+            +
+          </button>
+        </div>
+        {calls.length > 0 ? (
+          <div className={styles.step}>
+            <button onClick={() => _onStep(false)}>{"<"}</button>
+            <span>
+              {step} / {calls.length - 1}
+            </span>
+            <button onClick={() => _onStep(true)}>{">"}</button>
+          </div>
+        ) : null}
       </div>
       {hover && pointer && renderHover ? (
         <div className={styles.hover}>

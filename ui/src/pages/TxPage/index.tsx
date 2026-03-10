@@ -491,7 +491,7 @@ function TxPage() {
             onPointerDown={onPointerDown}
             step={tracer.state.step}
             onStep={tracer.step}
-            resetStep={tracer.resetStep}
+            setStep={tracer.setStep}
             getNodeStyle={(hover, node) => {
               return {
                 fill: getNodeFillColor(objs, hover, node, graph, tracer.state),

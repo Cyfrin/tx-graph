@@ -3,7 +3,7 @@ import React from "react"
 const Code: React.FC<{
   size: number
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }> = ({ size, className = "", onClick }) => {
   return (
 

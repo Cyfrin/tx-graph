@@ -40,13 +40,25 @@ function Fn<V>({
   onClickMod,
   onClickFn,
 }: FnProps<V>) {
-  const { state, fold, setHover, pin } = useTracerContext()
+  const { state, fold, setHover, pin, setStep } = useTracerContext()
 
-  const onClick = () => {
+  const _onClickMod= (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onClickMod(call)
+  }
+
+  const _onClickFn= (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onClickFn(call)
+  }
+
+  const onClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
     pin([call.i])
   }
 
-  const onClickFold = () => {
+  const onClickFold = (e: React.MouseEvent) => {
+    e.stopPropagation()
     fold(call.i)
   }
 
@@ -65,6 +77,7 @@ function Fn<V>({
       className={`${styles.fn} ${call.i == step ? styles.fnHover : ""}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onClick={() => setStep(call.i)}
     >
       <div className={styles.sticky}>
         {renderCallType ? renderCallType(call?.ctx) : null}
@@ -86,7 +99,7 @@ function Fn<V>({
           className={`${highlights[call.fn.mod] ? styles.objHighlight : styles.objNoHighlight}`}
           onMouseEnter={() => setHighlight(call.fn.mod, true)}
           onMouseLeave={() => setHighlight(call.fn.mod, false)}
-          onClick={() => onClickMod(call)}
+          onClick={_onClickMod}
         >
           {call.fn.mod}
         </div>
@@ -95,7 +108,7 @@ function Fn<V>({
           className={`${highlights[call.fn.name] ? styles.fnHighlight : styles.fnNoHighlight}`}
           onMouseEnter={() => setHighlight(call.fn.name, true)}
           onMouseLeave={() => setHighlight(call.fn.name, false)}
-          onClick={() => onClickFn(call)}
+          onClick={_onClickFn}
         >
           {call.fn.name || "?"}
         </div>

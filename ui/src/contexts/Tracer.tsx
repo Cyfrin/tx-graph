@@ -18,7 +18,7 @@ const STATE: State = {
 const Context = createContext({
   state: STATE,
   step: (_?: boolean) => {},
-  resetStep: () => {},
+  setStep: (_: number) => {},
   fold: (_: number) => {},
   setHover: (_: number | null) => {},
   pin: (_: number[]) => {},
@@ -40,10 +40,10 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     }))
   }
 
-  const resetStep = () => {
+  const setStep = (i: number) => {
     setState((state) => ({
       ...state,
-      step: 0,
+      step: i,
     }))
   }
 
@@ -92,7 +92,7 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     () => ({
       state,
       step,
-      resetStep,
+      setStep,
       fold,
       setHover,
       pin,

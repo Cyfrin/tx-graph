@@ -5,7 +5,7 @@ import styles from "./Fold.module.css"
 const Fold: React.FC<{
   show: boolean
   hasChildren: boolean
-  onClick: () => void
+  onClick: (e: React.MouseEvent) => void
 }> = ({ show, hasChildren, onClick }) => {
   return (
     <div className={styles.component}>

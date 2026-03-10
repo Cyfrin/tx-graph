@@ -3,7 +3,7 @@ import React from "react"
 const FullScreenExit: React.FC<{
   size: number
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }> = ({ size, className = "", onClick }) => {
   return (
     <svg

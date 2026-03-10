@@ -4,7 +4,7 @@ const Pin: React.FC<{
   size: number
   color?: string
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }> = ({ size, color = "currentColor", className = "", onClick }) => {
   return (
     <svg

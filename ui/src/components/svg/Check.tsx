@@ -4,7 +4,7 @@ const Check: React.FC<{
   size: number
   color?: string
   className?: string
-  onClick?: () => void
+  onClick?: (e: React.MouseEvent) => void
 }> = ({ size, color = "#00e100", className = "", onClick }) => {
   return (
     <svg

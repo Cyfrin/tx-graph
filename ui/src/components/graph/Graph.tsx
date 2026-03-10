@@ -131,7 +131,7 @@ export type Props<A, F> = {
   ) => React.ReactNode
   step: number
   onStep: (fwd?: boolean) => void
-  resetStep: () => void
+  setStep: (i: number) => void
 }
 
 export const Graph = <A, F>({
@@ -153,7 +153,7 @@ export const Graph = <A, F>({
   renderHover,
   step,
   onStep,
-  resetStep,
+  setStep,
 }: Props<A, F>) => {
   const arrowXPad = nodeXGap >> 1
   const arrowYPad = nodeYGap >> 1
@@ -566,7 +566,7 @@ export const Graph = <A, F>({
             <button onClick={() => _onStep(false)}>
               <Chevron size={16} className={styles.lt} />
             </button>
-            <button onClick={() => resetStep()}>
+            <button onClick={() => setStep(0)}>
               {step} / {calls.length - 1}
             </button>
             <button onClick={() => _onStep(true)}>

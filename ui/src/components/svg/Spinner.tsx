@@ -4,13 +4,15 @@ const Spinner: React.FC<{
   size: number
   color?: string
   className?: string
-}> = ({ size, color = "#6366f1", className = "" }) => (
+  onClick?: (e: React.MouseEvent) => void
+}> = ({ size, color = "#6366f1", className = "", onClick }) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 50 50"
     style={{ animation: "spin 1s linear infinite" }}
     className={className}
+      onClick={onClick}
   >
     <circle
       cx="25"

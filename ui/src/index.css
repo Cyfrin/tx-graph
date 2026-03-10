@@ -18,6 +18,7 @@ html {
 
   --tracer-line-color: rgb(230, 230, 230);
   --tracer-line-hover-color: rgb(45, 45, 52);
+  --tracer-line-step-color: rgb(26, 46, 22);
   --tracer-index-color: rgb(130, 130, 140);
   --tracer-index-hover-color: rgb(250, 250, 250);
   --tracer-val-color: rgb(250, 200, 130);

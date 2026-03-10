@@ -21,8 +21,8 @@
 .fn:hover {
   background-color: var(--tracer-line-hover-color);
 }
-.fnHover {
-  background-color: var(--tracer-line-hover-color);
+.fnStep {
+  background-color: var(--tracer-line-step-color);
 }
 .sticky {
   display: flex;

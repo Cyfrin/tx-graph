@@ -74,7 +74,7 @@ function Fn<V>({
 
   return (
     <div
-      className={`${styles.fn} ${call.i == step ? styles.fnHover : ""}`}
+      className={`${styles.fn} ${call.i == step ? styles.fnStep : ""}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={() => setStep(call.i)}

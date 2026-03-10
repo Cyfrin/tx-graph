@@ -503,7 +503,7 @@ function TxPage() {
               // @ts-ignore
               const obj = objs.get(node.id) as GraphTypes.Obj<ObjType, Account>
               return {
-                txt: `${obj?.val.name || obj?.val?.addr || node.id || ""}`,
+                txt: `${obj?.val.name || obj?.val?.addr || "?"}`,
                 top: obj?.type == "acc",
               }
             }}

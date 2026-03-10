@@ -3,6 +3,7 @@ export type RpcConfig = {
   chainId: number
   text: string
   test: boolean
+  blockscan?: string
 }
 
 export const RPC_CONFIG = {
@@ -17,36 +18,42 @@ export const RPC_CONFIG = {
     chainId: 1,
     text: "ETH",
     test: false,
+    blockscan: "ethereum",
   },
   "eth-sepolia": {
     url: import.meta.env.VITE_ETH_SEPOLIA_RPC_URL,
     chainId: 11155111,
     text: "ETH Sepolia",
     test: true,
+    blockscan: "sepolia",
   },
   "arb-mainnet": {
     url: import.meta.env.VITE_ARB_MAINNET_RPC_URL,
     chainId: 42161,
     text: "ARB One",
     test: false,
+    blockscan: "arbitrum",
   },
   "arb-sepolia": {
     url: import.meta.env.VITE_ARB_SEPOLIA_RPC_URL,
     chainId: 421614,
     text: "ARB Sepolia",
     test: true,
+    blockscan: "arbitrum-sepolia",
   },
   "base-mainnet": {
     url: import.meta.env.VITE_BASE_MAINNET_RPC_URL,
     chainId: 8453,
     text: "Base",
     test: false,
+    blockscan: "base",
   },
   "base-sepolia": {
     url: import.meta.env.VITE_BASE_SEPOLIA_RPC_URL,
     chainId: 84532,
     text: "Base Sepolia",
     test: true,
+    blockscan: "base-sepolia",
   },
   "hyperliquid-mainnet": {
     url: import.meta.env.VITE_HYPERLIQUID_MAINNET_RPC_URL,
@@ -83,6 +90,7 @@ export const RPC_CONFIG = {
     chainId: 137,
     text: "Polygon",
     test: false,
+    blockscan: "polygon",
   },
   "polygon-amoy": {
     url: import.meta.env.VITE_POLYGON_AMOY_RPC_URL,
@@ -95,11 +103,13 @@ export const RPC_CONFIG = {
     chainId: 324,
     text: "zkSync",
     test: false,
+    blockscan: "zksync",
   },
   "zksync-sepolia": {
     url: import.meta.env.VITE_ZKSYNC_SEPOLIA_RPC_URL,
     chainId: 300,
     text: "zkSync Sepolia",
     test: true,
+    blockscan: "zksync-sepolia",
   },
 }

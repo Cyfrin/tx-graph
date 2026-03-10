@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react"
+import { RPC_CONFIG } from "../../../../config"
 import * as api from "../../../../api"
 import useAsync from "../../../../hooks/useAsync"
 import CopyText from "../../../CopyText"
@@ -9,6 +10,7 @@ import FullScreenExit from "../../../svg/FullScreenExit"
 import Chevron from "../../../svg/Chevron"
 import Button from "../../../Button"
 import CodeViewer from "../../../CodeViewer"
+import Code from "../../../svg/Code"
 import styles from "./ContractModal.module.css"
 
 const ContractModal: React.FC<{
@@ -55,6 +57,7 @@ const ContractModal: React.FC<{
   }
 
   const entries = Object.entries(getContract.data?.src || {})
+  const blockscan = (RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as { blockscan?: string })?.blockscan
 
   return (
     <div className={styles.component}>
@@ -64,6 +67,16 @@ const ContractModal: React.FC<{
         <div className={styles.val}>
           <CopyText text={ctx.dst} val={ctx.dst} />
         </div>
+        {blockscan ? (
+          <a
+            className={styles.blockscan}
+            href={`https://vscode.blockscan.com/${blockscan}/${ctx.dst}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Code size={16} />
+          </a>
+        ) : null}
       </div>
       {entries.length > 0
         ? entries.map(([k, v], i) => (

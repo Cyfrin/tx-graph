@@ -13,6 +13,17 @@
 }
 .label {
 }
+.blockscan {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--icon-color);
+  transition: all 200ms ease-in-out;
+}
+.blockscan:hover {
+  color: var(--icon-hover-color);
+}
 .val {
   margin-left: 4px;
 }

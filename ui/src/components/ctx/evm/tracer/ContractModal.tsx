@@ -56,7 +56,9 @@ const ContractModal: React.FC<{
     })
   }
 
-  const entries = Object.entries(getContract.data?.src || {})
+  const entries = Object.entries(getContract.data?.src || {}).sort(([a], [b]) =>
+    a.split("/").slice(-1)[0].localeCompare(b.split("/").slice(-1)[0]),
+  )
   const blockscan = (RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as { blockscan?: string })?.blockscan
 
   return (

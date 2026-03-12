@@ -131,11 +131,19 @@ function getNodeFillColor(
   node: GraphTypes.Node,
   graph: GraphTypes.Graph,
   tracer: TracerState,
+  calls: GraphTypes.Call<EvmTypes.Evm, TracerTypes.FnCall>[],
 ): string {
   const obj = objs.get(node.id) as GraphTypes.Obj<
     ObjType,
     EvmTypes.Account | TracerTypes.FnDef
   >
+  // Step src/dst highlight
+  if (tracer.step != null) {
+    const call = calls[tracer.step]
+    if (call && (node.id == call.src || node.id == call.dst)) {
+      return STYLES.NODE_HOVER_COLOR
+    }
+  }
   // Arrows are hovered
   if (hover?.arrows && hover?.arrows?.size > 0) {
     if (obj?.type == "acc") {
@@ -495,7 +503,14 @@ function TxPage() {
             setStep={tracer.setStep}
             getNodeStyle={(hover, node) => {
               return {
-                fill: getNodeFillColor(objs, hover, node, graph, tracer.state),
+                fill: getNodeFillColor(
+                  objs,
+                  hover,
+                  node,
+                  graph,
+                  tracer.state,
+                  calls,
+                ),
                 stroke: STYLES.NODE_BORDER_COLOR,
               }
             }}

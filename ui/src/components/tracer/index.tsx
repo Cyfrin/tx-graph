@@ -42,12 +42,12 @@ function Fn<V>({
 }: FnProps<V>) {
   const { state, fold, setHover, pin, setStep } = useTracerContext()
 
-  const _onClickMod= (e: React.MouseEvent) => {
+  const _onClickMod = (e: React.MouseEvent) => {
     e.stopPropagation()
     onClickMod(call)
   }
 
-  const _onClickFn= (e: React.MouseEvent) => {
+  const _onClickFn = (e: React.MouseEvent) => {
     e.stopPropagation()
     onClickFn(call)
   }
@@ -87,7 +87,9 @@ function Fn<V>({
               <Pin size={10} />
             </span>
           ) : (
-            call.i
+            <span className={step == call.i ? styles.indexStep : ""}>
+              {call.i}
+            </span>
           )}
         </div>
       </div>

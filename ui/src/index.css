@@ -21,6 +21,7 @@ html {
   --tracer-line-step-color: rgb(26, 46, 22);
   --tracer-index-color: rgb(130, 130, 140);
   --tracer-index-hover-color: rgb(250, 250, 250);
+  --tracer-index-step-color: #4ade80;
   --tracer-val-color: rgb(250, 200, 130);
   --tracer-eq-color: rgb(90, 90, 95);
   --tracer-pin-color: rgb(250, 175, 55);

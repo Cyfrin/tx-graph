@@ -47,6 +47,9 @@
 .index:hover {
   color: var(--tracer-index-hover-color);
 }
+.indexStep {
+  color: var(--tracer-index-step-color);
+}
 .pin {
   color: var(--tracer-pin-color);
 }

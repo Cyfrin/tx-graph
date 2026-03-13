@@ -37,7 +37,7 @@ import styles from "./index.module.css"
 // TODO: error handling
 
 // Must match height in .tracerController
-const TRACER_CONTROLLER_HEIGHT = 60
+const TRACER_CONTROLLER_HEIGHT = 64
 // Must match paddings in .tracerComponent
 const TRACER_PADDING_TOP = 0
 const TRACER_PADDING_BOTTOM = 0

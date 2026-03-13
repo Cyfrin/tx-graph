@@ -2,6 +2,7 @@ import { useState } from "react"
 import { toast } from "react-toastify"
 import { useParams, useSearchParams } from "react-router-dom"
 import JSZip from "jszip"
+import { RPC_CONFIG } from "../../config"
 import * as api from "../../api"
 import { useAppContext } from "../../contexts/App"
 import { useWindowSizeContext } from "../../contexts/WindowSize"
@@ -433,6 +434,21 @@ function TxPage() {
     return null
   }
 
+  function renderChainIcon() {
+    const cfg = RPC_CONFIG[chain as keyof typeof RPC_CONFIG] as {
+      icon?: React.FC<{ size: number }>
+    }
+    if (!cfg?.icon) {
+      return null
+    }
+    const Icon = cfg.icon
+    return (
+      <div>
+        <Icon size={24} />
+      </div>
+    )
+  }
+
   return (
     <div className={styles.component}>
       <Splits>
@@ -441,6 +457,7 @@ function TxPage() {
             <div className={styles.tracerController}>
               <div className={styles.traceControllerLeft}>
                 <div className={styles.tx}>
+                  {renderChainIcon()}
                   <div className={styles.txHashLabel}>TX hash:</div>
                   <div className={styles.txHash}>
                     <CopyText text={txHash} val={txHash} />

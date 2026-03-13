@@ -257,7 +257,6 @@ function build(
         },
         calls: [],
       }
-      console.log(trace)
 
       // Objects
       if (!objs.has(trace.fn.id)) {

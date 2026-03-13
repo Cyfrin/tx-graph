@@ -73,9 +73,7 @@ export function HomePage() {
           {inputs.chain == "foundry-test" ? (
             <div className={styles.foundrySection}>
               <FoundryForm />
-              <Button type="submit" className={styles.submit}>
-                explore
-              </Button>
+              <Button type="submit">explore</Button>
             </div>
           ) : (
             <>

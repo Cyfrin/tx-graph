@@ -6,7 +6,6 @@ function fmt(gas: bigint): string {
   if (n < 10_000_000) {
     return n.toLocaleString()
   }
-  return n.toLocaleString()
   return n.toExponential(2)
 }
 

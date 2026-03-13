@@ -1,13 +1,15 @@
 import React from "react"
 // Icons
 import Eth from "./components/svg/chains/Eth"
-import Arb from "./components/svg/chains/Arb"
+import Arbitrum from "./components/svg/chains/Arbitrum"
 import Base from "./components/svg/chains/Base"
 import HyperLiquid from "./components/svg/chains/HyperLiquid"
 import Monad from "./components/svg/chains/Monad"
 import Unichain from "./components/svg/chains/Unichain"
 import Polygon from "./components/svg/chains/Polygon"
 import ZkSync from "./components/svg/chains/ZkSync"
+import Foundry from "./components/svg/chains/Foundry"
+import Optimism from "./components/svg/chains/Optimism"
 
 export type RpcConfig = {
   url: string
@@ -29,6 +31,7 @@ export const RPC_CONFIG = {
     chainId: 0,
     text: "Foundry Test",
     test: true,
+    icon: Foundry,
   },
   "eth-mainnet": {
     url: import.meta.env.VITE_ETH_MAINNET_RPC_URL,
@@ -52,7 +55,7 @@ export const RPC_CONFIG = {
     text: "ARB One",
     test: false,
     blockscan: "arbitrum",
-    icon: Arb,
+    icon: Arbitrum,
   },
   "arb-sepolia": {
     url: import.meta.env.VITE_ARB_SEPOLIA_RPC_URL,
@@ -60,7 +63,7 @@ export const RPC_CONFIG = {
     text: "ARB Sepolia",
     test: true,
     blockscan: "arbitrum-sepolia",
-    icon: Arb,
+    icon: Arbitrum,
   },
   "base-mainnet": {
     url: import.meta.env.VITE_BASE_MAINNET_RPC_URL,
@@ -127,6 +130,22 @@ export const RPC_CONFIG = {
     text: "Polygon Amoy",
     test: true,
     icon: Polygon,
+  },
+  "optimism-mainnet": {
+    url: import.meta.env.VITE_OPTIMISM_MAINNET_RPC_URL,
+    chainId: 10,
+    text: "Optimism",
+    test: false,
+    blockscan: "optimistic",
+    icon: Optimism,
+  },
+  "optimism-sepolia": {
+    url: import.meta.env.VITE_OPTIMISM_SEPOLIA_RPC_URL,
+    chainId: 11155420,
+    text: "Optimism Sepolia",
+    test: true,
+    blockscan: "optimism-sepolia",
+    icon: Optimism,
   },
   "zksync-mainnet": {
     url: import.meta.env.VITE_ZKSYNC_MAINNET_RPC_URL,

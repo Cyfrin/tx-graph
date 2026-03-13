@@ -20,6 +20,8 @@ static CHAIN_IDS: LazyLock<HashMap<&'static str, u32>> = LazyLock::new(|| {
         ("unichain-sepolia", 1301),
         ("polygon-mainnet", 137),
         ("polygon-amoy", 80002),
+        ("optimism-mainnet", 10),
+        ("optimism-sepolia", 11155420),
         ("zksync-mainnet", 324),
         ("zksync-sepolia", 300),
     ])

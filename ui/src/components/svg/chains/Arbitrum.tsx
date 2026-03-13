@@ -1,6 +1,6 @@
 import React from "react"
 
-const Arb: React.FC<{
+const Arbitrum: React.FC<{
   size: number
   color?: string
   className?: string
@@ -49,4 +49,4 @@ const Arb: React.FC<{
   )
 }
 
-export default Arb
+export default Arbitrum

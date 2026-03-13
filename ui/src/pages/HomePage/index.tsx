@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { RPC_CONFIG, RpcConfig } from "../../config"
 import { useAppContext } from "../../contexts/App"
 import { useFileWatchContext } from "../../contexts/FileWatch"
 import Button from "../../components/Button"
+import ChainSelect from "../../components/ChainSelect"
 import FoundryForm from "./FoundryForm"
 import styles from "./index.module.css"
 
@@ -64,30 +64,10 @@ export function HomePage() {
         <form onSubmit={onSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label className={styles.label}>network</label>
-            <select
-              className={styles.select}
+            <ChainSelect
               value={inputs.chain}
-              onChange={(e) => setInput("chain", e.target.value)}
-            >
-              <optgroup label="mainnet">
-                {Object.entries(RPC_CONFIG)
-                  .filter(([_, cfg]) => !cfg.test)
-                  .map(([key, cfg]: [string, RpcConfig]) => (
-                    <option key={key} value={key}>
-                      {cfg.text}
-                    </option>
-                  ))}
-              </optgroup>
-              <optgroup label="test">
-                {Object.entries(RPC_CONFIG)
-                  .filter(([_, cfg]) => cfg.test)
-                  .map(([key, cfg]: [string, RpcConfig]) => (
-                    <option key={key} value={key}>
-                      {cfg.text}
-                    </option>
-                  ))}
-              </optgroup>
-            </select>
+              onChange={(val) => setInput("chain", val)}
+            />
           </div>
 
           {inputs.chain == "foundry-test" ? (

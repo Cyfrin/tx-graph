@@ -5,13 +5,12 @@ const Unichain: React.FC<{
   color?: string
   className?: string
   onClick?: (e: React.MouseEvent) => void
-}> = ({ size, color = "currentColor", className = "", onClick }) => {
+}> = ({ size, className = "", onClick }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill="none"
-      color={color}
       width={size}
       height={size}
       className={className}

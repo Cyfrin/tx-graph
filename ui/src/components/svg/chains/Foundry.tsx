@@ -1,7 +1,7 @@
 import React from "react"
-import baseLogo from "../../../static/chains/base.png"
+import foundryLogo from "../../../static/chains/foundry.png"
 
-const Base: React.FC<{
+const Foundry: React.FC<{
   size: number
   color?: string
   className?: string
@@ -9,15 +9,15 @@ const Base: React.FC<{
 }> = ({ size, className = "", onClick }) => {
   return (
     <img
-      src={baseLogo}
+      src={foundryLogo}
       width={size}
       height={size}
       className={className}
       onClick={onClick}
       style={{ borderRadius: "50%" }}
-      alt="Base"
+      alt="Foundry"
     />
   )
 }
 
-export default Base
+export default Foundry

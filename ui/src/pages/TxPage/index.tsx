@@ -21,6 +21,7 @@ import FnDef from "../../components/tracer/FnDef"
 import FnCall from "../../components/tracer/FnCall"
 import Evm from "../../components/ctx/evm/tracer/Evm"
 import Op from "../../components/ctx/evm/tracer/Op"
+import Gas from "../../components/ctx/evm/tracer/Gas"
 import FnModal from "../../components/ctx/evm/tracer/FnModal"
 import ContractModal from "../../components/ctx/evm/tracer/ContractModal"
 import CopyText from "../../components/CopyText"
@@ -495,6 +496,7 @@ function TxPage() {
                   TRACER_PADDING_BOTTOM
                 }
                 calls={calls}
+                renderCallGas={(ctx) => <Gas ctx={ctx} />}
                 renderCallCtx={(ctx) => <Evm ctx={ctx} />}
                 renderCallType={(ctx) => <Op ctx={ctx} />}
                 getInputLabel={(val) => labels[val?.toLowerCase()] || null}

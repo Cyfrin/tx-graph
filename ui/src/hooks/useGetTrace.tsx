@@ -253,10 +253,11 @@ function build(
             output: c.output,
           },
           selector: fn?.selector,
-          gas: BigInt(c.gasUsed),
+          gas: c.gasUsed ? BigInt(c.gasUsed) : undefined,
         },
         calls: [],
       }
+      console.log(trace)
 
       // Objects
       if (!objs.has(trace.fn.id)) {

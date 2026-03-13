@@ -1,0 +1,7 @@
+.component {
+  min-width: 64px;
+  max-width: 64px;
+  text-align: right;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}

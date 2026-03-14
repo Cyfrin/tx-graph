@@ -265,6 +265,7 @@ function TxPage() {
     mem: fileWatch,
   })
   const [checked, setChecked] = useState(false)
+  const [showGas, setShowGas] = useState(true)
   const [graphModal, setGraphModal] = useState<GraphTypes.Hover | null>(null)
   const [traceModal, setTraceModal] = useState<{
     type: "mod" | "fn"
@@ -461,13 +462,26 @@ function TxPage() {
                   {renderChainIcon()}
                   <div className={styles.txHashLabel}>TX hash:</div>
                   <div className={styles.txHash}>
-                    <CopyText text={txHash} val={txHash} />
+                    <CopyText text={txHash} val={txHash} max={10} />
                   </div>
                   <div className={styles.callsCount}>{calls.length} calls</div>
                 </div>
-                <Checkbox checked={checked} onChange={onCheck}>
-                  Pin ETH transfers
-                </Checkbox>
+                <div className={styles.checkboxes}>
+                  <Checkbox
+                    className={styles.gasCheckbox}
+                    checked={showGas}
+                    onChange={() => setShowGas(!showGas)}
+                  >
+                    Gas
+                  </Checkbox>
+                  <Checkbox
+                    className={styles.ethCheckbox}
+                    checked={checked}
+                    onChange={onCheck}
+                  >
+                    ETH
+                  </Checkbox>
+                </div>
               </div>
               <div className={styles.traceControllerRight}>
                 <div className={styles.contractCount}>
@@ -496,9 +510,10 @@ function TxPage() {
                   TRACER_PADDING_BOTTOM
                 }
                 calls={calls}
+                showGas={showGas}
                 renderCallGas={(ctx) => <Gas ctx={ctx} />}
                 renderCallCtx={(ctx) => <Evm ctx={ctx} />}
-                renderCallType={(ctx) => <Op ctx={ctx} />}
+                renderCallType={(ctx, short) => <Op ctx={ctx} short={short} />}
                 getInputLabel={(val) => labels[val?.toLowerCase()] || null}
                 getOutputLabel={(val) => labels[val?.toLowerCase()] || null}
                 onClickMod={onClickMod}

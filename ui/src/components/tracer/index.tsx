@@ -17,8 +17,9 @@ type FnProps<A> = {
   step: number
   call: Types.Call<A, Types.FnCall>
   hasChildren: boolean
+  showGas: boolean
   renderCallGas?: (ctx: A) => React.ReactNode
-  renderCallType?: (ctx: A) => React.ReactNode
+  renderCallType?: (ctx: A, short: boolean) => React.ReactNode
   renderCallCtx?: (ctx: A) => React.ReactNode
   highlights: { [key: string]: boolean }
   setHighlight: (key: string | number, on: boolean) => void
@@ -32,6 +33,7 @@ function Fn<V>({
   step,
   call,
   hasChildren,
+  showGas,
   renderCallGas,
   renderCallType,
   renderCallCtx,
@@ -82,8 +84,8 @@ function Fn<V>({
       onClick={() => setStep(call.i)}
     >
       <div className={styles.sticky}>
-        {renderCallType ? renderCallType(call?.ctx) : null}
-        {renderCallGas ? renderCallGas(call?.ctx) : null}
+        {renderCallType ? renderCallType(call?.ctx, !showGas) : null}
+        {showGas && renderCallGas ? renderCallGas(call?.ctx) : null}
         <div className={styles.index} onClick={onClick}>
           {state.pins.has(call.i) ? (
             <span className={styles.pin}>
@@ -137,8 +139,9 @@ function Fn<V>({
 type TracerProps<C> = {
   height: number
   calls: Types.Call<C, Types.FnCall>[]
+  showGas: boolean
   renderCallGas?: (ctx: C) => React.ReactNode
-  renderCallType?: (ctx: C) => React.ReactNode
+  renderCallType?: (ctx: C, short: boolean) => React.ReactNode
   renderCallCtx?: (ctx: C) => React.ReactNode
   getInputLabel?: (val: string) => string | null
   getOutputLabel?: (val: string) => string | null
@@ -149,6 +152,7 @@ type TracerProps<C> = {
 function Tracer<C>({
   height,
   calls,
+  showGas,
   renderCallGas,
   renderCallType,
   renderCallCtx,
@@ -195,6 +199,7 @@ function Tracer<C>({
             step={tracer.state.step}
             call={cs[i]}
             hasChildren={calls?.[cs?.[i].i + 1]?.depth > cs?.[i]?.depth}
+            showGas={showGas}
             renderCallGas={renderCallGas}
             renderCallType={renderCallType}
             renderCallCtx={renderCallCtx}

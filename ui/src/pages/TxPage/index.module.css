@@ -29,6 +29,20 @@
   align-items: flex-end;
   margin-left: auto;
 }
+.checkboxes {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+}
+.ethCheckbox {
+  /* accent-color: #F472B6; */
+  accent-color: yellow;
+}
+.gasCheckbox {
+  /* accent-color: #F472B6; */
+  accent-color: orange;
+}
 .tx {
   display: flex;
   flex-direction: row;

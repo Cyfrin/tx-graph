@@ -3,6 +3,11 @@
   min-width: 74px;
   max-width: 74px;
 }
+.short {
+  min-width: 28px;
+  max-width: 28px;
+  text-align: center;
+}
 .label {
   padding: 2px 8px;
   border-radius: 4px;

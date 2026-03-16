@@ -36,12 +36,33 @@
   gap: 5px;
 }
 .ethCheckbox {
-  /* accent-color: #F472B6; */
-  accent-color: yellow;
+  accent-color: #F472B6;
 }
 .gasCheckbox {
-  /* accent-color: #F472B6; */
   accent-color: orange;
+}
+.ethStepper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2px;
+}
+.chevronLeft {
+  transform: rotate(180deg);
+  cursor: pointer;
+  color: var(--secondary-text-color);
+  transition: color 0.15s ease;
+}
+.chevronLeft:hover {
+  color: #F472B6;
+}
+.chevronRight {
+  cursor: pointer;
+  color: var(--secondary-text-color);
+  transition: color 0.15s ease;
+}
+.chevronRight:hover {
+  color: #F472B6;
 }
 .tx {
   display: flex;

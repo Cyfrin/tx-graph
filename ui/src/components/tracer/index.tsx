@@ -14,7 +14,7 @@ import styles from "./index.module.css"
 const LINE_HEIGHT = 20
 
 type FnProps<A> = {
-  step: number
+  steps: Record<string, number>
   call: Types.Call<A, Types.FnCall>
   hasChildren: boolean
   showGas: boolean
@@ -30,7 +30,7 @@ type FnProps<A> = {
 }
 
 function Fn<V>({
-  step,
+  steps,
   call,
   hasChildren,
   showGas,
@@ -45,6 +45,7 @@ function Fn<V>({
   onClickFn,
 }: FnProps<V>) {
   const { state, fold, setHover, pin, setStep } = useTracerContext()
+  const isStep = Object.values(steps).some((s) => s == call.i)
 
   const _onClickMod = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -78,10 +79,10 @@ function Fn<V>({
 
   return (
     <div
-      className={`${styles.fn} ${call.i == step ? styles.fnStep : ""}`}
+      className={`${styles.fn} ${isStep ? styles.fnStep : ""}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      onClick={() => setStep(call.i)}
+      onClick={() => setStep("trace", call.i)}
     >
       <div className={styles.sticky}>
         {renderCallType ? renderCallType(call?.ctx, !showGas) : null}
@@ -92,7 +93,7 @@ function Fn<V>({
               <Pin size={10} />
             </span>
           ) : (
-            <span className={step == call.i ? styles.indexStep : ""}>
+            <span className={isStep ? styles.indexStep : ""}>
               {call.i}
             </span>
           )}
@@ -196,7 +197,7 @@ function Tracer<C>({
         height={height}
         render={(i) => (
           <Fn
-            step={tracer.state.step}
+            steps={tracer.state.step}
             call={cs[i]}
             hasChildren={calls?.[cs?.[i].i + 1]?.depth > cs?.[i]?.depth}
             showGas={showGas}

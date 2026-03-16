@@ -30,6 +30,7 @@ import Checkbox from "../../components/Checkbox"
 import Modal from "../../components/Modal"
 import Button from "../../components/Button"
 import ArrowDownTray from "../../components/svg/ArrowDownTray"
+import Chevron from "../../components/svg/Chevron"
 import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
 import useAsync from "../../hooks/useAsync"
 import styles from "./index.module.css"
@@ -61,7 +62,8 @@ const STYLES = {
   ARROW_IN_COLOR: "rgb(64, 196, 255)",
   ARROW_OUT_COLOR: "rgb(250, 160, 100)",
   ARROW_HOVER_COLOR: "rgb(200, 160, 255)",
-  ARROW_PIN_COLOR: "rgb(255, 215, 0)",
+  // ARROW_PIN_COLOR: "rgb(255, 215, 0)",
+  ARROW_PIN_COLOR: "#F472B6",
   ARROW_TRACER_COLOR: "rgb(0, 255, 136)",
 }
 
@@ -75,7 +77,7 @@ function getArrowType(
   if (tracer.pins.has(arrow.i)) {
     return "pin"
   }
-  if (tracer.step == arrow.i) {
+  if (Object.values(tracer.step).some((s) => s === arrow.i)) {
     return "step"
   }
   if (tracer.hover != null) {
@@ -84,7 +86,6 @@ function getArrowType(
     }
     return "dim"
   }
-
   if (hover?.node != null) {
     if (hover.node == arrow.s) {
       return "out"
@@ -140,8 +141,8 @@ function getNodeFillColor(
     EvmTypes.Account | TracerTypes.FnDef
   >
   // Step src/dst highlight
-  if (tracer.step != null) {
-    const call = calls[tracer.step]
+  for (const s of Object.values(tracer.step)) {
+    const call = calls[s]
     if (call && (node.id == call.src || node.id == call.dst)) {
       return STYLES.NODE_HOVER_COLOR
     }
@@ -264,8 +265,9 @@ function TxPage() {
     etherscan: app.state.etherscan,
     mem: fileWatch,
   })
-  const [checked, setChecked] = useState(false)
+  const [pinEth, setPinEth] = useState(false)
   const [showGas, setShowGas] = useState(true)
+  const [ethStep, setEthStep] = useState(0)
   const [graphModal, setGraphModal] = useState<GraphTypes.Hover | null>(null)
   const [traceModal, setTraceModal] = useState<{
     type: "mod" | "fn"
@@ -282,6 +284,8 @@ function TxPage() {
   }
 
   const { graph, calls, groups, objs, labels, addrs } = getTrace.state.data
+
+  const ethIdxs = calls.filter((c) => (c?.ctx?.val ?? 0) > 0).map((c) => c.i)
 
   async function onClickDownloadCode() {
     if (batchGetContracts.running) {
@@ -336,20 +340,33 @@ function TxPage() {
     URL.revokeObjectURL(url)
   }
 
-  function onCheck() {
-    setChecked(!checked)
+  function onCheckGas() {
+    setShowGas(!showGas)
+  }
 
-    const idxs: number[] = []
-    for (let i = 0; i < calls.length; i++) {
-      // @ts-ignore
-      if (calls[i].ctx.val > 0) {
-        idxs.push(i)
+  function onCheckEth() {
+    setPinEth(!pinEth)
+    if (ethIdxs.length > 0) {
+      tracer.pin(ethIdxs)
+      if (!pinEth) {
+        setEthStep(0)
+        tracer.setStep("eth", ethIdxs[0])
       }
     }
+  }
 
-    if (idxs.length > 0) {
-      tracer.pin(idxs)
-    }
+  function ethStepPrev() {
+    if (ethIdxs.length == 0) return
+    const prev = (ethStep - 1 + ethIdxs.length) % ethIdxs.length
+    setEthStep(prev)
+    tracer.setStep("eth", ethIdxs[prev])
+  }
+
+  function ethStepNext() {
+    if (ethIdxs.length == 0) return
+    const next = (ethStep + 1) % ethIdxs.length
+    setEthStep(next)
+    tracer.setStep("eth", ethIdxs[next])
   }
 
   function onPointerDown(hover: GraphTypes.Hover | null) {
@@ -470,17 +487,31 @@ function TxPage() {
                   <Checkbox
                     className={styles.gasCheckbox}
                     checked={showGas}
-                    onChange={() => setShowGas(!showGas)}
+                    onChange={onCheckGas}
                   >
                     Gas
                   </Checkbox>
                   <Checkbox
                     className={styles.ethCheckbox}
-                    checked={checked}
-                    onChange={onCheck}
+                    checked={pinEth}
+                    onChange={onCheckEth}
                   >
                     ETH
                   </Checkbox>
+                  {pinEth && ethIdxs.length > 0 && (
+                    <div className={styles.ethStepper}>
+                      <Chevron
+                        size={14}
+                        className={styles.chevronLeft}
+                        onClick={ethStepPrev}
+                      />
+                      <Chevron
+                        size={14}
+                        className={styles.chevronRight}
+                        onClick={ethStepNext}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               <div className={styles.traceControllerRight}>
@@ -532,9 +563,9 @@ function TxPage() {
             calls={calls}
             tracer={tracer.state}
             onPointerDown={onPointerDown}
-            step={tracer.state.step}
-            onStep={tracer.step}
-            setStep={tracer.setStep}
+            step={tracer.state.step["trace"] ?? 0}
+            onStep={(fwd) => tracer.step("trace", fwd)}
+            setStep={(i) => tracer.setStep("trace", i)}
             getNodeStyle={(hover, node) => {
               return {
                 fill: getNodeFillColor(
@@ -563,7 +594,7 @@ function TxPage() {
                 hover?.node == arrow.s ||
                 hover?.node == arrow.e ||
                 hover?.arrows?.has(arrow.i) ||
-                tracer.state.step == arrow.i ||
+                Object.values(tracer.state.step).some((s) => s === arrow.i) ||
                 tracer.state.hover == arrow.i ||
                 tracer.state.pins.has(arrow.i)
               const t = getArrowType(hover, arrow, tracer.state)

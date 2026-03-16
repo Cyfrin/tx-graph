@@ -521,6 +521,12 @@ function TxPage() {
                         className={styles.chevronLeft}
                         onClick={ethStepPrev}
                       />
+                      <span
+                        className={styles.ethStep}
+                        onClick={() => tracer.setStep("eth", ethIdxs[0])}
+                      >
+                        {tracer.state.step["eth"] ?? 0}
+                      </span>
                       <Chevron
                         size={14}
                         className={styles.chevronRight}

@@ -47,6 +47,18 @@
   align-items: center;
   gap: 2px;
 }
+.ethStep {
+  font-size: 11px;
+  color: #F472B6;
+  min-width: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 1;
+}
+.ethStep:hover {
+  opacity: 0.8;
+}
 .chevronLeft {
   transform: rotate(180deg);
   cursor: pointer;

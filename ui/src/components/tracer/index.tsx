@@ -14,7 +14,7 @@ import styles from "./index.module.css"
 const LINE_HEIGHT = 20
 
 type FnProps<C> = {
-  steps: Record<string, number>
+  steps: Record<string, number | null>
   call: Types.Call<C, Types.FnCall>
   hasChildren: boolean
   showGas: boolean

@@ -625,7 +625,8 @@ function TxPage() {
                 hover?.node == arrow.s ||
                 hover?.node == arrow.e ||
                 hover?.arrows?.has(arrow.i) ||
-                Object.values(tracer.state.step).some((s) => s === arrow.i) ||
+                Object.values(tracer.state.step).some((s) => s == arrow.i) ||
+                ethIdxSet.has(arrow.i) ||
                 tracer.state.hover == arrow.i ||
                 tracer.state.pins.has(arrow.i)
               const t = getArrowType(

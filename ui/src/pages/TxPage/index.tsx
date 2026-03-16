@@ -62,8 +62,8 @@ const STYLES = {
   ARROW_IN_COLOR: "rgb(64, 196, 255)",
   ARROW_OUT_COLOR: "rgb(250, 160, 100)",
   ARROW_HOVER_COLOR: "rgb(200, 160, 255)",
-  // ARROW_PIN_COLOR: "rgb(255, 215, 0)",
-  ARROW_PIN_COLOR: "#F472B6",
+  ARROW_PIN_COLOR: "rgb(255, 215, 0)",
+  // ARROW_PIN_COLOR: "#F472B6",
   ARROW_TRACER_COLOR: "rgb(0, 255, 136)",
 }
 
@@ -269,7 +269,6 @@ function TxPage() {
   })
   const [pinEth, setPinEth] = useState(false)
   const [showGas, setShowGas] = useState(true)
-  const [ethStep, setEthStep] = useState(0)
   const [graphModal, setGraphModal] = useState<GraphTypes.Hover | null>(null)
   const [traceModal, setTraceModal] = useState<{
     type: "mod" | "fn"
@@ -349,9 +348,7 @@ function TxPage() {
   function onCheckEth() {
     setPinEth(!pinEth)
     if (ethIdxs.length > 0) {
-      tracer.pin(ethIdxs)
       if (!pinEth) {
-        setEthStep(0)
         tracer.setStep("eth", ethIdxs[0])
       } else {
         tracer.setStep("eth", null)
@@ -361,15 +358,15 @@ function TxPage() {
 
   function ethStepPrev() {
     if (ethIdxs.length == 0) return
+    const ethStep = tracer.state.step["eth"] || 0
     const prev = (ethStep - 1 + ethIdxs.length) % ethIdxs.length
-    setEthStep(prev)
     tracer.setStep("eth", ethIdxs[prev])
   }
 
   function ethStepNext() {
     if (ethIdxs.length == 0) return
+    const ethStep = tracer.state.step["eth"] || 0
     const next = (ethStep + 1) % ethIdxs.length
-    setEthStep(next)
     tracer.setStep("eth", ethIdxs[next])
   }
 

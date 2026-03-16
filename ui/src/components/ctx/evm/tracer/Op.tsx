@@ -3,13 +3,13 @@ import { CallType } from "../types"
 import styles from "./Op.module.css"
 
 const SHORT_TEXT: Record<string, string> = {
-  call: "C",
-  staticcall: "S",
-  delegatecall: "D",
-  event: "E",
-  selfdestruct: "S",
-  create: "C",
-  create2: "C",
+  call: "c",
+  staticcall: "s",
+  delegatecall: "d",
+  event: "e",
+  selfdestruct: "s",
+  create: "c",
+  create2: "c",
 }
 
 const Op: React.FC<{ ctx: { type?: CallType }; short?: boolean }> = ({

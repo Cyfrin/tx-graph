@@ -35,7 +35,7 @@ import { useGetTrace, ObjType } from "../../hooks/useGetTrace"
 import useAsync from "../../hooks/useAsync"
 import styles from "./index.module.css"
 
-// TODO: graph - ETH and token transfers
+// TODO: graph - token transfers
 // TODO: error handling
 
 // Must match height in .tracerController
@@ -63,22 +63,35 @@ const STYLES = {
   ARROW_OUT_COLOR: "rgb(250, 160, 100)",
   ARROW_HOVER_COLOR: "rgb(200, 160, 255)",
   ARROW_PIN_COLOR: "rgb(255, 215, 0)",
-  // ARROW_PIN_COLOR: "#F472B6",
   ARROW_TRACER_COLOR: "rgb(0, 255, 136)",
+  ARROW_ETH_COLOR: "#F472B6",
 }
 
-type ArrowType = "in" | "out" | "hover" | "dim" | "pin" | "tracer" | "step" | ""
+type ArrowType =
+  | "in"
+  | "out"
+  | "hover"
+  | "dim"
+  | "pin"
+  | "tracer"
+  | "step"
+  | "eth"
+  | ""
 
 function getArrowType(
   hover: GraphTypes.Hover | null,
   arrow: GraphTypes.Arrow,
   tracer: TracerState,
+  ethIdxSet: Set<number> | null,
 ): ArrowType {
+  if (Object.values(tracer.step).some((s) => s == arrow.i)) {
+    return "step"
+  }
   if (tracer.pins.has(arrow.i)) {
     return "pin"
   }
-  if (Object.values(tracer.step).some((s) => s === arrow.i)) {
-    return "step"
+  if (ethIdxSet && ethIdxSet.has(arrow.i)) {
+    return "eth"
   }
   if (tracer.hover != null) {
     if (tracer.hover == arrow.i) {
@@ -120,6 +133,8 @@ function getArrowColor(t: ArrowType): string {
       return STYLES.ARROW_TRACER_COLOR
     case "step":
       return STYLES.ARROW_TRACER_COLOR
+    case "eth":
+      return STYLES.ARROW_ETH_COLOR
     default:
       return STYLES.ARROW_COLOR
   }
@@ -285,8 +300,8 @@ function TxPage() {
   }
 
   const { graph, calls, groups, objs, labels, addrs } = getTrace.state.data
-
   const ethIdxs = calls.filter((c) => (c?.ctx?.val ?? 0) > 0).map((c) => c.i)
+  const ethIdxSet = new Set(ethIdxs)
 
   async function onClickDownloadCode() {
     if (batchGetContracts.running) {
@@ -607,7 +622,12 @@ function TxPage() {
                 Object.values(tracer.state.step).some((s) => s === arrow.i) ||
                 tracer.state.hover == arrow.i ||
                 tracer.state.pins.has(arrow.i)
-              const t = getArrowType(hover, arrow, tracer.state)
+              const t = getArrowType(
+                hover,
+                arrow,
+                tracer.state,
+                pinEth ? ethIdxSet : null,
+              )
               return {
                 top,
                 style: {

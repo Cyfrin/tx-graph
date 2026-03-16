@@ -142,9 +142,11 @@ function getNodeFillColor(
   >
   // Step src/dst highlight
   for (const s of Object.values(tracer.step)) {
-    const call = calls[s]
-    if (call && (node.id == call.src || node.id == call.dst)) {
-      return STYLES.NODE_HOVER_COLOR
+    if (s != null) {
+      const call = calls[s]
+      if (call && (node.id == call.src || node.id == call.dst)) {
+        return STYLES.NODE_HOVER_COLOR
+      }
     }
   }
   // Arrows are hovered
@@ -351,6 +353,8 @@ function TxPage() {
       if (!pinEth) {
         setEthStep(0)
         tracer.setStep("eth", ethIdxs[0])
+      } else {
+        tracer.setStep("eth", null)
       }
     }
   }
@@ -549,6 +553,15 @@ function TxPage() {
                 getOutputLabel={(val) => labels[val?.toLowerCase()] || null}
                 onClickMod={onClickMod}
                 onClickFn={onClickFn}
+                getFnClassName={(call) => {
+                  if (tracer.state.step["trace"] == call.i) {
+                    return styles.fnStep
+                  }
+                  if (tracer.state.step["eth"] == call.i) {
+                    return styles.fnEth
+                  }
+                  return ""
+                }}
               />
             </div>
           </div>

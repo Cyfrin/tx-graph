@@ -13,20 +13,21 @@ import styles from "./index.module.css"
 // Fixed line height (must match line height in .line)
 const LINE_HEIGHT = 20
 
-type FnProps<A> = {
+type FnProps<C> = {
   steps: Record<string, number>
-  call: Types.Call<A, Types.FnCall>
+  call: Types.Call<C, Types.FnCall>
   hasChildren: boolean
   showGas: boolean
-  renderCallGas?: (ctx: A) => React.ReactNode
-  renderCallType?: (ctx: A, short: boolean) => React.ReactNode
-  renderCallCtx?: (ctx: A) => React.ReactNode
+  renderCallGas?: (ctx: C) => React.ReactNode
+  renderCallType?: (ctx: C, short: boolean) => React.ReactNode
+  renderCallCtx?: (ctx: C) => React.ReactNode
   highlights: { [key: string]: boolean }
   setHighlight: (key: string | number, on: boolean) => void
   getInputLabel?: (val: string) => string | null
   getOutputLabel?: (val: string) => string | null
-  onClickMod: (call: Types.Call<A, Types.FnCall>) => void
-  onClickFn: (call: Types.Call<A, Types.FnCall>) => void
+  onClickMod: (call: Types.Call<C, Types.FnCall>) => void
+  onClickFn: (call: Types.Call<C, Types.FnCall>) => void
+  getFnClassName: (call: Types.Call<C, Types.FnCall>) => string
 }
 
 function Fn<V>({
@@ -43,6 +44,7 @@ function Fn<V>({
   getOutputLabel,
   onClickMod,
   onClickFn,
+  getFnClassName,
 }: FnProps<V>) {
   const { state, fold, setHover, pin, setStep } = useTracerContext()
   const isStep = Object.values(steps).some((s) => s == call.i)
@@ -79,7 +81,7 @@ function Fn<V>({
 
   return (
     <div
-      className={`${styles.fn} ${isStep ? styles.fnStep : ""}`}
+      className={`${styles.fn} ${getFnClassName(call)}`}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onClick={() => setStep("trace", call.i)}
@@ -93,9 +95,7 @@ function Fn<V>({
               <Pin size={10} />
             </span>
           ) : (
-            <span className={isStep ? styles.indexStep : ""}>
-              {call.i}
-            </span>
+            <span className={isStep ? styles.indexStep : ""}>{call.i}</span>
           )}
         </div>
       </div>
@@ -148,6 +148,7 @@ type TracerProps<C> = {
   getOutputLabel?: (val: string) => string | null
   onClickMod: (call: Types.Call<C, Types.FnCall>) => void
   onClickFn: (call: Types.Call<C, Types.FnCall>) => void
+  getFnClassName: (call: Types.Call<C, Types.FnCall>) => string
 }
 
 function Tracer<C>({
@@ -161,6 +162,7 @@ function Tracer<C>({
   getOutputLabel,
   onClickMod,
   onClickFn,
+  getFnClassName,
 }: TracerProps<C>) {
   const tracer = useTracerContext()
 
@@ -210,6 +212,7 @@ function Tracer<C>({
             getOutputLabel={getOutputLabel}
             onClickMod={onClickMod}
             onClickFn={onClickFn}
+            getFnClassName={getFnClassName}
           />
         )}
       />

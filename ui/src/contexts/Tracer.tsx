@@ -2,7 +2,7 @@ import React, { useState, createContext, useContext, useMemo } from "react"
 
 export type State = {
   // Call index
-  step: Record<string, number>
+  step: Record<string, number | null>
   hover: number | null
   pins: Set<number>
   folded: Set<number>
@@ -18,7 +18,7 @@ const STATE: State = {
 const Context = createContext({
   state: STATE,
   step: (key: string, fwd?: boolean) => {},
-  setStep: (key: string, i: number) => {},
+  setStep: (key: string, i: number | null) => {},
   fold: (_: number) => {},
   setHover: (_: number | null) => {},
   pin: (_: number[]) => {},
@@ -43,7 +43,7 @@ export const Provider: React.FC<{ children: React.ReactNode }> = ({
     }))
   }
 
-  const setStep = (key: string, i: number) => {
+  const setStep = (key: string, i: number | null) => {
     setState((state) => ({
       ...state,
       step: { ...state.step, [key]: i },

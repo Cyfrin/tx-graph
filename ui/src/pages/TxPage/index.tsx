@@ -373,15 +373,15 @@ function TxPage() {
 
   function ethStepPrev() {
     if (ethIdxs.length == 0) return
-    const ethStep = tracer.state.step["eth"] || 0
-    const prev = (ethStep - 1 + ethIdxs.length) % ethIdxs.length
+    const cur = ethIdxs.indexOf(tracer.state.step["eth"] ?? -1)
+    const prev = (cur - 1 + ethIdxs.length) % ethIdxs.length
     tracer.setStep("eth", ethIdxs[prev])
   }
 
   function ethStepNext() {
     if (ethIdxs.length == 0) return
-    const ethStep = tracer.state.step["eth"] || 0
-    const next = (ethStep + 1) % ethIdxs.length
+    const cur = ethIdxs.indexOf(tracer.state.step["eth"] ?? -1)
+    const next = (cur + 1) % ethIdxs.length
     tracer.setStep("eth", ethIdxs[next])
   }
 
